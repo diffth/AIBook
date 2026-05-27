@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반갑습니다! | 포트폴리오 & 자기소개</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="학력, 경력, 유튜브 영상 및 포트폴리오를 한눈에 볼 수 있는 개인 소개 웹사이트입니다.">
+    <meta name="keywords" content="자기소개, 포트폴리오, 경력, 학력, 개발자, 웹디자인, OZ_LABS">
+    <meta name="author" content="OZ LABS User">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="반갑습니다! | 포트폴리오 & 자기소개">
+    <meta property="og:description" content="학력, 경력, 유튜브 영상 및 포트폴리오를 한눈에 볼 수 있는 개인 소개 웹사이트입니다.">
+    
+    <!-- Fonts (Google Fonts Outfit & Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styling -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Elements (Neon Gradients) -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="#home" class="logo" id="nav-logo">PORTFOLIO.</a>
+            <nav class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active"><i class="fa-solid fa-house"></i> 홈</a>
+                <a href="#timeline" class="nav-link"><i class="fa-solid fa-timeline"></i> 연혁</a>
+                <a href="#media" class="nav-link"><i class="fa-solid fa-play"></i> 유튜브</a>
+                <a href="#gallery" class="nav-link"><i class="fa-solid fa-images"></i> 갤러리</a>
+                <a href="#contact" class="nav-link"><i class="fa-solid fa-envelope"></i> 연락처</a>
+            </nav>
+            <button class="mobile-menu-toggle" id="menu-toggle" aria-label="메뉴 열기">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-section">
+            <div class="container hero-container">
+                <div class="hero-text animate-fade-in">
+                    <span class="badge">Hello World!</span>
+                    <h1 class="hero-title">안녕하세요!<br>꿈을 코딩하는 <span class="highlight-text">개발자</span>입니다.</h1>
+                    <p class="hero-subtitle">
+                        새로운 도전을 즐기며 기술을 통해 세상을 더 이롭게 만드는 일을 하고 있습니다. <br>
+                        아래에서 저의 발자취와 소중한 활동들을 만나보세요! 😊
+                    </p>
+                    <div class="hero-actions">
+                        <a href="#timeline" class="btn btn-primary">발자취 보기 <i class="fa-solid fa-arrow-down"></i></a>
+                        <a href="#contact" class="btn btn-secondary">연락하기</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper animate-slide-up">
+                    <div class="profile-glow"></div>
+                    <!-- assets/profile.png를 사용합니다. -->
+                    <img src="assets/profile.png" alt="프로필 사진" class="profile-img">
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline Section (Education & Career) -->
+        <section id="timeline" class="timeline-section section-padding">
+            <div class="container">
+                <div class="section-header">
+                    <span class="sub-title">MY JOURNEY</span>
+                    <h2 class="section-title">학력 및 경력 타임라인</h2>
+                    <p class="section-desc">지속적인 성장과 배움의 기록을 시간 순으로 정리했습니다.</p>
+                </div>
+                
+                <div class="timeline-container">
+                    <!-- Timeline Item 1 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-badge edu">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div class="timeline-card">
+                            <span class="timeline-date">2018 - 2022</span>
+                            <h3 class="timeline-title">한국대학교 컴퓨터공학과</h3>
+                            <span class="timeline-category">학력 (Bachelor's Degree)</span>
+                            <p class="timeline-desc">
+                                컴퓨터공학 전공으로 소프트웨어 공학, 알고리즘, 자료구조, 데이터베이스 등 웹/소프트웨어 전반의 탄탄한 이론 및 실무 기초를 학습했습니다. 캡스톤 프로젝트로 스마트 IoT 홈 제어 웹 앱을 개발하여 우수 프로젝트 상을 수상하였습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-badge career">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div class="timeline-card">
+                            <span class="timeline-date">2022 - 2023</span>
+                            <h3 class="timeline-title">(주)이노베이트테크 인턴</h3>
+                            <span class="timeline-category">경력 (Front-end Developer Intern)</span>
+                            <p class="timeline-desc">
+                                개발팀 프론트엔드 인턴으로 합류하여, 회사 내의 대시보드 리뉴얼 프로젝트에 참여했습니다. HTML5/CSS3 및 Vanilla JS를 활용해 컴포넌트 재사용성을 높여 웹 로딩 속도를 기존 대비 15% 개선하는 긍정적인 성과를 거두었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Item 3 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-badge edu">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div class="timeline-card">
+                            <span class="timeline-date">2023 - 2025</span>
+                            <h3 class="timeline-title">미래대학원 AI융합학과</h3>
+                            <span class="timeline-category">학력 (Master's Degree)</span>
+                            <p class="timeline-desc">
+                                인공지능의 실무 적용에 중점을 두어 머신러닝, 자연어 처리(NLP), 이미지 컴퓨터 비전 기술을 깊이 있게 공부했습니다. 웹 인터페이스와 AI 모델을 실시간 연동하는 모듈 연구를 성공적으로 진행했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Item 4 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-badge career">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div class="timeline-card">
+                            <span class="timeline-date">2025 - 현재</span>
+                            <h3 class="timeline-title">(주)글로벌소프트웨어 주니어 개발자</h3>
+                            <span class="timeline-category">경력 (Full Stack Engineer)</span>
+                            <p class="timeline-desc">
+                                풀스택 개발자로서 Node.js와 최신 프론트엔드 기술을 다루고 있습니다. 다수의 대고객 비즈니스 플랫폼 웹 서비스를 개발, 최적화 및 유지보수하고 있으며, 시스템 성능 모니터링 및 클라우드 배포 파이프라인 관리 업무도 함께 수행 중입니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Media Section (YouTube Video & Channel) -->
+        <section id="media" class="media-section section-padding">
+            <div class="container">
+                <div class="section-header">
+                    <span class="sub-title">YOUTUBE CHANNEL</span>
+                    <h2 class="section-title">비디오 & 유튜브 활동</h2>
+                    <p class="section-desc">IT 지식 공유 및 다양한 일상 소식을 나누는 유튜브 콘텐츠입니다.</p>
+                </div>
+                
+                <div class="media-content reveal">
+                    <!-- YouTube Video Embed -->
+                    <div class="video-container">
+                        <!-- 아래 src 속성의 dQw4w9WgXcQ (또는 특정 VIDEO_ID) 부분을 원하는 영상 ID로 변경하실 수 있습니다. -->
+                        <iframe 
+                            class="youtube-iframe"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=0lP-i4d_mD5906r3" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    
+                    <!-- Channel Description & Link Card -->
+                    <div class="channel-card">
+                        <div class="channel-icon">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <h3>OZ LABS 유튜브 채널</h3>
+                        <p>
+                            다양한 개발 지식과 최신 기술 트렌드, 그리고 코딩 꿀팁을 전하는 OZ LABS 채널입니다.<br>
+                            구독과 좋아요는 다음 유익한 영상을 만드는 데 큰 힘이 됩니다! 지금 바로 채널을 방문해 보세요.
+                        </p>
+                        <!-- 유저가 제공한 OZ_LABS 공식 링크 -->
+                        <a href="https://www.youtube.com/@OZ_LABS" target="_blank" rel="noopener noreferrer" class="btn btn-youtube">
+                            채널 방문하기 <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Photo Gallery Section -->
+        <section id="gallery" class="gallery-section section-padding">
+            <div class="container">
+                <div class="section-header">
+                    <span class="sub-title">PORTFOLIO PHOTO GALLERY</span>
+                    <h2 class="section-title">프로젝트 & 활동 갤러리</h2>
+                    <p class="section-desc">그동안 진행했던 다양한 프로젝트의 결과물과 순간들을 모았습니다.</p>
+                </div>
+                
+                <div class="gallery-grid">
+                    <!-- Gallery Item 1 -->
+                    <div class="gallery-item reveal">
+                        <div class="gallery-image-box">
+                            <img src="assets/project1.png" alt="대시보드 UI 디자인" class="gallery-img">
+                            <div class="gallery-overlay">
+                                <span class="gallery-tag">Design & Web</span>
+                                <h4>스마트 대시보드 프로젝트</h4>
+                                <p>Glassmorphism을 적용한 반응형 UI</p>
+                                <button class="btn-zoom" data-image="assets/project1.png"><i class="fa-solid fa-magnifying-glass-plus"></i> 크게 보기</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Item 2 -->
+                    <div class="gallery-item reveal">
+                        <div class="gallery-image-box">
+                            <img src="assets/project2.png" alt="모바일 앱 UI" class="gallery-img">
+                            <div class="gallery-overlay">
+                                <span class="gallery-tag">Mobile App</span>
+                                <h4>모바일 헬스케어 어플리케이션</h4>
+                                <p>파스텔 톤과 고가독성 카드를 갖춘 모바일 UI</p>
+                                <button class="btn-zoom" data-image="assets/project2.png"><i class="fa-solid fa-magnifying-glass-plus"></i> 크게 보기</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Item 3 -->
+                    <div class="gallery-item reveal">
+                        <div class="gallery-image-box">
+                            <img src="assets/project3.png" alt="데이터 시각화 그래프" class="gallery-img">
+                            <div class="gallery-overlay">
+                                <span class="gallery-tag">Data Sciene & Web</span>
+                                <h4>데이터 네트워크 시각화 툴</h4>
+                                <p>웹 기반 인터랙티브 차트 및 그래프 시각화</p>
+                                <button class="btn-zoom" data-image="assets/project3.png"><i class="fa-solid fa-magnifying-glass-plus"></i> 크게 보기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section section-padding">
+            <div class="container">
+                <div class="section-header">
+                    <span class="sub-title">SAY HELLO</span>
+                    <h2 class="section-title">함께 성장할 파트너를 찾고 계신가요?</h2>
+                    <p class="section-desc">프로젝트 의뢰나 궁금한 점이 있으시다면 언제든 연락주세요. 언제나 환영합니다!</p>
+                </div>
+                
+                <div class="contact-card reveal">
+                    <div class="contact-icon">
+                        <i class="fa-regular fa-paper-plane animate-bounce"></i>
+                    </div>
+                    <!-- 아래 이메일 주소를 자신의 실제 주소로 변경하여 활용 가능합니다. -->
+                    <h3 class="email-display" id="email-address">contact@ozlabs.com</h3>
+                    <p class="email-helper">클릭하면 메일 주소가 복사됩니다.</p>
+                    <div class="email-actions">
+                        <button class="btn btn-primary" id="copy-email-btn">이메일 복사하기 <i class="fa-regular fa-copy"></i></button>
+                        <a href="mailto:contact@ozlabs.com" class="btn btn-secondary" id="mail-to-link">메일 보내기 <i class="fa-solid fa-envelope-open-text"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <p class="copyright">&copy; 2026 OZ LABS. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            <div class="social-links">
+                <a href="https://www.youtube.com/@OZ_LABS" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-link"><i class="fa-brands fa-github"></i></a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightbox-close">&times;</button>
+        <img src="" alt="확대 이미지" class="lightbox-content" id="lightbox-img">
+    </div>
+
+    <!-- Toast Notification for Email Copying -->
+    <div class="toast" id="toast">이메일 주소가 클립보드에 복사되었습니다! 📋</div>
+
+    <!-- Script JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
