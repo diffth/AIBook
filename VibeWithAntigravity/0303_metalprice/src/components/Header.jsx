@@ -4,9 +4,7 @@ function Header({
   lastUpdated, 
   isMock, 
   currency, 
-  setCurrency, 
-  period, 
-  setPeriod 
+  setCurrency 
 }) {
   const formattedTime = lastUpdated 
     ? new Date(lastUpdated).toLocaleString('ko-KR', { hour12: false }) 
@@ -25,7 +23,7 @@ function Header({
         </div>
       </div>
 
-      {/* 필터 제어 바 */}
+      {/* 필터 제어 바 (무료 플랜 스펙에 맞추어 기간 선택 제거, 통화 선택만 유지) */}
       <div className="controls-section">
         {/* 통화 선택 */}
         <div className="control-group">
@@ -42,27 +40,10 @@ function Header({
             KRW (₩)
           </button>
         </div>
-
-        {/* 기간 선택 */}
-        <div className="control-group">
-          {[
-            { value: 7, label: '7일' },
-            { value: 30, label: '30일' },
-            { value: 90, label: '90일' },
-            { value: 365, label: '1년' }
-          ].map(p => (
-            <button
-              key={p.value}
-              className={`control-btn ${period === p.value ? 'active' : ''}`}
-              onClick={() => setPeriod(p.value)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
       </div>
     </header>
   );
 }
 
 export default Header;
+
