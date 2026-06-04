@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>코인 크래시 (Coin Clash) - 6x6 땅따먹기 대결</title>
+  <!-- Google Fonts 적용 (레트로 게임 및 네온 스타일) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 전체 게임 컨테이너 -->
+  <div id="game-container">
+    
+    <!-- 1. 인트로 화면 -->
+    <section id="screen-intro" class="screen active">
+      <div class="intro-content">
+        <div class="logo-wrapper">
+          <h1 class="game-title">COIN<br><span class="neon-red">CLASH</span></h1>
+          <p class="game-subtitle">6x6 Territory Duel</p>
+        </div>
+        <div class="rules-preview">
+          <h3>🎮 게임 규칙</h3>
+          <p>내 턴에 빈 칸을 터치해 <strong>빨간 코인🔴</strong>을 놓으세요!</p>
+          <p>코인을 놓은 칸의 <strong>상하좌우</strong>가 내 땅으로 점령됩니다.</p>
+          <p>상대방 땅을 빼앗아 지도 전체를 내 색깔로 물들이세요!</p>
+        </div>
+        <button id="btn-start" class="btn neon-btn">GAME START</button>
+      </div>
+    </section>
+
+    <!-- 2. 게임 화면 -->
+    <section id="screen-game" class="screen">
+      <!-- 게임 상단 정보 바 -->
+      <div class="game-header">
+        <div class="status-panel">
+          <!-- 플레이어 스코어 -->
+          <div class="score-card player-card">
+            <span class="label">PLAYER</span>
+            <div class="coin-icon red-coin"></div>
+            <span id="player-score" class="score-num">0</span>
+          </div>
+          
+          <!-- VS 및 턴 알림 -->
+          <div class="vs-panel">
+            <div class="vs-text">VS</div>
+            <div id="turn-indicator" class="turn-badge player-turn">YOUR TURN</div>
+          </div>
+
+          <!-- PC 스코어 -->
+          <div class="score-card pc-card">
+            <span class="label">COMPUTER</span>
+            <div class="coin-icon blue-coin"></div>
+            <span id="pc-score" class="score-num">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6x6 게임 보드판 -->
+      <div class="board-wrapper">
+        <div id="game-board" class="game-board">
+          <!-- JS를 통해 36개의 셀이 동적으로 생성됩니다. -->
+        </div>
+      </div>
+
+      <!-- 게임 하단 제어 바 -->
+      <div class="game-footer">
+        <button id="btn-giveup" class="btn-sub">기권하기</button>
+      </div>
+    </section>
+
+    <!-- 3. 결과 화면 -->
+    <section id="screen-result" class="screen">
+      <div class="result-content">
+        <h2 id="result-title" class="result-banner">YOU WIN</h2>
+        
+        <div class="result-stats">
+          <div class="stat-row">
+            <div class="stat-label">플레이어 땅 (PLAYER)</div>
+            <div class="stat-value text-red"><span id="final-player-score">0</span> 칸</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">컴퓨터 땅 (COMPUTER)</div>
+            <div class="stat-value text-blue"><span id="final-pc-score">0</span> 칸</div>
+          </div>
+        </div>
+
+        <div class="result-message">
+          <p id="result-desc">축하합니다! 컴퓨터를 꺾고 영역을 지배했습니다!</p>
+        </div>
+
+        <button id="btn-restart" class="btn neon-btn-gold">PLAY AGAIN</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
