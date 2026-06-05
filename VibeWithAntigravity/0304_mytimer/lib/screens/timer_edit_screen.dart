@@ -22,10 +22,12 @@ class _TimerEditScreenState extends State<TimerEditScreen> {
   late List<Stage> _stages;
 
   final List<String> _soundOptions = [
-    'beep.wav',
-    'bell.wav',
-    'whistle.wav',
-    'siren.wav',
+    'alarm.mp3',
+    'beep.mp3',
+    'bell.mp3',
+    'chime.mp3',
+    'ding.mp3',
+    'whistle.mp3',
   ];
 
   @override
@@ -50,8 +52,8 @@ class _TimerEditScreenState extends State<TimerEditScreen> {
       _routineName = '라운드';
       _repeatCount = 8;
       _stages = [
-        Stage(name: '운동', durationSeconds: 30, soundEffect: 'beep.wav', orderIndex: 0),
-        Stage(name: '휴식', durationSeconds: 10, soundEffect: 'whistle.wav', orderIndex: 1),
+        Stage(name: '운동', durationSeconds: 30, soundEffect: 'beep.mp3', orderIndex: 0),
+        Stage(name: '휴식', durationSeconds: 10, soundEffect: 'whistle.mp3', orderIndex: 1),
       ];
     }
   }
@@ -61,7 +63,7 @@ class _TimerEditScreenState extends State<TimerEditScreen> {
     final nameController = TextEditingController(text: isEdit ? stage.name : '');
     int durationMin = isEdit ? (stage.durationSeconds ~/ 60) : 0;
     int durationSec = isEdit ? (stage.durationSeconds % 60) : 30;
-    String selectedSound = isEdit ? stage.soundEffect : 'beep.wav';
+    String selectedSound = isEdit ? stage.soundEffect : 'beep.mp3';
 
     showDialog(
       context: context,
@@ -151,7 +153,7 @@ class _TimerEditScreenState extends State<TimerEditScreen> {
                             items: _soundOptions
                                 .map((s) => DropdownMenuItem(
                                       value: s,
-                                      child: Text(s.replaceAll('.wav', '').toUpperCase(),
+                                      child: Text(s.replaceAll('.mp3', '').toUpperCase(),
                                           style: const TextStyle(color: Colors.white)),
                                     ))
                                 .toList(),
@@ -501,7 +503,7 @@ class _TimerEditScreenState extends State<TimerEditScreen> {
                                       const Icon(Icons.music_note, size: 12, color: Colors.white54),
                                       const SizedBox(width: 4),
                                       Text(
-                                        s.soundEffect.replaceAll('.wav', '').toUpperCase(),
+                                        s.soundEffect.replaceAll('.mp3', '').toUpperCase(),
                                         style: const TextStyle(color: Colors.white54, fontSize: 10),
                                       ),
                                     ],

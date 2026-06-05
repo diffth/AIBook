@@ -287,6 +287,63 @@ class _TimerPlayScreenState extends State<TimerPlayScreen> {
                       ),
                       const Spacer(),
 
+                      // Volume controller slider UI
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              provider.volume == 0.0
+                                  ? Icons.volume_mute_rounded
+                                  : provider.volume < 0.5
+                                      ? Icons.volume_down_rounded
+                                      : Icons.volume_up_rounded,
+                              color: Colors.white70,
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              if (provider.volume > 0.0) {
+                                provider.setVolume(0.0);
+                              } else {
+                                provider.setVolume(0.8);
+                              }
+                            },
+                          ),
+                          SizedBox(
+                            width: 150,
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 3,
+                                activeTrackColor: stageColor,
+                                inactiveTrackColor: Colors.white10,
+                                thumbColor: stageColor,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                                overlayColor: stageColor.withOpacity(0.2),
+                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                              ),
+                              child: Slider(
+                                value: provider.volume,
+                                min: 0.0,
+                                max: 1.0,
+                                onChanged: (value) {
+                                  provider.setVolume(value);
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${(provider.volume * 100).round()}%',
+                            style: GoogleFonts.orbitron(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+
                       // Playback control buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
