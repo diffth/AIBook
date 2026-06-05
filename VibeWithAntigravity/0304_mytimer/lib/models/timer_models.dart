@@ -126,7 +126,7 @@ class Stage {
     this.routineId,
     required this.name,
     required this.durationSeconds,
-    this.soundEffect = 'beep.wav',
+    this.soundEffect = 'beep.mp3',
     required this.orderIndex,
   });
 
@@ -147,7 +147,7 @@ class Stage {
       routineId: map['routine_id'] as int?,
       name: map['name'] as String? ?? '',
       durationSeconds: map['duration_seconds'] as int? ?? 0,
-      soundEffect: map['sound_effect'] as String? ?? 'beep.wav',
+      soundEffect: map['sound_effect'] as String? ?? 'beep.mp3',
       orderIndex: map['order_index'] as int? ?? 0,
     );
   }

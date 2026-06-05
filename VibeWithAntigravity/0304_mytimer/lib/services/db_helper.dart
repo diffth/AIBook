@@ -32,9 +32,9 @@ class DbHelper {
             repeatCount: 12,
             orderIndex: 0,
             stages: [
-              Stage(id: 100, routineId: 10, name: '준비', durationSeconds: 10, soundEffect: 'beep.wav', orderIndex: 0),
-              Stage(id: 101, routineId: 10, name: '파이팅', durationSeconds: 180, soundEffect: 'bell.wav', orderIndex: 1),
-              Stage(id: 102, routineId: 10, name: '휴식', durationSeconds: 30, soundEffect: 'whistle.wav', orderIndex: 2),
+              Stage(id: 100, routineId: 10, name: '준비', durationSeconds: 10, soundEffect: 'beep.mp3', orderIndex: 0),
+              Stage(id: 101, routineId: 10, name: '파이팅', durationSeconds: 180, soundEffect: 'bell.mp3', orderIndex: 1),
+              Stage(id: 102, routineId: 10, name: '휴식', durationSeconds: 30, soundEffect: 'whistle.mp3', orderIndex: 2),
             ],
           )
         ],
@@ -51,8 +51,8 @@ class DbHelper {
             repeatCount: 8,
             orderIndex: 0,
             stages: [
-              Stage(id: 200, routineId: 20, name: '운동', durationSeconds: 20, soundEffect: 'siren.wav', orderIndex: 0),
-              Stage(id: 201, routineId: 20, name: '휴식', durationSeconds: 10, soundEffect: 'beep.wav', orderIndex: 1),
+              Stage(id: 200, routineId: 20, name: '운동', durationSeconds: 20, soundEffect: 'alarm.mp3', orderIndex: 0),
+              Stage(id: 201, routineId: 20, name: '휴식', durationSeconds: 10, soundEffect: 'beep.mp3', orderIndex: 1),
             ],
           )
         ],
@@ -141,7 +141,7 @@ class DbHelper {
       'routine_id': boxingRoutineId,
       'name': '준비',
       'duration_seconds': 10,
-      'sound_effect': 'beep.wav',
+      'sound_effect': 'beep.mp3',
       'order_index': 0,
     });
 
@@ -149,7 +149,7 @@ class DbHelper {
       'routine_id': boxingRoutineId,
       'name': '파이팅',
       'duration_seconds': 180,
-      'sound_effect': 'bell.wav',
+      'sound_effect': 'bell.mp3',
       'order_index': 1,
     });
 
@@ -157,7 +157,7 @@ class DbHelper {
       'routine_id': boxingRoutineId,
       'name': '휴식',
       'duration_seconds': 30,
-      'sound_effect': 'whistle.wav',
+      'sound_effect': 'whistle.mp3',
       'order_index': 2,
     });
 
@@ -177,7 +177,7 @@ class DbHelper {
       'routine_id': tabataRoutineId,
       'name': '운동',
       'duration_seconds': 20,
-      'sound_effect': 'siren.wav',
+      'sound_effect': 'alarm.mp3',
       'order_index': 0,
     });
 
@@ -185,7 +185,7 @@ class DbHelper {
       'routine_id': tabataRoutineId,
       'name': '휴식',
       'duration_seconds': 10,
-      'sound_effect': 'beep.wav',
+      'sound_effect': 'beep.mp3',
       'order_index': 1,
     });
   }
