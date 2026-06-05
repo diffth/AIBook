@@ -29,6 +29,7 @@ class TimerProvider with ChangeNotifier {
 
   // Audio Player
   final AudioPlayer _audioPlayer = AudioPlayer();
+  double _volume = 1.0;
 
   ComplexTimer? get activeTimer => _activeTimer;
   TimerStatus get status => _status;
@@ -37,6 +38,7 @@ class TimerProvider with ChangeNotifier {
   int get currentStageIndex => _currentStageIndex;
   int get stageRemainingSeconds => _stageRemainingSeconds;
   int get totalElapsedSeconds => _totalElapsedSeconds;
+  double get volume => _volume;
 
   // Getters for active items
   Routine? get currentRoutine {
@@ -78,10 +80,17 @@ class TimerProvider with ChangeNotifier {
   Future<void> playPreviewSound(String soundEffect) async {
     try {
       await _audioPlayer.stop();
+      await _audioPlayer.setVolume(_volume);
       await _audioPlayer.play(AssetSource('sounds/$soundEffect'));
     } catch (e) {
       debugPrint("Sound preview error: $e");
     }
+  }
+
+  void setVolume(double value) {
+    _volume = value.clamp(0.0, 1.0);
+    _audioPlayer.setVolume(_volume);
+    notifyListeners();
   }
 
   void startTimer(ComplexTimer timer) {
@@ -157,6 +166,7 @@ class TimerProvider with ChangeNotifier {
   Future<void> _playSound(String assetName) async {
     try {
       await _audioPlayer.stop();
+      await _audioPlayer.setVolume(_volume);
       await _audioPlayer.play(AssetSource('sounds/$assetName'));
     } catch (e) {
       debugPrint("Playback sound error: $e");
@@ -200,7 +210,7 @@ class TimerProvider with ChangeNotifier {
     _status = TimerStatus.completed;
     _stageRemainingSeconds = 0;
     WakelockPlus.disable();
-    _playSound('bell.wav'); // Default victory/end sound
+    _playSound('bell.mp3'); // Default victory/end sound
     notifyListeners();
   }
 
