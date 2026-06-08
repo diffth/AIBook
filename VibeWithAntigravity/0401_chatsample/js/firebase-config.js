@@ -5,13 +5,13 @@ import { getDatabase, ref, set, get, child, update, push, remove, onValue, off, 
 // [필독] 본인의 Firebase 프로젝트 설정 값으로 변경해 주세요.
 // 또는 웹 UI의 설정 모달을 통해 간편하게 등록할 수 있습니다.
 const defaultFirebaseConfig = {
-  apiKey: "AIzaSyB_h-hzPtwQbifxoMmcviS5rx5Lf4m0QFA",
-  authDomain: "ozs-portfolio.firebaseapp.com",
-  databaseURL: "https://ozs-portfolio-default-rtdb.firebaseio.com/", // 프로젝트에 따라 다를 수 있습니다.
-  projectId: "ozs-portfolio",
-  storageBucket: "ozs-portfolio.firebasestorage.app",
-  messagingSenderId: "433011838855",
-  appId: "1:433011838855:web:e85761acf66b36f17ccd22"
+  apiKey: "AIzaSyDf0hjzpuD1UroQNdQM19I0ghdpEF6bzng",
+  authDomain: "chatsample-378492.firebaseapp.com",
+  databaseURL: "https://chatsample-378492-default-rtdb.firebaseio.com/", // 프로젝트에 따라 다를 수 있습니다.
+  projectId: "chatsample-378492",
+  storageBucket: "chatsample-378492.firebasestorage.app",
+  messagingSenderId: "880492358594",
+  appId: "1:880492358594:web:5d0b9ee6b44d4d1da0845b"
 };
 
 // 로컬 스토리지에 저장된 설정이 있다면 우선 사용합니다. (테스트 편의성 극대화)

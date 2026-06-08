@@ -395,6 +395,21 @@ resetSettingsBtn.addEventListener("click", () => {
   }
 });
 
+// 구버전 로컬스토리지 설정 자동 클린업 (사용자 테스트 편의용)
+const currentSaved = localStorage.getItem("firebase_config");
+if (currentSaved) {
+  try {
+    const parsed = JSON.parse(currentSaved);
+    if (parsed.projectId === "ozs-portfolio") {
+      localStorage.removeItem("firebase_config");
+      console.log("구버전 Firebase 설정을 초기화하고 신규 프로젝트로 자동 전환합니다.");
+      window.location.reload();
+    }
+  } catch (e) {
+    localStorage.removeItem("firebase_config");
+  }
+}
+
 // 초기화 호출
 checkConnection();
 listenToRooms();
