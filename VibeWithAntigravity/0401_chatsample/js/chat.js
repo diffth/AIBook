@@ -248,50 +248,61 @@ async function exitToMain(performCleanup = true) {
   if (isLeaving) return;
   isLeaving = true;
 
-  // 리스너 해제
-  off(ref(database, `rooms/${roomId}`));
-  off(ref(database, `messages/${roomId}`));
-
-  if (performCleanup) {
-    try {
-      // 1. 방 정보 다시 조회에 3초 타임아웃 적용
-      const roomRef = ref(database, `rooms/${roomId}`);
-      const snapshot = await withTimeout(get(roomRef), 3000);
-      
-      if (snapshot.exists()) {
-        const room = snapshot.val();
-        const currentUserCount = room.userCount || 1;
-        
-        if (currentUserCount <= 1) {
-          // 마지막 나가는 사람인 경우 방 정보 및 메시지 전체 폭파 (DB 청소)
-          await withTimeout(remove(ref(database, `rooms/${roomId}`)), 3000);
-          await withTimeout(remove(ref(database, `messages/${roomId}`)), 3000);
-        } else {
-          // 2명이 있었는데 한 명이 나가는 경우
-          const updates = {};
-          updates[`rooms/${roomId}/userCount`] = currentUserCount - 1;
-          updates[`rooms/${roomId}/participants/${sessionId}`] = null; // 내 세션 제거
-          
-          await withTimeout(update(ref(database), updates), 3000);
-
-          // 시스템 퇴장 안내 메시지 추가
-          const messagesRef = ref(database, `messages/${roomId}`);
-          const newMsgRef = push(messagesRef);
-          await withTimeout(set(newMsgRef, {
-            sender: "system",
-            text: `${nickname} 님이 퇴장하셨습니다.`,
-            timestamp: Date.now()
-          }), 2000);
-        }
-      }
-    } catch (error) {
-      console.error("퇴장 정리 중 오류:", error);
-    }
+  // 리스너 해제 (즉시)
+  try {
+    off(ref(database, `rooms/${roomId}`));
+    off(ref(database, `messages/${roomId}`));
+  } catch (e) {
+    console.warn("리스너 해제 경고:", e);
   }
 
-  // 로컬 세션 정보 삭제 (다음 입장을 위해 roomId만 제거)
+  // 로컬 세션 정보 삭제 (즉시)
   sessionStorage.removeItem("chat_room_id");
+
+  if (performCleanup) {
+    // DB 정리는 백그라운드에서 조용히 실행하도록 던지고 대기하지 않습니다. (지연 시간 0ms 체감)
+    performDbCleanup().catch(error => console.error("백그라운드 퇴장 정리 오류:", error));
+  }
+
+  // 즉시 대기실로 복귀
   window.location.href = "index.html";
+}
+
+// 백그라운드 DB 정리 실무 함수
+async function performDbCleanup() {
+  try {
+    const roomRef = ref(database, `rooms/${roomId}`);
+    const snapshot = await withTimeout(get(roomRef), 2000);
+    
+    if (snapshot.exists()) {
+      const room = snapshot.val();
+      const currentUserCount = room.userCount || 1;
+      
+      if (currentUserCount <= 1) {
+        // 마지막 인원이 나가므로 방 정보 및 메시지 전체 영구 삭제 (DB 클린업)
+        await withTimeout(remove(ref(database, `rooms/${roomId}`)), 2000);
+        await withTimeout(remove(ref(database, `messages/${roomId}`)), 2000);
+      } else {
+        // 잔여 인원이 있으므로 카운트 -1 및 참여 목록에서 내 세션 제거
+        const updates = {};
+        updates[`rooms/${roomId}/userCount`] = currentUserCount - 1;
+        updates[`rooms/${roomId}/participants/${sessionId}`] = null;
+        
+        await withTimeout(update(ref(database), updates), 2000);
+
+        // 시스템 퇴장 공지 메시지 기록
+        const messagesRef = ref(database, `messages/${roomId}`);
+        const newMsgRef = push(messagesRef);
+        await withTimeout(set(newMsgRef, {
+          sender: "system",
+          text: `${nickname} 님이 퇴장하셨습니다.`,
+          timestamp: Date.now()
+        }), 2000);
+      }
+    }
+  } catch (err) {
+    console.error("백그라운드 정리 실패:", err);
+  }
 }
 
 // 나가기 버튼 바인딩
