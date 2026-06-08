@@ -194,6 +194,14 @@ function handleRoomClick(roomId, room) {
   joinUsernameInput.focus();
 }
 
+// Promise 타임아웃 헬퍼 함수 (기본 5초)
+function withTimeout(promise, ms = 5000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
+  ]);
+}
+
 // 5. 방 만들기 동작
 confirmCreateBtn.addEventListener("click", async () => {
   if (!checkConnection()) return;
@@ -212,6 +220,11 @@ confirmCreateBtn.addEventListener("click", async () => {
     return;
   }
 
+  // 로딩 상태 피드백 제공
+  const originalBtnText = confirmCreateBtn.innerText;
+  confirmCreateBtn.innerText = "생성 중...";
+  confirmCreateBtn.disabled = true;
+
   try {
     const roomsRef = ref(database, "rooms");
     const newRoomRef = push(roomsRef);
@@ -228,7 +241,8 @@ confirmCreateBtn.addEventListener("click", async () => {
       createdAt: Date.now()
     };
 
-    await set(newRoomRef, newRoomData);
+    // 타임아웃 적용 (5초)
+    await withTimeout(set(newRoomRef, newRoomData), 5000);
 
     // 세션 정보 로컬 저장
     sessionStorage.setItem("chat_nickname", nickname);
@@ -239,7 +253,14 @@ confirmCreateBtn.addEventListener("click", async () => {
     window.location.href = `chat.html?roomId=${roomId}`;
   } catch (err) {
     console.error("방 생성 중 오류:", err);
-    alert("방을 생성하는 데 실패했습니다. Firebase 구성을 확인해 주세요.");
+    if (err.message === "TIMEOUT") {
+      alert("Firebase 데이터베이스 연결 시간이 초과되었습니다.\n상단의 톱니바퀴 아이콘을 클릭하여 입력하신 Firebase Config(특히 Database URL)가 정확한지 확인해 주세요.");
+    } else {
+      alert("방을 생성하는 데 실패했습니다. Firebase 구성을 점검해 보세요.");
+    }
+  } finally {
+    confirmCreateBtn.innerText = originalBtnText;
+    confirmCreateBtn.disabled = false;
   }
 });
 
@@ -257,10 +278,16 @@ confirmJoinBtn.addEventListener("click", async () => {
   const roomId = selectedRoomIdForJoin;
   const sessionId = getSessionId();
 
+  // 로딩 상태 피드백
+  const originalBtnText = confirmJoinBtn.innerText;
+  confirmJoinBtn.innerText = "입장 중...";
+  confirmJoinBtn.disabled = true;
+
   try {
-    // 최신 방 정보 다시 조회하여 빈 자리 있는지 최종 검증
+    // 최신 방 정보 조회에 타임아웃 적용
     const roomRef = ref(database, `rooms/${roomId}`);
-    const snapshot = await get(roomRef);
+    const snapshot = await withTimeout(get(roomRef), 5000);
+    
     if (!snapshot.exists()) {
       alert("존재하지 않는 방입니다.");
       joinRoomModal.classList.remove("active");
@@ -275,23 +302,21 @@ confirmJoinBtn.addEventListener("click", async () => {
       return;
     }
 
-    // 데이터 업데이트
+    // 데이터 업데이트 및 입장 메시지 작성
     const updates = {};
     updates[`rooms/${roomId}/userCount`] = userCount + 1;
     updates[`rooms/${roomId}/participants/${sessionId}`] = nickname;
     
-    // 시스템 알림 메시지 삽입 준비
     const msgRef = ref(database, `messages/${roomId}`);
     const newMsgRef = push(msgRef);
     
-    await update(ref(database), updates);
-
-    // 입장 알림 메시지 전송
-    await set(newMsgRef, {
+    // DB 업데이트 트랜잭션/세팅에 타임아웃 적용
+    await withTimeout(update(ref(database), updates), 5000);
+    await withTimeout(set(newMsgRef, {
       sender: "system",
       text: `${nickname} 님이 입장하셨습니다. 1:1 대화가 준비되었습니다!`,
       timestamp: Date.now()
-    });
+    }), 3000);
 
     sessionStorage.setItem("chat_nickname", nickname);
     sessionStorage.setItem("chat_room_id", roomId);
@@ -300,7 +325,14 @@ confirmJoinBtn.addEventListener("click", async () => {
     window.location.href = `chat.html?roomId=${roomId}`;
   } catch (err) {
     console.error("방 참여 중 오류:", err);
-    alert("방 참여에 실패했습니다. Firebase 설정을 점검해 보세요.");
+    if (err.message === "TIMEOUT") {
+      alert("Firebase 데이터베이스 연결 시간이 초과되었습니다.\n대기실 설정(톱니바퀴 아이콘)에 등록된 Config 정보가 정확한지 확인해 주세요.");
+    } else {
+      alert("방 참여에 실패했습니다. Firebase 설정을 점검해 보세요.");
+    }
+  } finally {
+    confirmJoinBtn.innerText = originalBtnText;
+    confirmJoinBtn.disabled = false;
   }
 });
 

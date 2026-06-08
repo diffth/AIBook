@@ -33,6 +33,14 @@ const sessionId = sessionStorage.getItem("chat_session_id");
 let isLeaving = false; // 퇴장 프로세스 중 중복 실행 방지
 let roomData = null;
 
+// Promise 타임아웃 헬퍼 함수 (기본 5초)
+function withTimeout(promise, ms = 5000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
+  ]);
+}
+
 // 1. 초기 파라미터 검증
 function validateSession() {
   if (!isFirebaseInitialized) {
@@ -53,7 +61,8 @@ async function initChatRoom() {
 
   try {
     const roomRef = ref(database, `rooms/${roomId}`);
-    const snapshot = await get(roomRef);
+    // 타임아웃 적용 (5초)
+    const snapshot = await withTimeout(get(roomRef), 5000);
     
     if (!snapshot.exists()) {
       alert("존재하지 않거나 삭제된 채팅방입니다.");
@@ -76,7 +85,7 @@ async function initChatRoom() {
       const updates = {};
       updates[`rooms/${roomId}/participants/${sessionId}`] = nickname;
       updates[`rooms/${roomId}/userCount`] = (roomData.userCount || 0) + 1;
-      await update(ref(database), updates);
+      await withTimeout(update(ref(database), updates), 5000);
     }
 
     // 입력창 활성화
@@ -92,7 +101,11 @@ async function initChatRoom() {
 
   } catch (error) {
     console.error("채팅방 설정 오류:", error);
-    alert("채팅방에 접속할 수 없습니다.");
+    if (error.message === "TIMEOUT") {
+      alert("데이터베이스 연결 시간이 초과되었습니다.\n대기실 설정(톱니바퀴 아이콘)에서 입력하신 Firebase 정보를 다시 확인해 주세요.");
+    } else {
+      alert("채팅방에 접속할 수 없습니다. 설정을 점검해 주세요.");
+    }
     window.location.href = "index.html";
   }
 }
@@ -205,14 +218,19 @@ async function sendMessage() {
     const messagesRef = ref(database, `messages/${roomId}`);
     const newMsgRef = push(messagesRef);
     
-    await set(newMsgRef, {
+    // 3초 타임아웃 적용
+    await withTimeout(set(newMsgRef, {
       sender: nickname,
       text: text,
       timestamp: Date.now()
-    });
+    }), 3000);
   } catch (error) {
     console.error("메시지 전송 실패:", error);
-    alert("메시지 전송에 실패했습니다.");
+    if (error.message === "TIMEOUT") {
+      alert("메시지 전송 실패: 데이터베이스 서버 응답이 없습니다.\n연결 설정을 재점검해 보세요.");
+    } else {
+      alert("메시지 전송에 실패했습니다.");
+    }
   }
 }
 
@@ -236,9 +254,9 @@ async function exitToMain(performCleanup = true) {
 
   if (performCleanup) {
     try {
-      // 1. 방 정보 다시 조회
+      // 1. 방 정보 다시 조회에 3초 타임아웃 적용
       const roomRef = ref(database, `rooms/${roomId}`);
-      const snapshot = await get(roomRef);
+      const snapshot = await withTimeout(get(roomRef), 3000);
       
       if (snapshot.exists()) {
         const room = snapshot.val();
@@ -246,24 +264,24 @@ async function exitToMain(performCleanup = true) {
         
         if (currentUserCount <= 1) {
           // 마지막 나가는 사람인 경우 방 정보 및 메시지 전체 폭파 (DB 청소)
-          await remove(ref(database, `rooms/${roomId}`));
-          await remove(ref(database, `messages/${roomId}`));
+          await withTimeout(remove(ref(database, `rooms/${roomId}`)), 3000);
+          await withTimeout(remove(ref(database, `messages/${roomId}`)), 3000);
         } else {
           // 2명이 있었는데 한 명이 나가는 경우
           const updates = {};
           updates[`rooms/${roomId}/userCount`] = currentUserCount - 1;
           updates[`rooms/${roomId}/participants/${sessionId}`] = null; // 내 세션 제거
           
-          await update(ref(database), updates);
+          await withTimeout(update(ref(database), updates), 3000);
 
           // 시스템 퇴장 안내 메시지 추가
           const messagesRef = ref(database, `messages/${roomId}`);
           const newMsgRef = push(messagesRef);
-          await set(newMsgRef, {
+          await withTimeout(set(newMsgRef, {
             sender: "system",
             text: `${nickname} 님이 퇴장하셨습니다.`,
             timestamp: Date.now()
-          });
+          }), 2000);
         }
       }
     } catch (error) {
