@@ -23,9 +23,17 @@ let app;
 let database;
 
 function initFirebase() {
-  // 필수 설정값 검증 (테스트용)
-  if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("YOUR_")) {
-    console.warn("Firebase Config가 아직 설정되지 않았습니다. UI의 설정 버튼을 눌러 Firebase 설정을 등록해 주세요.");
+  // 필수 설정값 및 유효성 검증
+  if (!firebaseConfig.databaseURL || 
+      firebaseConfig.databaseURL.includes("YOUR_") || 
+      firebaseConfig.databaseURL.includes("<") || 
+      firebaseConfig.databaseURL.includes(">")) {
+    console.warn("Firebase Config가 설정되지 않았거나 URL 형식이 올바르지 않습니다.");
+    if (localStorage.getItem("firebase_config")) {
+      localStorage.removeItem("firebase_config");
+      console.log("유효하지 않은 설정으로 인해 로컬스토리지를 강제 리셋합니다.");
+      setTimeout(() => window.location.reload(), 300);
+    }
     return false;
   }
   
@@ -35,6 +43,11 @@ function initFirebase() {
     return true;
   } catch (error) {
     console.error("Firebase 초기화 중 에러 발생:", error);
+    if (localStorage.getItem("firebase_config")) {
+      localStorage.removeItem("firebase_config");
+      console.log("Firebase 초기화 실패로 인해 설정을 리셋하고 복구를 위해 새로고침합니다.");
+      setTimeout(() => window.location.reload(), 300);
+    }
     return false;
   }
 }
