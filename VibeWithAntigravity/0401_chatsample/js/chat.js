@@ -306,7 +306,7 @@ function setupOnDisconnect() {
   const myParticipantRef = ref(database, `rooms/${roomId}/participants/${sessionId}`);
   
   // 네트워크가 비정상적으로 유실될 경우 내 참여 정보를 삭제해둡니다.
-  myParticipantRef.onDisconnect().remove();
+  onDisconnect(myParticipantRef).remove();
 }
 
 // 브라우저 닫기/새로고침 시 퇴장 처리 작동 (최대한 정리)
