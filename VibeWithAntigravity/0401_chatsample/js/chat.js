@@ -74,7 +74,8 @@ async function initChatRoom() {
     
     // 내가 참여자에 포함되어 있지 않고 방이 꽉 찬 경우 튕겨냄
     const isParticipant = roomData.participants && roomData.participants[sessionId];
-    if (!isParticipant && roomData.userCount >= 2) {
+    const currentUserCount = Object.keys(roomData.participants || {}).length;
+    if (!isParticipant && currentUserCount >= 2) {
       alert("이 방은 이미 꽉 찼습니다.");
       window.location.href = "index.html";
       return;
@@ -84,7 +85,6 @@ async function initChatRoom() {
     if (!isParticipant) {
       const updates = {};
       updates[`rooms/${roomId}/participants/${sessionId}`] = nickname;
-      updates[`rooms/${roomId}/userCount`] = (roomData.userCount || 0) + 1;
       await withTimeout(update(ref(database), updates), 5000);
     }
 
@@ -129,8 +129,8 @@ function startRealtimeListeners() {
     roomTitleHeader.innerText = roomData.title || "채팅방";
     
     // 인원수 상태 업데이트
-    const count = roomData.userCount || 1;
-    if (count === 1) {
+    const count = Object.keys(roomData.participants || {}).length;
+    if (count <= 1) {
       statusIndicator.style.background = "#f59e0b"; // Amber (대기중)
       statusText.innerText = "상대방을 기다리는 중 (1/2)";
     } else {
@@ -276,16 +276,15 @@ async function performDbCleanup() {
     
     if (snapshot.exists()) {
       const room = snapshot.val();
-      const currentUserCount = room.userCount || 1;
+      const currentUserCount = Object.keys(room.participants || {}).length;
       
       if (currentUserCount <= 1) {
         // 마지막 인원이 나가므로 방 정보 및 메시지 전체 영구 삭제 (DB 클린업)
         await withTimeout(remove(ref(database, `rooms/${roomId}`)), 2000);
         await withTimeout(remove(ref(database, `messages/${roomId}`)), 2000);
       } else {
-        // 잔여 인원이 있으므로 카운트 -1 및 참여 목록에서 내 세션 제거
+        // 잔여 인원이 있으므로 참여 목록에서 내 세션만 제거
         const updates = {};
-        updates[`rooms/${roomId}/userCount`] = currentUserCount - 1;
         updates[`rooms/${roomId}/participants/${sessionId}`] = null;
         
         await withTimeout(update(ref(database), updates), 2000);

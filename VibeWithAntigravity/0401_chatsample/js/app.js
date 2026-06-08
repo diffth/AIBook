@@ -126,7 +126,7 @@ function renderRoomList(rooms, filterText = "") {
 
   filteredKeys.forEach(roomId => {
     const room = rooms[roomId];
-    const userCount = room.userCount || 0;
+    const userCount = Object.keys(room.participants || {}).length;
     const isFull = userCount >= 2;
 
     const roomItem = document.createElement("div");
@@ -182,7 +182,7 @@ function formatDate(timestamp) {
 
 // 4. 방 클릭 이벤트 핸들러
 function handleRoomClick(roomId, room) {
-  const userCount = room.userCount || 0;
+  const userCount = Object.keys(room.participants || {}).length;
   if (userCount >= 2) {
     alert("죄송합니다. 1:1 대화방 정원(2명)이 가득 차 참여하실 수 없습니다.");
     return;
@@ -234,7 +234,6 @@ confirmCreateBtn.addEventListener("click", async () => {
     const newRoomData = {
       title: roomTitle,
       creator: nickname,
-      userCount: 1,
       participants: {
         [sessionId]: nickname
       },
@@ -295,7 +294,7 @@ confirmJoinBtn.addEventListener("click", async () => {
     }
 
     const room = snapshot.val();
-    const userCount = room.userCount || 0;
+    const userCount = Object.keys(room.participants || {}).length;
     if (userCount >= 2) {
       alert("대기 중 다른 사용자가 입장하여 정원이 가득 찼습니다.");
       joinRoomModal.classList.remove("active");
@@ -304,7 +303,6 @@ confirmJoinBtn.addEventListener("click", async () => {
 
     // 데이터 업데이트 및 입장 메시지 작성
     const updates = {};
-    updates[`rooms/${roomId}/userCount`] = userCount + 1;
     updates[`rooms/${roomId}/participants/${sessionId}`] = nickname;
     
     const msgRef = ref(database, `messages/${roomId}`);
