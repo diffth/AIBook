@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>채팅방 - 챗샘플</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Firebase 연결 경고 배너 -->
+    <div id="connectionWarning" class="warning-banner" style="display: none;">
+      <span>Firebase 연결이 유실되었거나 설정이 바르지 않습니다.</span>
+    </div>
+
+    <!-- 채팅 헤더 -->
+    <header>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <h1 id="roomTitleHeader">채팅방 로딩 중...</h1>
+        <span id="roomStatusBadge" style="font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+          <span id="statusIndicator" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted);"></span>
+          <span id="statusText">접속 중...</span>
+        </span>
+      </div>
+      <div class="header-actions">
+        <!-- 방 나가기 버튼 -->
+        <button id="leaveRoomBtn" class="btn btn-danger btn-secondary" style="border: 1px solid var(--danger); color: var(--danger); background: transparent;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          나가기
+        </button>
+      </div>
+    </header>
+
+    <!-- 채팅 메시지 영역 -->
+    <div id="chatMessages" class="chat-messages">
+      <!-- 메시지들이 실시간으로 추가됩니다 -->
+      <div class="message-system">채팅방 연결을 시작합니다...</div>
+    </div>
+
+    <!-- 입력 영역 -->
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" class="chat-input" placeholder="메시지를 입력하세요..." disabled>
+      <button id="sendBtn" class="send-btn" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 애플리케이션 스크립트 로드 -->
+  <script type="module" src="js/chat.js"></script>
+</body>
+</html>
