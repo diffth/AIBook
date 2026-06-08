@@ -264,8 +264,10 @@ async function exitToMain(performCleanup = true) {
     performDbCleanup().catch(error => console.error("백그라운드 퇴장 정리 오류:", error));
   }
 
-  // 즉시 대기실로 복귀
-  window.location.href = "index.html";
+  // 즉시 대기실로 복귀 (안정성을 위해 setTimeout으로 큐 분리)
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 50);
 }
 
 // 백그라운드 DB 정리 실무 함수
@@ -319,14 +321,7 @@ function setupOnDisconnect() {
   onDisconnect(myParticipantRef).remove();
 }
 
-// 브라우저 닫기/새로고침 시 퇴장 처리 작동 (최대한 정리)
-window.addEventListener("beforeunload", (e) => {
-  if (!isLeaving) {
-    // 동기식 요청으로 처리하기 위해 데이터베이스 연결 유지 상태에서 퇴장 로직을 수행할 수 있게 함
-    // 다만 브라우저 닫힘 특성상 비동기 결과는 보장하기 힘들어 onDisconnect가 백업 역할을 함
-    exitToMain(true);
-  }
-});
+
 
 // 시작
 initChatRoom();
