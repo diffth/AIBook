@@ -248,6 +248,11 @@ async function exitToMain(performCleanup = true) {
   if (isLeaving) return;
   isLeaving = true;
 
+  // 나가기 버튼 로딩 UI 적용
+  const originalBtnText = leaveRoomBtn.innerText;
+  leaveRoomBtn.innerText = "퇴장 중...";
+  leaveRoomBtn.disabled = true;
+
   // 리스너 해제 (즉시)
   try {
     off(ref(database, `rooms/${roomId}`));
@@ -260,14 +265,16 @@ async function exitToMain(performCleanup = true) {
   sessionStorage.removeItem("chat_room_id");
 
   if (performCleanup) {
-    // DB 정리는 백그라운드에서 조용히 실행하도록 던지고 대기하지 않습니다. (지연 시간 0ms 체감)
-    performDbCleanup().catch(error => console.error("백그라운드 퇴장 정리 오류:", error));
+    try {
+      // 페이지가 언로드되기 전 DB 쓰기가 전송 완료될 수 있도록 안전하게 await로 대기합니다.
+      await performDbCleanup();
+    } catch (error) {
+      console.error("퇴장 정리 실패:", error);
+    }
   }
 
-  // 즉시 대기실로 복귀 (안정성을 위해 setTimeout으로 큐 분리)
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 50);
+  // 대기실로 복귀
+  window.location.href = "index.html";
 }
 
 // 백그라운드 DB 정리 실무 함수
