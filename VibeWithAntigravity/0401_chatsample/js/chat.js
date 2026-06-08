@@ -315,9 +315,7 @@ async function performDbCleanup() {
 
 // 나가기 버튼 바인딩
 leaveRoomBtn.addEventListener("click", () => {
-  if (confirm("정말 채팅방에서 나가시겠습니까?")) {
-    exitToMain(true);
-  }
+  exitToMain(true);
 });
 
 // 7. 네트워크 단절(onDisconnect) 시 Firebase 자동 처리 등록
