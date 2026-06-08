@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실시간 1:1 채팅 서비스 - 챗샘플</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Firebase 초기화 에러 경고 배너 -->
+    <div id="connectionWarning" class="warning-banner" style="display: none;">
+      <span>Firebase 설정이 유효하지 않습니다. 오른쪽 세팅 아이콘을 클릭해 설정을 등록하세요.</span>
+      <button onclick="document.getElementById('settingsModal').classList.add('active')">설정하기</button>
+    </div>
+
+    <header>
+      <h1>1:1 ChatSample</h1>
+      <div class="header-actions">
+        <!-- Firebase 설정 버튼 (톱니바퀴) -->
+        <button id="settingsBtn" class="icon-btn" title="Firebase 설정">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <!-- 방 만들기 버튼 -->
+        <button id="openCreateModalBtn" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          방 만들기
+        </button>
+      </div>
+    </header>
+
+    <!-- 검색창 -->
+    <div style="padding: 16px 24px 0 24px;">
+      <div class="search-bar-wrapper">
+        <input type="text" id="roomSearchInput" class="search-input" placeholder="방 제목 또는 방장 이름 검색...">
+      </div>
+    </div>
+
+    <!-- 채팅방 목록 영역 -->
+    <div id="roomList" class="room-list-container">
+      <!-- 로딩 또는 방 목록이 동적으로 들어감 -->
+      <div class="no-rooms">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <p>채팅방 목록을 로딩 중이거나 개설된 방이 없습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 1: 방 만들기 -->
+  <div id="createRoomModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">새 채팅방 만들기</div>
+      <div class="form-group">
+        <label for="createUsername">사용할 닉네임</label>
+        <input type="text" id="createUsername" class="form-input" placeholder="닉네임을 입력하세요 (최대 8자)" maxlength="8">
+      </div>
+      <div class="form-group">
+        <label for="roomTitle">채팅방 이름</label>
+        <input type="text" id="roomTitle" class="form-input" placeholder="방 이름을 입력하세요 (최대 15자)" maxlength="15">
+      </div>
+      <div class="modal-footer">
+        <button id="cancelCreateBtn" class="btn btn-secondary">취소</button>
+        <button id="confirmCreateBtn" class="btn btn-primary">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 2: 방 참여 -->
+  <div id="joinRoomModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">채팅방 참여하기</div>
+      <div class="form-group">
+        <label for="joinUsername">사용할 닉네임</label>
+        <input type="text" id="joinUsername" class="form-input" placeholder="닉네임을 입력하세요 (최대 8자)" maxlength="8">
+      </div>
+      <div class="modal-footer">
+        <button id="cancelJoinBtn" class="btn btn-secondary">취소</button>
+        <button id="confirmJoinBtn" class="btn btn-primary">참여</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 3: Firebase 설정 관리 (개발 & 편의용) -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">Firebase Database 설정</div>
+      <div class="settings-body">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+          프로젝트 연동을 위해 Firebase Realtime Database의 Config 값을 적어주세요.
+        </p>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="text" id="cfgApiKey" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Database URL</label>
+          <input type="text" id="cfgDbUrl" class="form-input" placeholder="https://....firebaseio.com">
+        </div>
+        <div class="form-group">
+          <label>Project ID</label>
+          <input type="text" id="cfgProjectId" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Auth Domain</label>
+          <input type="text" id="cfgAuthDomain" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Storage Bucket</label>
+          <input type="text" id="cfgBucket" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Messaging Sender ID</label>
+          <input type="text" id="cfgSenderId" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>App ID</label>
+          <input type="text" id="cfgAppId" class="form-input">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="resetSettingsBtn" class="btn btn-secondary" style="margin-right: auto; color: var(--danger)">초기화</button>
+        <button id="cancelSettingsBtn" class="btn btn-secondary">취소</button>
+        <button id="saveSettingsBtn" class="btn btn-primary">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 애플리케이션 스크립트 로드 -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
