@@ -1,0 +1,13 @@
+{
+  "name": "0403_mynews",
+  "version": "1.0.0",
+  "description": "관심 주제 뉴스 크롤러 및 대시보드 웹 애플리케이션",
+  "main": "crawl.js",
+  "type": "module",
+  "scripts": {
+    "crawl": "node crawl.js"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}
