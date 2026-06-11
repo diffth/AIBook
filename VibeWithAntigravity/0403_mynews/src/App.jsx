@@ -17,6 +17,16 @@ import NewsGrid from "./components/NewsGrid";
 import ConfigModal from "./components/ConfigModal";
 import { PREDEFINED_CATEGORIES } from "./components/CategorySelector";
 
+/**
+ * MyNews 애플리케이션의 핵심 메인 상태(State) 컨트롤러 및 레이아웃 루트 컴포넌트
+ * 
+ * 주요 상태:
+ * - selectedCategories: 사용자가 체크하여 구독 등록한 관심 주제 목록
+ * - categoryOrder: Firebase에 보존되고 있는 탭 배열 순서 정보
+ * - activeTab: 현재 뉴스 영역에서 보여줄 카테고리 필터 명칭 (null일 시 전체 피드)
+ * - news: Firebase Realtime Database로부터 실시간 동기화되는 기사 목록
+ * - bookmarks: 사용자가 나중에 읽기로 보관한 뉴스 카드 목록
+ */
 export default function App() {
   // 상태 선언
   const [selectedCategories, setSelectedCategories] = useState([]); // 구독 중인 카테고리 목록
