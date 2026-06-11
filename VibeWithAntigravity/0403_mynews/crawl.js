@@ -69,6 +69,9 @@ function generateArticleId(link) {
 
 /**
  * HTML 특수문자 디코딩
+ * 
+ * @param {string} str - 디코딩할 문자열
+ * @returns {string} 디코딩 완료된 문자열
  */
 function decodeHtmlEntities(str) {
   return str.replace(/&quot;/g, '"')
@@ -79,6 +82,9 @@ function decodeHtmlEntities(str) {
 
 /**
  * 구글 뉴스 리다이렉트 URL을 원본 언론사 URL로 복원 (batchexecute 프로토콜 사용)
+ * 
+ * @param {string} googleUrl - 구글 뉴스 RSS 피드에서 수집한 기사 원본 링크
+ * @returns {Promise<string>} 언론사 사이트 원본 URL 주소 (실패 시 원본 googleUrl 반환)
  */
 async function getRealUrl(googleUrl) {
   try {
@@ -126,6 +132,12 @@ async function getRealUrl(googleUrl) {
 
 /**
  * 원본 기사 URL을 조회하여 og:image 및 og:description 크롤링
+ */
+/**
+ * 복원된 언론사 원본 기사 주소에서 대표 이미지와 요약 요소를 정규식으로 크롤링
+ * 
+ * @param {string} realUrl - 원본 기사 URL 주소
+ * @returns {Promise<{image: string|null, description: string|null}>} og 이미지 주소 및 기사 요약 설명 객체
  */
 async function fetchOgData(realUrl) {
   if (!realUrl || realUrl.includes('google.com')) {
