@@ -1,34 +1,38 @@
-# 📰 MyNews - 관심 주제 실시간 뉴스 크롤러 & 대시보드
+# 📰 MyNews - 개인 맞춤형 AI 실시간 뉴스 대시보드 (React + Vite)
 
 이 프로젝트는 사용자가 관심 있는 주제(키워드)를 등록하면 해당 키워드와 매칭되는 최신 뉴스를 실시간으로 크롤링하고 수집하여 보여주는 개인화 뉴스 대시보드 웹 애플리케이션입니다.
 
-기존 Firebase 실시간 데이터베이스(Realtime Database)를 활용하여 데이터를 영구 보관하며, 브라우저 환경 및 로컬 실행 환경 양쪽에서 크롤링(동기화)을 실행할 수 있도록 설계되었습니다.
+**React 18**과 **Vite**를 기반으로 리팩토링되어 상태(State) 기반의 빠른 UI 반응 속도를 보장하며, 클라이언트 브라우저와 로컬 환경 모두에서 `rss-parser` 라이브러리를 사용해 Google News RSS 피드를 안정적으로 파싱합니다.
 
 ---
 
-## 🚀 주요 기능
-1. **키워드 관리 (주제 구독)**: 사이드바에서 관심 있는 주제(키워드)를 간편하게 등록하고 삭제합니다.
-2. **뉴스 대시보드 (다크 글래스모피즘)**: 프리미엄 다크 테마와 매끄러운 마이크로 인터랙션, 반응형 그리드 카드로 수집된 뉴스를 한눈에 확인합니다.
-3. **듀얼 크롤링 엔진 지원**:
-   * **웹 UI 동기화 (CORS 프록시)**: 브라우저상에서 "뉴스 동기화" 버튼을 클릭하면 CORS 프록시를 통해 즉시 실시간 뉴스(Google RSS)를 크롤링하여 DB를 갱신합니다. (추가 설치/백엔드 불필요)
-   * **로컬 CLI 크롤러 스크립트 (`crawl.js`)**: 백그라운드 자동화(Cron, GitHub Actions 등)를 위해 로컬 터미널에서 스크립트를 직접 실행하여 DB를 업데이트할 수 있습니다.
-4. **북마크 (나중에 읽기)**: 관심 있는 뉴스를 북마크에 저장하고 나중에 다시 읽을 수 있습니다.
-5. **검색 및 필터링**: 키워드별 필터링 칩 및 실시간 검색바를 통해 기사를 빠르게 검색합니다.
-6. **유연한 Firebase 연동**: 웹 UI 내 설정 모달을 통해 간편하게 본인의 Firebase 프로젝트 키를 대입하여 독립적으로 운영할 수 있습니다.
+## 🛠️ 기술 스택
+* **프론트엔드**: React 18, Vite
+* **스타일링**: Vanilla CSS (CSS 변수 & 글래스모피즘 테마)
+* **백엔드**: Firebase (Realtime Database)
+* **뉴스 소스**: Google 뉴스 RSS 피드
+* **RSS 파서**: `rss-parser` (브라우저 및 Node.js 환경 통합 사용)
 
 ---
 
 ## 📂 프로젝트 폴더 구조
 ```
 0403_mynews/
-├── index.html               # 메인 웹 UI
-├── css/
-│   └── style.css            # 프리미엄 다크 모드 & 글래스모피즘 스타일링
-├── js/
-│   ├── firebase-config.js   # Firebase Web SDK 초기화 및 로컬 설정 대응
-│   └── app.js               # UI 컨트롤, 실시간 파이어베이스 바인딩, 브라우저 크롤링 로직
+├── index.html               # React 진입 마운트 HTML
+├── vite.config.js           # Vite 환경 설정 파일
+├── package.json             # React, Firebase, rss-parser 등 패키지 의존성 파일
+├── src/
+│   ├── main.jsx             # React 마운트 진입점
+│   ├── index.css            # 글로벌 다크 글래스모피즘 CSS 스타일시트
+│   ├── firebase.js          # Firebase client SDK 초기화 및 내보내기 모듈
+│   ├── App.jsx              # 메인 상태 및 레이아웃 제어 컴포넌트
+│   └── components/
+│       ├── Sidebar.jsx      # 관심 키워드 추가/삭제 및 탭 네비게이션
+│       ├── NewsGrid.jsx     # 뉴스 카드 그리드 컨테이너
+│       ├── NewsCard.jsx     # 개별 뉴스 카드 컴포넌트
+│       └── ConfigModal.jsx  # Firebase 연결 설정 변경 팝업
 ├── crawl.js                 # 백그라운드/로컬 실행용 Node.js 뉴스 크롤러
-├── package.json             # Node.js 크롤러 의존성 (rss-parser)
+├── .gitignore               # node_modules 및 로컬 firebase-config.json 제외 설정
 └── README.md                # 본 안내서
 ```
 
@@ -36,40 +40,27 @@
 
 ## 💻 실행 방법
 
-### 1. 프론트엔드 (웹 UI) 실행
-HTML 파일을 로컬 웹 서버로 실행합니다.
-* VS Code를 사용하신다면 **Live Server** 익스텐션을 설치하여 `index.html`을 우클릭한 후 **"Open with Live Server"**를 선택하는 것이 가장 쉽습니다.
-* 또는 터미널(0403_mynews 폴더)에서 아래의 간단한 파이썬 명령어를 사용할 수도 있습니다:
-  ```bash
-  python -m http.server 8000
-  # 브라우저에서 http://localhost:8000 접속
-  ```
+### 1. 로컬 개발 서버 구동 (React + Vite)
+터미널에서 `0403_mynews` 폴더로 이동한 후 아래 명령어로 개발 서버를 구동합니다.
+```bash
+# 의존성 패키지 설치 (최초 1회)
+npm install
+
+# 로컬 개발 서버(Vite) 실행
+npm run dev
+# 브라우저에서 http://localhost:5173 접속
+```
 
 ### 2. 뉴스 동기화(크롤링) 방법
 
-#### 방법 A: 웹 UI에서 수동 동기화 (쉬운 방법 - 추천 ⭐)
-1. 웹 브라우저를 열고 로그인(기본 Guest)합니다.
+#### 방법 A: 웹 UI에서 실시간 동기화 (추천 ⭐)
+1. 웹 브라우저(`http://localhost:5173`)로 접속합니다.
 2. 화면 오른쪽 상단의 **"뉴스 동기화"** 버튼을 누릅니다.
-3. CORS 프록시를 통해 실시간으로 Google News RSS를 긁어오며, 파싱이 완료되면 Firebase DB에 자동으로 기사들이 업데이트되고 화면에 렌더링됩니다.
+3. CORS 프록시(`allorigins.win`)를 경유해 Google RSS를 fetch해 오며, 브라우저 내에 빌드된 `rss-parser`가 XML을 해석하여 Firebase DB에 기사들을 실시간 적재하고 즉시 화면에 동기화합니다.
 
 #### 방법 B: 로컬 Node.js 스크립트로 크롤링
-매일 백그라운드에서 크롤링이 진행되게 하거나 터미널에서 제어하고 싶을 때 유용합니다. (Node.js 18 버전 이상 권장)
-1. 터미널에서 `0403_mynews` 폴더로 이동합니다.
-2. 패키지를 설치합니다:
-   ```bash
-   npm install
-   ```
-3. 크롤러 스크립트를 실행합니다:
-   ```bash
-   npm run crawl
-   ```
-   * *참고: 만약 웹 UI의 설정창을 통해 본인의 Firebase 설정을 변경했다면, 동일한 폴더에 `firebase-config.json` 파일을 생성하고 `{ "databaseURL": "본인의 데이터베이스 URL" }` 형태로 기재해주면 크롤러가 해당 주소를 바라보고 업데이트합니다.*
-
----
-
-## ⚙️ Firebase 연동 설정 가이드
-* 본 서비스는 기본적으로 제공되는 테스트용 공용 데모 프로젝트(Realtime Database)로 사전 설정되어 있어, 키를 별도로 넣지 않아도 즉시 테스트해볼 수 있습니다.
-* **본인의 데이터베이스로 교체하고 싶으시다면:**
-  1. 웹 화면 좌측 사이드바 하단의 **"Firebase 설정"** 메뉴를 누릅니다.
-  2. Firebase 콘솔에서 발급받은 본인 프로젝트의 설정값(특히 `Database URL` 필수)을 입력하고 **"설정 저장"**을 클릭합니다.
-  3. 자동으로 새로고침되며 이후 추가하는 관심 키워드와 기사들은 본인의 Firebase Database에 온전하게 격리되어 저장됩니다.
+자동화된 일일 크롤링 작업이 필요할 때 사용합니다.
+```bash
+npm run crawl
+```
+* *참고: 웹 UI를 통해 Firebase 설정을 본인 전용 DB로 교체하셨다면, 동일 폴더에 `firebase-config.json` 파일을 작성하고 `{ "databaseURL": "본인의 DB URL" }` 형태로 기재해주면 크롤러 스크립트도 이를 읽어 해당 DB 노드로 뉴스를 올립니다.*

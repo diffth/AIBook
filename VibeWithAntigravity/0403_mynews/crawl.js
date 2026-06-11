@@ -4,7 +4,7 @@ import path from 'path';
 
 const parser = new Parser();
 
-// 기본 Firebase Realtime Database URL (기존 프로젝트들에서 제공하는 테스트용 DB)
+// 기본 Firebase Realtime Database URL
 const defaultDatabaseURL = "https://chatsample-378492-default-rtdb.firebaseio.com/";
 
 // 로컬 환경 설정 파일(firebase-config.json)이 있으면 읽어오고, 없으면 기본값 사용
@@ -70,6 +70,8 @@ function generateArticleId(link) {
 /**
  * 크롤러 메인 실행 함수
  */
+const PREDEFINED_CATEGORIES = ['정치', '경제', '사회', 'IT/과학', '스포츠', '연예', '세계', '게임'];
+
 async function runCrawler() {
   console.log(`\n==========================================`);
   console.log(`[Crawler] 뉴스 크롤링 작업을 시작합니다.`);
@@ -77,28 +79,27 @@ async function runCrawler() {
   console.log(`==========================================`);
 
   try {
-    // 1. 등록된 관심 키워드 가져오기
+    // 1. 등록된 관심 카테고리 가져오기
     let keywordsObj = await firebaseRequest('keywords');
     let keywords = [];
     
     if (keywordsObj) {
-      // 키워드 데이터가 객체 형태로 오거나 배열 형태로 올 수 있음
       if (typeof keywordsObj === 'object') {
-        keywords = Object.values(keywordsObj);
+        keywords = Object.values(keywordsObj).filter(v => typeof v === 'string' && PREDEFINED_CATEGORIES.includes(v));
       } else if (Array.isArray(keywordsObj)) {
-        keywords = keywordsObj.filter(k => k !== null);
+        keywords = keywordsObj.filter(k => typeof k === 'string' && PREDEFINED_CATEGORIES.includes(k));
       }
-      console.log(`[Crawler] DB에서 등록된 키워드 ${keywords.length}개를 가져왔습니다: ${keywords.join(', ')}`);
+      console.log(`[Crawler] DB에서 구독 중인 카테고리 ${keywords.length}개를 가져왔습니다: ${keywords.join(', ')}`);
     } else {
-      // 등록된 키워드가 전혀 없을 경우 기본 키워드 생성
-      console.log(`[Crawler] DB에 등록된 키워드가 없습니다. 기본 키워드로 초기화합니다...`);
-      const defaultKeywords = ['인공지능', '주식', '개발자'];
+      console.log(`[Crawler] DB에 구독 카테고리가 없습니다. 기본 카테고리로 초기화합니다...`);
+      const defaultCategories = ['정치', '경제', 'IT/과학'];
       
-      for (const kw of defaultKeywords) {
-        await firebaseRequest('keywords', 'POST', kw);
+      for (const cat of defaultCategories) {
+        const sanitized = sanitizeKey(cat);
+        await firebaseRequest(`keywords/${sanitized}`, 'PUT', cat);
       }
-      keywords = defaultKeywords;
-      console.log(`[Crawler] 기본 키워드 등록 완료: ${keywords.join(', ')}`);
+      keywords = defaultCategories;
+      console.log(`[Crawler] 기본 카테고리 등록 완료: ${keywords.join(', ')}`);
     }
 
     // 2. 키워드별 Google 뉴스 RSS 크롤링
@@ -113,7 +114,6 @@ async function runCrawler() {
         const feed = await parser.parseURL(rssUrl);
         console.log(`[Crawler] Google RSS 수신 완료: 총 ${feed.items.length}개의 기사 검색됨.`);
 
-        // 최신 뉴스 20개만 필터링하여 Firebase에 업로드
         const topArticles = feed.items.slice(0, 20);
         let saveCount = 0;
 
@@ -123,7 +123,6 @@ async function runCrawler() {
           const articleId = generateArticleId(item.link);
           const sourceName = item.source && typeof item.source === 'object' ? item.source._ : (item.source || 'Google 뉴스');
 
-          // 뉴스 데이터 객체 생성
           const article = {
             title: item.title,
             link: item.link,
@@ -133,7 +132,6 @@ async function runCrawler() {
             crawledAt: Date.now()
           };
 
-          // news/{키워드}/{기사ID} 형태로 PUT 요청 (덮어쓰기 방식으로 중복 없이 저장)
           const escapedKeyword = sanitizeKey(keyword);
           await firebaseRequest(`news/${escapedKeyword}/${articleId}`, 'PUT', article);
           saveCount++;

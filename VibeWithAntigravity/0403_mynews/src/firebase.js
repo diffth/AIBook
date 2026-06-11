@@ -1,8 +1,7 @@
-// Firebase SDK 라이브러리 로드 (ES Modules 형식)
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, set, get, child, update, push, remove, onValue, off, onDisconnect, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getDatabase, ref, set, get, child, update, push, remove, onValue, off, runTransaction } from "firebase/database";
 
-// chatsample-378492 프로젝트의 기본 설정 값
+// 기본 Firebase 프로젝트 설정 값
 const defaultFirebaseConfig = {
   apiKey: "AIzaSyDf0hjzpuD1UroQNdQM19I0ghdpEF6bzng",
   authDomain: "chatsample-378492.firebaseapp.com",
@@ -13,12 +12,13 @@ const defaultFirebaseConfig = {
   appId: "1:880492358594:web:5d0b9ee6b44d4d1da0845b"
 };
 
-// 로컬 스토리지에 저장된 설정이 있다면 우선 사용합니다. (설정 모달을 통한 갱신 기능 보장)
+// 로컬 스토리지에 저장된 설정이 있다면 우선 사용
 const savedConfig = localStorage.getItem("firebase_news_config");
 const firebaseConfig = savedConfig ? JSON.parse(savedConfig) : defaultFirebaseConfig;
 
 let app;
 let database;
+let isFirebaseInitialized = false;
 
 function initFirebase() {
   if (!firebaseConfig.databaseURL || 
@@ -31,6 +31,7 @@ function initFirebase() {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     database = getDatabase(app);
+    isFirebaseInitialized = true;
     return true;
   } catch (error) {
     console.error("Firebase 초기화 에러:", error);
@@ -38,7 +39,7 @@ function initFirebase() {
   }
 }
 
-const isFirebaseInitialized = initFirebase();
+initFirebase();
 
 export {
   app,
@@ -55,6 +56,5 @@ export {
   remove,
   onValue,
   off,
-  onDisconnect,
   runTransaction
 };
