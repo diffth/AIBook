@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>MyNews - 개인 맞춤형 AI 실시간 뉴스 대시보드</title>
+  <meta name="description" content="관심 있는 키워드를 등록하면 매일 새로운 뉴스 기사들을 수집하고 보관하는 개인 맞춤형 스마트 뉴스 대시보드 웹 애플리케이션입니다.">
+  <meta name="keywords" content="뉴스, 크롤러, 파이어베이스, 대시보드, RSS, 맞춤형 뉴스">
+  
+  <!-- Remix Icon CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar: Navigation & Keyword Manager -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="logo-container">
+        <div class="logo-icon">N</div>
+        <div class="logo-text">MyNews</div>
+      </div>
+      
+      <!-- Navigation Menu -->
+      <nav class="menu-section">
+        <h2 class="menu-title">대시보드</h2>
+        <a class="menu-item active" id="tab-feed">
+          <i class="ri-newspaper-line"></i>
+          <span>뉴스 피드</span>
+        </a>
+        <a class="menu-item" id="tab-bookmarks">
+          <i class="ri-bookmark-line"></i>
+          <span>북마크 모아보기</span>
+        </a>
+        <a class="menu-item" id="tab-config">
+          <i class="ri-settings-4-line"></i>
+          <span>Firebase 설정</span>
+        </a>
+      </nav>
+      
+      <!-- Keyword Manager -->
+      <section class="keyword-manager">
+        <h2 class="menu-title">관심 키워드</h2>
+        <div class="keyword-input-wrapper">
+          <input type="text" id="keyword-input" class="keyword-input" placeholder="키워드 입력 (예: AI)" maxlength="15">
+          <button id="btn-add-keyword" class="btn-add-keyword" title="키워드 추가">
+            <i class="ri-add-line"></i>
+          </button>
+        </div>
+        <div class="keyword-list" id="keyword-list">
+          <!-- 키워드 칩들이 JS를 통해 여기에 동적으로 추가됩니다 -->
+        </div>
+      </section>
+      
+      <!-- Sidebar Footer (Profile) -->
+      <footer class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">G</div>
+          <div class="user-name-wrapper">
+            <span class="user-name">Guest User</span>
+            <span class="user-role">구독형 뉴스 독자</span>
+          </div>
+        </div>
+      </footer>
+    </aside>
+
+    <!-- Main Dashboard Area -->
+    <main class="main-content" id="app-main">
+      
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-title-area">
+          <h1 id="main-heading">Daily News Feed</h1>
+          <p id="sub-heading">관심 주제의 뉴스 기사를 매일 만나보세요.</p>
+        </div>
+        
+        <div class="header-actions">
+          <!-- Search Bar -->
+          <div class="search-box">
+            <i class="ri-search-line"></i>
+            <input type="text" id="search-bar" placeholder="기사 제목 또는 언론사 검색...">
+          </div>
+          
+          <!-- Sync Trigger -->
+          <button id="btn-sync" class="btn-primary">
+            <i class="ri-refresh-line"></i>
+            뉴스 동기화
+          </button>
+        </div>
+      </header>
+
+      <!-- Status Panel -->
+      <section class="status-bar" id="status-panel">
+        <div class="status-info">
+          <div class="status-item">
+            <span class="status-indicator" id="status-indicator"></span>
+            <span id="crawled-time">최근 동기화: 동기화 상태 로딩 중...</span>
+          </div>
+          <div class="status-item">
+            <i class="ri-list-check-2"></i>
+            <span>조회된 뉴스 개수: </span>
+            <span class="highlight" id="article-count">총 0개</span>
+          </div>
+        </div>
+        <div class="status-meta">
+          <span>Google News RSS 기반</span>
+        </div>
+      </section>
+
+      <!-- News Article Grid -->
+      <section class="news-grid" id="news-grid">
+        <!-- JS를 통해 뉴스 카드 컴포넌트가 동적으로 생성됩니다 -->
+        <div class="loader" id="grid-loader"></div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Firebase Config Modal -->
+  <div class="modal-overlay" id="config-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 class="modal-title">Firebase 연동 설정</h2>
+        <button class="modal-close" id="modal-close"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+          개인 프로젝트의 Firebase Realtime Database와 연동하기 위해 아래 정보를 입력해 주세요. 기본 데모 프로젝트 정보가 채워져 있어 바로 테스트해 볼 수 있습니다.
+        </p>
+        
+        <div class="input-group">
+          <label for="cfg-db-url">Database URL *</label>
+          <input type="text" id="cfg-db-url" placeholder="https://your-database.firebaseio.com/">
+        </div>
+        
+        <div class="input-group">
+          <label for="cfg-api-key">API Key</label>
+          <input type="text" id="cfg-api-key" placeholder="AIzaSy...">
+        </div>
+        
+        <div class="input-group">
+          <label for="cfg-auth-domain">Auth Domain</label>
+          <input type="text" id="cfg-auth-domain" placeholder="your-project.firebaseapp.com">
+        </div>
+        
+        <div class="input-group">
+          <label for="cfg-project-id">Project ID</label>
+          <input type="text" id="cfg-project-id" placeholder="your-project">
+        </div>
+
+        <div class="input-group">
+          <label for="cfg-storage-bucket">Storage Bucket</label>
+          <input type="text" id="cfg-storage-bucket" placeholder="your-project.firebasestorage.app">
+        </div>
+
+        <div class="input-group">
+          <label for="cfg-sender-id">Messaging Sender ID</label>
+          <input type="text" id="cfg-sender-id" placeholder="880492358594">
+        </div>
+
+        <div class="input-group">
+          <label for="cfg-app-id">App ID</label>
+          <input type="text" id="cfg-app-id" placeholder="1:880492:web:...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-reset-config">기본값 리셋</button>
+        <button class="btn-primary" id="btn-save-config">설정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div class="toast" id="toast">
+    <i class="ri-information-line"></i>
+    <span id="toast-message">알림 메시지</span>
+  </div>
+
+  <!-- App Main Logic -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
