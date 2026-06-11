@@ -12,6 +12,22 @@ const fallbackImages = {
   "게임": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=500&auto=format&fit=crop&q=60"
 };
 
+/**
+ * 개별 뉴스 기사를 카드 형태로 표현하는 리프 컴포넌트
+ * 
+ * @param {Object} props
+ * @param {Object} props.article - 뉴스 기사 데이터 객체
+ * @param {string} props.article.id - 기사 해시 ID
+ * @param {string} props.article.title - 기사 제목
+ * @param {string} props.article.link - 언론사 원본 기사 URL
+ * @param {string} [props.article.image] - 수집된 대표 이미지 URL
+ * @param {string} [props.article.description] - 수집된 본문 요약문
+ * @param {string} props.article.source - 언론사 이름
+ * @param {string} props.article.pubDate - 발행 일자 문자열
+ * @param {string} [props.article.keyword] - 매칭된 카테고리 태그 명칭
+ * @param {boolean} props.isBookmarked - 북마크에 저장되었는지 여부
+ * @param {Function} props.onBookmarkToggle - 북마크 아이콘 클릭 시 작동하는 핸들러 콜백 함수
+ */
 export default function NewsCard({ article, isBookmarked, onBookmarkToggle }) {
   const handleCardClick = () => {
     window.open(article.link, "_blank");
