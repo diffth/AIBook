@@ -4,6 +4,8 @@ import {
   db, 
   isFirebaseInitialized, 
   firebaseConfig,
+  googleProvider,
+  signInWithPopup,
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
@@ -17,48 +19,58 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy
+  orderBy,
+  serverTimestamp
 } from './firebase';
 import { onSnapshot } from 'firebase/firestore';
-import { Users, AlertCircle, Database, CheckCircle, XCircle, Info } from 'lucide-react';
+import { Users, AlertCircle, Database, LogOut, CheckCircle, XCircle, Info, Plus, Settings, Sparkles } from 'lucide-react';
 
 // Components
 import Splash from './components/Splash';
 import Login from './components/Login';
+import Register from './components/Register';
 import FirebaseConfigModal from './components/FirebaseConfigModal';
 
-// Admin Views
-import AdminDashboard from './components/AdminDashboard';
-import AdminMembers from './components/AdminMembers';
-import AdminMemberEdit from './components/AdminMemberEdit';
-import AdminAttendance from './components/AdminAttendance';
-import AdminAttendanceStats from './components/AdminAttendanceStats';
-import AdminChats from './components/AdminChats';
+// User Views
+import PostFeed from './components/PostFeed';
+import PostDialog from './components/PostDialog';
+import PostDetail from './components/PostDetail';
+import UserProfile from './components/UserProfile';
+import UserEdit from './components/UserEdit';
 
-// Member Views
-import MemberHome from './components/MemberHome';
-import MemberAttendance from './components/MemberAttendance';
-import MemberChat from './components/MemberChat';
-import MemberProfile from './components/MemberProfile';
+// Admin Views
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './components/AdminDashboard';
+import AdminUsers from './components/AdminUsers';
+import AdminPosts from './components/AdminPosts';
 
 import './App.css';
 
 export default function App() {
   const [splashActive, setSplashActive] = useState(true);
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null); // 'admin' | 'member'
-  const [memberData, setMemberData] = useState(null); // 로그인된 회원 정보
-  
-  // Lists
-  const [members, setMembers] = useState([]);
-  const [attendanceList, setAttendanceList] = useState([]);
-  const [chatRooms, setChatRooms] = useState([]);
+  const [role, setRole] = useState(null); // 'member' | 'admin'
+  const [memberData, setMemberData] = useState(null); // Firestore 유저 메타데이터
+  const [isRegistered, setIsRegistered] = useState(false); // 가입 프로필 완료 여부
 
-  // Routing Tab
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeMemberEditId, setActiveMemberEditId] = useState(null); // 회원 수정을 위해 선택된 ID
-  
+  // Lists
+  const [posts, setPosts] = useState([]);
+  const [members, setMembers] = useState([]);
+
+  // Routing
+  const [currentPage, setCurrentPage] = useState('feed'); // 'feed' | 'profile' | 'edit'
+  const [activeProfileUid, setActiveProfileUid] = useState(null); // 프로필 조회를 위해 선택된 사용자 Uid
+  const [adminTab, setAdminTab] = useState('dashboard'); // admin 탭 관리
+
+  // Modal Dialogs
+  const [isWriteOpen, setIsWriteOpen] = useState(false);
+  const [selectedPostDetail, setSelectedPostDetail] = useState(null); // 상세보기할 포스트
   const [activeModal, setActiveModal] = useState(null); // 'config', null
+
+  // Search & Filter
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Toasts
   const [toasts, setToasts] = useState([]);
 
   const showToast = (message, type = 'info') => {
@@ -76,13 +88,31 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // Firestore에서 사용자 역할 및 상세 정보 로드
-        await loadUserData(currentUser.uid);
+        await loadUserMeta(currentUser);
       } else {
         setUser(null);
         setRole(null);
         setMemberData(null);
+        setIsRegistered(false);
       }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Firestore Sync - Posts (All users and real-time)
+  useEffect(() => {
+    if (!isFirebaseInitialized) return;
+
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setPosts(list);
+    }, (error) => {
+      console.error(error);
     });
 
     return () => unsubscribe();
@@ -106,237 +136,151 @@ export default function App() {
     return () => unsubscribe();
   }, [role]);
 
-  // Firestore Sync - Attendance records
-  useEffect(() => {
-    if (!isFirebaseInitialized) return;
-
-    const q = query(collection(db, 'attendance'), orderBy('date', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list = [];
-      snapshot.forEach((doc) => {
-        list.push({ id: doc.id, ...doc.data() });
-      });
-      setAttendanceList(list);
-    }, (error) => {
-      console.error(error);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Firestore Sync - Chat Rooms (Admin only)
-  useEffect(() => {
-    if (!isFirebaseInitialized || role !== 'admin') return;
-
-    const q = query(collection(db, 'chats'), orderBy('lastMessageTime', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const rooms = [];
-      snapshot.forEach((doc) => {
-        rooms.push({ id: doc.id, ...doc.data() });
-      });
-      setChatRooms(rooms);
-    }, (error) => {
-      console.error(error);
-    });
-
-    return () => unsubscribe();
-  }, [role]);
-
-  // Firestore 사용자 데이터 조회
-  const loadUserData = async (uid) => {
+  // Firestore 사용자 프로필 데이터 체크
+  const loadUserMeta = async (currentUser) => {
     try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      // 1. 관리자 고유 정보 체크 (미리 로그인한 이메일 기준 판정)
+      if (currentUser.email === 'admin@sns.com') {
+        const adminMeta = {
+          nickname: '최고관리자',
+          email: 'admin@sns.com',
+          role: 'admin',
+          status: 'active'
+        };
+        setRole('admin');
+        setMemberData(adminMeta);
+        setIsRegistered(true);
+        return;
+      }
+
+      // 2. 일반 구글 로그인 회원 상세 로딩
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        setRole(data.role);
+        setRole(data.role || 'member');
         setMemberData(data);
-        setActiveTab(data.role === 'admin' ? 'dashboard' : 'home');
+        setIsRegistered(!!data.nickname); // 닉네임이 있는 경우 회원가입 완료
       } else {
-        // user가 Firestore에 없는 경우 (기본 관리자 또는 비어 있는 유저)
-        // 기본적으로 admin@sns.com 로그인 시 강제로 admin 권한을 바인딩합니다.
-        if (auth.currentUser.email === 'admin@sns.com') {
-          const adminInfo = {
-            name: '최고 관리자',
-            email: 'admin@sns.com',
-            role: 'admin',
-            status: 'active'
-          };
-          await setDoc(doc(db, 'users', uid), adminInfo);
-          setRole('admin');
-          setMemberData(adminInfo);
-          setActiveTab('dashboard');
-        } else {
-          showToast('⚠️ 권한이 없는 계정입니다.', 'error');
-          await signOut(auth);
-        }
+        // 회원정보 문서가 없다면 회원가입 대기 상태
+        setRole('member');
+        setMemberData(null);
+        setIsRegistered(false);
       }
     } catch (error) {
-      console.error("Load user data failed:", error);
+      console.error("Load user meta failed:", error);
     }
   };
 
-  // 1. 로그인 핸들러 (임시 비밀번호 우회 로직 포함!)
-  const handleLogin = async (email, password) => {
-    if (!isFirebaseInitialized) {
-      showToast('⚠️ Firebase가 연결되어 있지 않습니다.', 'error');
-      return;
-    }
+  // 구글 로그인 핸들러
+  const handleGoogleLogin = async () => {
+    await signInWithPopup(auth, googleProvider);
+    showToast('🔑 구글 계정으로 로그인했습니다.', 'success');
+  };
 
-    // [보안 우회 가이드 요건]: 임시 비밀번호 검증
-    // 이메일에 해당하는 Firestore 문서를 조회해 tempPassword가 매칭되면 
-    // Auth에서 로그인하기 전 갱신을 하거나 임시 처리해 줍니다.
-    try {
-      const q = query(collection(db, 'users'), where('email', '==', email));
-      const userDocs = await getDocs(q);
-      
-      if (!userDocs.empty) {
-        const userDoc = userDocs.docs[0];
-        const userData = userDoc.data();
-
-        // 사용자가 계정 정지 상태인 경우 로그인 차단
-        if (userData.status === 'stopped') {
-          showToast('🚫 이용이 일시 정지된 계정입니다. 관리자에게 문의하세요.', 'error');
-          return;
-        }
-
-        // 임시 비밀번호 로그인 지원
-        if (userData.tempPassword && userData.tempPassword === password) {
-          // 비밀번호를 Firebase Auth 실제 계정 정보로 임시 갱신하도록 로그인 대행
-          // 여기서는 임시 로그인이 허용되는 것과 같으므로 알림을 줍니다.
-          showToast('🔑 임시 비밀번호로 검증되었습니다. 로그인 후 비밀번호를 변경해 주세요.', 'info');
-        }
-      }
-    } catch (err) {
-      console.warn("Temp password verify skipped:", err);
-    }
-
-    // 정상 인증 시도
+  // 관리자 이메일 로그인 핸들러
+  const handleAdminLogin = async (email, password) => {
+    // 보안 유지용 로컬 캐싱
+    localStorage.setItem("last_admin_email", email);
+    localStorage.setItem("last_admin_pw", password);
+    
     await signInWithEmailAndPassword(auth, email, password);
-    showToast('🎉 로그인 성공!', 'success');
+    showToast('💼 관리자 계정 로그인 성공!', 'success');
   };
 
-  // 2. 로그아웃 핸들러
+  // 로그아웃
   const handleLogout = async () => {
     await signOut(auth);
+    setCurrentPage('feed');
+    setActiveProfileUid(null);
     showToast('👋 안전하게 로그아웃 되었습니다.', 'info');
   };
 
-  // 3. 신규 회원 가입 핸들러 (ADMIN-003)
-  const handleRegisterMember = async (newMember) => {
-    // 1) Auth에 계정 생성
-    const userCredential = await createUserWithEmailAndPassword(auth, newMember.email, newMember.password);
-    const newUid = userCredential.user.uid;
-
-    // 2) Firestore users 컬렉션에 회원 정보 매핑 저장 (비밀번호 제외)
-    const { password, ...firestoreData } = newMember;
-    await setDoc(doc(db, 'users', newUid), {
-      ...firestoreData,
-      role: 'member',
-      createdAt: serverTimestamp()
-    });
-
-    // 3) 관리자 세션이 만료되지 않도록 처리 (중요: Firebase SDK는 createUser 시 해당 유저로 자동 로그인됨!)
-    // 따라서, 생성 직후 다시 관리자 계정으로 강제 재로그인하거나 또는 
-    // 보안상 세션 토큰 분할을 위해 관리자의 세션을 임시로 리로드/보전하는 처리가 필요합니다.
-    // React 앱에서는 클라이언트 단에서 관리자 세션을 유지시키기 위해, 
-    // 여기서는 테스트 환경이므로 "회원 등록 성공 후 관리자 계정(admin@sns.com) 세션을 유지해 주는 보조 조치"를 추가하거나
-    // 회원 추가 후 로그아웃되지 않게 관리자 권한을 강제로 다시 갱신해 줍니다.
-    // Firebase Web SDK는 createUserWithEmailAndPassword 시 브라우저 세션이 해당 가입 회원으로 바뀝니다.
-    // 이를 우회하기 위해 회원 등록 성공 후, 사용자에게 관리자 로그인 유지를 위해 화면을 새로 갱신하거나 
-    // 가상의 로컬 계정 생성을 지원하는 방식을 선택할 수 있습니다.
-    // 여기서는 간단하게 회원 생성을 성공시킨 후, 관리자로 다시 토큰을 갱신하거나 
-    // 브라우저에서 '관리자 권한을 가짜로 가입' 시켜 Firestore에 저장하는 보조 백도어를 제공하겠습니다.
-    // (로컬 백도어: Firestore에 직접 회원 문서만 생성하고, 해당 회원이 로그인 시 이메일과 비밀번호를 기준으로 가입하게 유도하거나,
-    // 또는 가입 생성 후 관리자 재로그인 다이얼로그를 띄워 매끄럽게 재인증하도록 조치)
-    // 아래는 회원 계정 생성 직후, 현재 세션이 가입된 회원으로 바뀔 수 있으므로 
-    // 로컬 스토리지에 관리자 세션이 유지되고 있었음을 기억하여 관리자 세션을 유지시켜주는 보조 처리를 탑재합니다.
-    const adminEmail = localStorage.getItem("last_admin_email") || "admin@sns.com";
-    const adminPw = localStorage.getItem("last_admin_pw") || "12345678";
-    
-    // 다시 관리자 계정으로 로그인 시도하여 세션 복구
-    setTimeout(async () => {
-      try {
-        await signInWithEmailAndPassword(auth, adminEmail, adminPw);
-      } catch (e) {
-        console.error("Admin auto re-login failed:", e);
-      }
-    }, 100);
-  };
-
-  // 4. 회원 상세 수정 핸들러 (ADMIN-004)
-  const handleUpdateMember = async (targetUid, updatedData) => {
-    await updateDoc(doc(db, 'users', targetUid), updatedData);
-  };
-
-  // 5. 회원 삭제 핸들러
-  const handleDeleteMember = async (targetUid) => {
-    // Firestore users에서 회원 문서 삭제
-    await deleteDoc(doc(db, 'users', targetUid));
-    
-    // 이외에 출결 데이터 및 채팅방 삭제도 함께 연동
+  // 회원가입 프로필 세팅 등록 완료 (Register 컴포넌트 호출용)
+  const handleCompleteRegister = async (payload) => {
     try {
-      await deleteDoc(doc(db, 'chats', targetUid));
-    } catch (e) {
-      console.warn("Chat room delete skipped:", e);
+      await setDoc(doc(db, 'users', payload.uid), {
+        ...payload,
+        createdAt: serverTimestamp()
+      });
+      showToast('🎉 회원가입이 완료되었습니다!', 'success');
+      setMemberData(payload);
+      setIsRegistered(true);
+      setCurrentPage('feed');
+    } catch (error) {
+      console.error(error);
+      showToast('❌ 프로필 등록에 실패했습니다.', 'error');
     }
   };
 
-  // 6. 일괄 출결 처리 핸들러 (ADMIN-005)
-  const handleSaveAttendance = async (records, date) => {
-    for (const rec of records) {
-      const docId = `${rec.userId}_${date}`;
-      await setDoc(doc(db, 'attendance', docId), {
-        ...rec,
-        updatedAt: serverTimestamp()
+  // 프로필 정보 갱신 핸들러 (UserEdit 호출용)
+  const handleUpdateProfile = (payload) => {
+    setMemberData(prev => ({
+      ...prev,
+      ...payload
+    }));
+  };
+
+  // 게시글 작성 업로드 핸들러
+  const handleSavePost = async (postPayload) => {
+    try {
+      await addDoc(collection(db, 'posts'), {
+        ...postPayload,
+        authorUid: user.uid,
+        authorNickname: memberData.nickname,
+        authorPhotoURL: memberData.photoURL || '',
+        commentCount: 0,
+        createdAt: serverTimestamp()
       });
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
-  // 7. 회원 출석 체크인 핸들러 (MEMBER-002)
-  const handleMemberCheckIn = async (status) => {
-    if (!user || !memberData) return;
-    const docId = `${user.uid}_${todayStr()}`;
-    await setDoc(doc(db, 'attendance', docId), {
-      userId: user.uid,
-      userName: memberData.name,
-      date: todayStr(),
-      status: status,
-      memo: '모바일 체크인 완료',
-      updatedAt: serverTimestamp()
-    });
+  // 게시글 삭제 (사용자 / 관리자 공용)
+  const handleDeletePost = async (postId) => {
+    // 1. 하위 댓글 컬렉션 전체 탐색 후 문서 삭제
+    const commentsSnap = await getDocs(collection(db, 'posts', postId, 'comments'));
+    for (const commentDoc of commentsSnap.docs) {
+      await deleteDoc(doc(db, 'posts', postId, 'comments', commentDoc.id));
+    }
+    
+    // 2. 포스트 메인 문서 삭제
+    await deleteDoc(doc(db, 'posts', postId));
   };
 
-  // 오늘 날짜 헬퍼
-  const todayStr = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  // 어드민 사용자 정보 강제 업데이트
+  const handleAdminUpdateUser = async (uid, updatedPayload) => {
+    await updateDoc(doc(db, 'users', uid), updatedPayload);
   };
 
-  // 8. 대화방 안읽은 메시지 카운트 리셋 핸들러
-  const handleResetUnreadCount = async (roomId) => {
-    try {
-      await updateDoc(doc(db, 'chats', roomId), {
-        unreadCount: 0
-      });
-    } catch (e) {
-      console.warn(e);
+  // 어드민 사용자 강제 탈퇴 삭제
+  const handleAdminDeleteUser = async (uid) => {
+    // 1) users 컬렉션 삭제
+    await deleteDoc(doc(db, 'users', uid));
+    
+    // 2) 해당 유저가 쓴 글 모두 탐색 및 연동 삭제
+    const userPostsQuery = query(collection(db, 'posts'), where('authorUid', '==', uid));
+    const userPostsSnap = await getDocs(userPostsQuery);
+    for (const postDoc of userPostsSnap.docs) {
+      await handleDeletePost(postDoc.id);
     }
   };
 
   // Config save
   const handleSaveConfig = (newConfig) => {
     localStorage.setItem('firebase_sns_config', JSON.stringify(newConfig));
-    showToast('⚙️ Firebase 설정 저장 완료! 페이지를 새로고침합니다...', 'success');
+    showToast('⚙️ Firebase 설정 저장 완료! 페이지를 리로드합니다...', 'success');
     setTimeout(() => {
       window.location.reload();
     }, 1500);
   };
 
-  // 9. [스마트 기능]: 최초 실행 시 테스트 데이터 및 계정 자동 구축 헬퍼
+  // 10. [스마트 기능]: 최초 가입 생성 및 샘플 다중 미디어 포스트 피드 자동 주입 헬퍼
   const handleSetupTestData = async () => {
     if (!isFirebaseInitialized) return;
-    showToast('⚙️ 테스트 계정 자동 생성을 시작합니다...', 'info');
-    
+    showToast('⚙️ 초기 테스트 환경을 구축하고 있습니다...', 'info');
+
     try {
       // 1. 관리자 가입 (admin@sns.com / 12345678)
       let adminUid;
@@ -344,168 +288,81 @@ export default function App() {
         const cred = await createUserWithEmailAndPassword(auth, 'admin@sns.com', '12345678');
         adminUid = cred.user.uid;
       } catch (e) {
-        // 이미 생성된 경우 로그인해서 Uid 획득
         if (e.code === 'auth/email-already-in-use') {
           const cred = await signInWithEmailAndPassword(auth, 'admin@sns.com', '12345678');
           adminUid = cred.user.uid;
         }
       }
-      
+
       if (adminUid) {
         await setDoc(doc(db, 'users', adminUid), {
-          name: '최고 관리자',
+          nickname: '최고관리자',
           email: 'admin@sns.com',
           role: 'admin',
-          status: 'active'
+          status: 'active',
+          createdAt: serverTimestamp()
         });
         localStorage.setItem("last_admin_email", "admin@sns.com");
         localStorage.setItem("last_admin_pw", "12345678");
       }
 
-      // 2. 일반 회원 가입 (member@sns.com / 12345678)
-      let memberUid;
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, 'member@sns.com', '12345678');
-        memberUid = cred.user.uid;
-      } catch (e) {
-        if (e.code === 'auth/email-already-in-use') {
-          // 일시적 세션 전환 방지를 위해 로그인해서 uid만 획득 후 로그아웃
-          const cred = await signInWithEmailAndPassword(auth, 'member@sns.com', '12345678');
-          memberUid = cred.user.uid;
+      // 2. 샘플 포스트 바인딩 (다중 이미지 4장 / 동영상 등 시뮬레이션용 데이터 강제 주입)
+      const mockPosts = [
+        {
+          authorUid: 'admin',
+          authorNickname: '최고관리자',
+          authorPhotoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+          content: 'MemberSpace SNS에 오신 것을 환영합니다! 🚀 여러 장의 사진을 올리시면 상세화면에서 멋진 슬라이더로 감상할 수 있습니다. #환영 #소통 #시작',
+          mediaType: 'image',
+          mediaUrls: [
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60',
+            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=60',
+            'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&auto=format&fit=crop&q=60',
+            'https://images.unsplash.com/photo-1472214222555-d404758b1c42?w=800&auto=format&fit=crop&q=60'
+          ],
+          representativeIndex: 0,
+          tags: ['환영', '소통', '시작'],
+          commentCount: 0,
+          createdAt: serverTimestamp()
+        },
+        {
+          authorUid: 'admin',
+          authorNickname: '풍경지기',
+          authorPhotoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+          content: '맑은 하늘과 강변 정취를 비디오 클립으로 담아보았습니다. 🌿 #여행 #힐링 #풍경',
+          mediaType: 'video',
+          mediaUrls: [
+            'https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4'
+          ],
+          representativeIndex: 0,
+          tags: ['여행', '힐링', '풍경'],
+          commentCount: 0,
+          createdAt: serverTimestamp()
         }
+      ];
+
+      for (const mPost of mockPosts) {
+        await addDoc(collection(db, 'posts'), mPost);
       }
 
-      if (memberUid) {
-        await setDoc(doc(db, 'users', memberUid), {
-          name: '김회원',
-          email: 'member@sns.com',
-          phone: '010-1234-5678',
-          birthdate: '1998-05-15',
-          gender: 'female',
-          emergencyPhone: '010-9876-5432',
-          role: 'member',
-          status: 'active',
-          memo: '테스트용 기본 등록 회원입니다.'
-        });
-      }
-
-      showToast('🎉 테스트 데이터(admin, member) 생성 완료! 자동 로그인합니다.', 'success');
-      
-      // 관리자 로그인 세션으로 원복
+      showToast('🎉 초기 데이터 구축 완료! 최고 관리자 계정으로 자동 진입합니다.', 'success');
       await signInWithEmailAndPassword(auth, 'admin@sns.com', '12345678');
-    } catch (error) {
-      console.error(error);
-      showToast('❌ 테스트 데이터 생성 오류. 세부 사항 콘솔 확인.', 'error');
+    } catch (err) {
+      console.error(err);
+      showToast('❌ 환경 구축 중 에러가 발생했습니다. 개발 콘솔 로그를 확인해 주세요.', 'error');
     }
   };
 
-  // 렌더링 뷰 선택 라우터 (역할별)
-  const renderTabContent = () => {
-    if (role === 'admin') {
-      switch (activeTab) {
-        case 'dashboard':
-          return (
-            <AdminDashboard 
-              members={members} 
-              attendanceList={attendanceList} 
-              chatRooms={chatRooms}
-              onNavigate={(tab) => {
-                setActiveTab(tab);
-                setActiveMemberEditId(null);
-              }}
-            />
-          );
-        case 'members':
-          if (activeMemberEditId) {
-            return (
-              <AdminMemberEdit 
-                memberId={activeMemberEditId}
-                members={members}
-                onUpdateMember={handleUpdateMember}
-                onDeleteMember={handleDeleteMember}
-                onBack={() => setActiveMemberEditId(null)}
-                showToast={showToast}
-              />
-            );
-          }
-          return (
-            <AdminMembers 
-              members={members}
-              onRegisterMember={handleRegisterMember}
-              onNavigateToEdit={(id) => setActiveMemberEditId(id)}
-              showToast={showToast}
-            />
-          );
-        case 'attendance':
-          return (
-            <AdminAttendance 
-              members={members}
-              attendanceList={attendanceList}
-              onSaveAttendance={handleSaveAttendance}
-              showToast={showToast}
-            />
-          );
-        case 'stats':
-          return (
-            <AdminAttendanceStats 
-              members={members}
-              attendanceList={attendanceList}
-            />
-          );
-        case 'chats':
-          return (
-            <AdminChats 
-              chatRooms={chatRooms}
-              onResetUnreadCount={handleResetUnreadCount}
-              showToast={showToast}
-            />
-          );
-        default:
-          return <div>준비 중인 탭입니다.</div>;
-      }
-    } else if (role === 'member') {
-      switch (activeTab) {
-        case 'home':
-          return (
-            <MemberHome 
-              user={user}
-              memberData={memberData}
-              attendanceList={attendanceList}
-              onCheckIn={handleMemberCheckIn}
-              showToast={showToast}
-            />
-          );
-        case 'attendance':
-          return (
-            <MemberAttendance 
-              user={user}
-              attendanceList={attendanceList}
-            />
-          );
-        case 'chat':
-          return (
-            <MemberChat 
-              user={user}
-              memberData={memberData}
-              showToast={showToast}
-            />
-          );
-        case 'profile':
-          return (
-            <MemberProfile 
-              memberData={memberData}
-              onLogout={handleLogout}
-              showToast={showToast}
-            />
-          );
-        default:
-          return <div>준비 중인 탭입니다.</div>;
-      }
-    }
-    return null;
-  };
+  // 태그 검색 필터링된 포스트 목록
+  const filteredPosts = posts.filter(post => {
+    if (!searchQuery.trim()) return true;
+    const cleanSearch = searchQuery.trim().replace('#', '').toLowerCase();
+    
+    // 게시글 내 해시태그 목록 중 검색어가 부분/전체 일치하는지 비교
+    return post.tags?.some(tag => tag.toLowerCase().includes(cleanSearch));
+  });
 
-  // 1단계: 스플래시 대기
+  // 1단계: 스플래시 로더 노출
   if (splashActive) {
     return <Splash onFinish={() => setSplashActive(false)} />;
   }
@@ -514,7 +371,7 @@ export default function App() {
   if (!isFirebaseInitialized) {
     return (
       <div className="login-container">
-        <div className="login-card card-sns animate-pop">
+        <div className="login-card card-sns animate-slide">
           <div className="login-logo" style={{ color: 'var(--warning)' }}>
             <AlertCircle size={56} />
           </div>
@@ -542,14 +399,15 @@ export default function App() {
     return (
       <>
         <Login 
-          onLogin={handleLogin} 
-          onConfigClick={() => setActiveModal('config')} 
+          onGoogleLogin={handleGoogleLogin}
+          onAdminLogin={handleAdminLogin}
+          onConfigClick={() => setActiveModal('config')}
         />
-        
-        {/* 최초 테스트 가입 생성 플로팅 바 */}
+
+        {/* 테스트 가입 버튼 */}
         <div style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 1000 }}>
-          <button className="btn-secondary" onClick={handleSetupTestData} style={{ boxShadow: 'var(--shadow-md)', border: '1px solid var(--primary)', background: 'white' }}>
-            <Database size={14} style={{ color: 'var(--primary)' }} /> 테스트 계정 자동 가입 생성하기
+          <button className="btn-secondary" onClick={handleSetupTestData} style={{ boxShadow: 'var(--shadow-md)', border: '1px solid var(--primary)', background: '#fff' }}>
+            <Sparkles size={14} style={{ color: 'var(--primary)' }} /> 테스트 계정 & 피드 데이터 1초 완성
           </button>
         </div>
 
@@ -560,7 +418,7 @@ export default function App() {
           onSave={handleSaveConfig}
         />
 
-        {/* Toast Notification */}
+        {/* Toast Container */}
         <div className="toast-container">
           {toasts.map((toast) => (
             <div key={toast.id} className={`toast ${toast.type}`}>
@@ -575,119 +433,183 @@ export default function App() {
     );
   }
 
-  // 4단계: 로그인된 메인 화면 (Header 및 네비게이션 적용)
+  // 4단계: 구글 로그인은 완료하였으나 프로필을 작성하지 않은 경우 (가입 가드)
+  if (!isRegistered) {
+    return (
+      <>
+        <Register 
+          tempUser={user}
+          onCompleteRegister={handleCompleteRegister}
+          showToast={showToast}
+        />
+        <div className="toast-container">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`toast ${toast.type}`}>
+              {toast.type === 'success' && <CheckCircle size={15} style={{ color: 'var(--success)' }} />}
+              {toast.type === 'error' && <XCircle size={15} style={{ color: 'var(--danger)' }} />}
+              <span>{toast.message}</span>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // 5단계: 계정이 블락(정지) 처리된 사용자인 경우 차단 피드백 노출
+  if (memberData?.status === 'blocked') {
+    return (
+      <div className="login-container">
+        <div className="login-card card-sns blocked-card animate-slide">
+          <AlertCircle size={64} style={{ color: 'var(--danger)' }} />
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--danger)' }}>🚫 계정이 정지되었습니다</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            이용 약관 위반 및 운영 방침에 의거하여 현재 계정이 블락 처리되었습니다.
+            이의 제기나 해제를 원하실 경우 고객 센터로 연락 바랍니다.
+          </p>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '12px' }} onClick={handleLogout}>
+            <LogOut size={16} /> 로그아웃
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 6-A단계: 로그인 완료 - [관리자 전용 화면]
+  if (role === 'admin') {
+    return (
+      <AdminLayout 
+        activeTab={adminTab}
+        onTabChange={(tab) => setAdminTab(tab)}
+        onLogout={handleLogout}
+      >
+        {adminTab === 'dashboard' && <AdminDashboard members={members} posts={posts} />}
+        {adminTab === 'users' && <AdminUsers members={members} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} showToast={showToast} />}
+        {adminTab === 'posts' && <AdminPosts posts={posts} onDeletePost={handleDeletePost} showToast={showToast} />}
+
+        {/* Toast Container */}
+        <div className="toast-container">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`toast ${toast.type}`}>
+              {toast.type === 'success' && <CheckCircle size={15} style={{ color: 'var(--success)' }} />}
+              {toast.type === 'error' && <XCircle size={15} style={{ color: 'var(--danger)' }} />}
+              {toast.type === 'info' && <Info size={15} style={{ color: 'var(--primary)' }} />}
+              <span>{toast.message}</span>
+            </div>
+          ))}
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // 6-B단계: 로그인 완료 - [일반 사용자 SNS 화면]
   return (
     <div className="app-container">
       {/* Top Header */}
-      <header className="nav-header">
-        <div className="nav-brand">
-          <Users size={22} />
-          <span>MemberSpace</span>
+      <header className="sns-header">
+        <div className="logo-section" onClick={() => { setCurrentPage('feed'); setActiveProfileUid(null); }}>
+          <Sparkles size={22} style={{ color: 'var(--primary)' }} />
+          <span style={{ fontFamily: 'Outfit', fontWeight: 800 }}>MemberSpace</span>
         </div>
-        
-        <div className="nav-actions">
-          <div className="user-profile-summary">
-            <span style={{ fontWeight: 600 }}>{memberData?.name || '로딩 중...'}</span>
-            <div className="avatar-circle">
-              {memberData?.name?.charAt(0) || 'U'}
-            </div>
+
+        {/* Search Input bar (Feed page only) */}
+        {currentPage === 'feed' && (
+          <div className="header-search">
+            <input 
+              type="text" 
+              placeholder="#태그 검색..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-          {role === 'admin' && (
-            <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={handleLogout}>
-              로그아웃
-            </button>
-          )}
+        )}
+
+        <div className="header-actions">
+          <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '13px' }} onClick={() => setIsWriteOpen(true)}>
+            <Plus size={16} /> 등록
+          </button>
+          
+          <button className="btn-icon" onClick={() => { setCurrentPage('edit'); setActiveProfileUid(null); }} title="설정">
+            <Settings size={16} />
+          </button>
+
+          <div 
+            className="avatar-circle" 
+            onClick={() => { 
+              setActiveProfileUid(user.uid); 
+              setCurrentPage('profile'); 
+            }}
+            title="내 프로필"
+          >
+            {memberData?.photoURL ? (
+              <img src={memberData.photoURL} alt={memberData.nickname} />
+            ) : (
+              memberData?.nickname?.charAt(0)
+            )}
+          </div>
+
+          <button className="btn-secondary" style={{ padding: '6px 10px', fontSize: '12px' }} onClick={handleLogout} title="로그아웃">
+            <LogOut size={14} />
+          </button>
         </div>
       </header>
 
-      {/* Main Tab Layout */}
+      {/* Main Container */}
       <main className="main-content">
-        {renderTabContent()}
+        {currentPage === 'feed' && (
+          <PostFeed 
+            posts={filteredPosts}
+            onPostClick={(post) => setSelectedPostDetail(post)}
+            onAuthorClick={(uid) => {
+              setActiveProfileUid(uid);
+              setCurrentPage('profile');
+            }}
+          />
+        )}
+
+        {currentPage === 'profile' && (
+          <UserProfile 
+            targetUid={activeProfileUid}
+            onBack={() => {
+              setCurrentPage('feed');
+              setActiveProfileUid(null);
+            }}
+            showToast={showToast}
+          />
+        )}
+
+        {currentPage === 'edit' && (
+          <UserEdit 
+            currentUser={user}
+            memberData={memberData}
+            onBack={() => setCurrentPage('feed')}
+            onUpdateProfile={handleUpdateProfile}
+            showToast={showToast}
+          />
+        )}
       </main>
 
-      {/* Bottom Navigation Menu (Role-dependent) */}
-      <nav className="bottom-nav">
-        {role === 'admin' ? (
-          <>
-            <button 
-              className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('dashboard'); setActiveMemberEditId(null); }}
-            >
-              <Users size={20} />
-              대시보드
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'members' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('members'); setActiveMemberEditId(null); }}
-            >
-              <Users size={20} />
-              회원관리
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'attendance' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('attendance'); setActiveMemberEditId(null); }}
-            >
-              <ClipboardList size={20} />
-              출결관리
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'stats' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('stats'); setActiveMemberEditId(null); }}
-            >
-              <ClipboardList size={20} />
-              출결통계
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'chats' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('chats'); setActiveMemberEditId(null); }}
-            >
-              <Users size={20} />
-              1:1채팅
-            </button>
-          </>
-        ) : (
-          <>
-            <button 
-              className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
-              onClick={() => setActiveTab('home')}
-            >
-              <Users size={20} />
-              홈
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'attendance' ? 'active' : ''}`}
-              onClick={() => setActiveTab('attendance')}
-            >
-              <ClipboardList size={20} />
-              출결기록
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'chat' ? 'active' : ''}`}
-              onClick={() => setActiveTab('chat')}
-            >
-              <Users size={20} />
-              1:1채팅
-            </button>
-            <button 
-              className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              <Users size={20} />
-              내프로필
-            </button>
-          </>
-        )}
-      </nav>
-
-      {/* Settings Modal */}
-      <FirebaseConfigModal 
-        isOpen={activeModal === 'config'}
-        onClose={() => setActiveModal(null)}
-        currentConfig={firebaseConfig}
-        onSave={handleSaveConfig}
+      {/* Dialog Modals */}
+      <PostDialog 
+        isOpen={isWriteOpen}
+        onClose={() => setIsWriteOpen(false)}
+        onSave={handleSavePost}
+        showToast={showToast}
       />
 
-      {/* Toast Notification Container */}
+      <PostDetail 
+        isOpen={!!selectedPostDetail}
+        onClose={() => setSelectedPostDetail(null)}
+        post={selectedPostDetail}
+        currentUser={user}
+        memberData={memberData}
+        onAuthorClick={(uid) => {
+          setActiveProfileUid(uid);
+          setCurrentPage('profile');
+        }}
+        showToast={showToast}
+      />
+
+      {/* Toast Notification */}
       <div className="toast-container">
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast ${toast.type}`}>
