@@ -1,36 +1,36 @@
 import React, { useState } from 'react';
-import { Users, Mail, Lock, Settings } from 'lucide-react';
+import { Users, LogIn, ShieldAlert, Settings } from 'lucide-react';
 
-export default function Login({ onLogin, onConfigClick }) {
+export default function Login({ onGoogleLogin, onAdminLogin, onConfigClick }) {
+  const [isAdminMode, setIsAdminMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // 간단한 이메일 유효성 체크
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('올바른 이메일 형식을 입력해 주세요.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      await onLogin(email, password);
+      await onAdminLogin(email, password);
     } catch (err) {
       console.error(err);
-      if (err.code === 'auth/user-not-found') {
-        setError('존재하지 않는 계정입니다.');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('비밀번호가 올바르지 않습니다.');
-      } else {
-        setError('로그인에 실패했습니다. 이메일 또는 비밀번호를 다시 확인해 주세요.');
-      }
+      setError('관리자 인증에 실패했습니다. 이메일 또는 비밀번호를 다시 확인해 주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleClick = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await onGoogleLogin();
+    } catch (err) {
+      console.error(err);
+      setError('구글 로그인에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -47,16 +47,14 @@ export default function Login({ onLogin, onConfigClick }) {
         <Settings size={20} />
       </button>
 
-      <div className="login-card card-sns animate-pop">
+      <div className="login-card card-sns animate-slide">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
-          <div className="login-logo">
-            <Users size={56} />
-          </div>
+          <Users size={56} style={{ color: 'var(--primary)', marginBottom: '8px' }} />
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>
-            MemberSpace 로그인
+            MemberSpace SNS
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>
-            계정 정보를 입력해 주세요.
+            {isAdminMode ? '어드민 관리 콘솔 로그인' : '친구들과 소소한 일상을 공유해 보세요!'}
           </p>
         </div>
 
@@ -64,8 +62,8 @@ export default function Login({ onLogin, onConfigClick }) {
           <div style={{ 
             color: 'var(--danger)', 
             background: 'var(--danger-light)', 
-            padding: '10px 14px', 
-            borderRadius: 'var(--radius-md)',
+            padding: '10px 12px', 
+            borderRadius: 'var(--radius-md)', 
             fontSize: '13px',
             textAlign: 'left',
             marginBottom: '16px',
@@ -75,49 +73,85 @@ export default function Login({ onLogin, onConfigClick }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="form-group" style={{ textAlign: 'left' }}>
-            <label style={{ marginBottom: '4px', display: 'block' }}>이메일</label>
-            <div style={{ position: 'relative' }}>
+        {!isAdminMode ? (
+          /* User Mode: Google Login */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <button 
+              className="btn-primary" 
+              style={{ 
+                padding: '12px', 
+                fontSize: '15px', 
+                background: '#ffffff', 
+                color: '#757575',
+                border: '1px solid #ced1d6',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+              onClick={handleGoogleClick}
+              disabled={loading}
+            >
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+                alt="Google" 
+                style={{ width: '18px', height: '18px' }}
+              />
+              구글 계정으로 로그인
+            </button>
+
+            <button 
+              className="btn-secondary" 
+              style={{ fontSize: '13px', padding: '8px 12px', alignSelf: 'center', background: 'none' }}
+              onClick={() => setIsAdminMode(true)}
+              disabled={loading}
+            >
+              💼 관리자 로그인으로 전환
+            </button>
+          </div>
+        ) : (
+          /* Admin Mode: Email/Password Login */
+          <form onSubmit={handleAdminSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>관리자 이메일</label>
               <input 
                 type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="example@sns.com" 
-                style={{ paddingLeft: '40px' }}
-                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@sns.com"
+                required
                 disabled={loading}
               />
-              <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             </div>
-          </div>
 
-          <div className="form-group" style={{ textAlign: 'left' }}>
-            <label style={{ marginBottom: '4px', display: 'block' }}>비밀번호</label>
-            <div style={{ position: 'relative' }}>
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>비밀번호</label>
               <input 
                 type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="비밀번호 입력" 
-                style={{ paddingLeft: '40px' }}
-                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="비밀번호 입력"
+                required
                 disabled={loading}
               />
-              <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             </div>
-          </div>
 
-          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px', marginTop: '8px' }} disabled={loading}>
-            {loading ? '로그인 중...' : '로그인'}
-          </button>
-        </form>
+            <button type="submit" className="btn-primary" style={{ padding: '12px', fontSize: '14px' }} disabled={loading}>
+              <LogIn size={16} /> {loading ? '로그인 중...' : '관리자 콘솔 접속'}
+            </button>
 
-        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', fontSize: '12px', color: 'var(--text-muted)' }}>
-          <p>임시 계정 정보</p>
-          <p style={{ marginTop: '4px' }}>관리자: <b>admin@sns.com</b> / 12345678</p>
-          <p>회원: <b>member@sns.com</b> / 12345678</p>
-        </div>
+            <button 
+              type="button"
+              className="btn-secondary" 
+              style={{ fontSize: '13px', padding: '8px 12px', alignSelf: 'center', background: 'none' }}
+              onClick={() => setIsAdminMode(false)}
+              disabled={loading}
+            >
+              ⬅️ 일반 사용자 로그인으로 전환
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
