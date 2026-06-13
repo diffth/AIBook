@@ -35,7 +35,7 @@ import {
 
 // 기본 Firebase 프로젝트 설정 값 (새로 생성한 mysns-664eb2 프로젝트 기준)
 const defaultFirebaseConfig = {
-  apiKey: "AIzaSyBANmAJCT4dCbaKevxDoz0WEFg7ocLIDjc",
+  apiKey: "AIzaSy_YOUR_API_KEY_MASKED_HERE",
   authDomain: "mysns-664eb2.firebaseapp.com",
   projectId: "mysns-664eb2",
   storageBucket: "mysns-664eb2.firebasestorage.app",
