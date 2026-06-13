@@ -5,7 +5,9 @@ import {
   signOut, 
   onAuthStateChanged,
   createUserWithEmailAndPassword,
-  updatePassword
+  updatePassword,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -20,6 +22,7 @@ import {
   query, 
   where,
   orderBy, 
+  limit,
   serverTimestamp 
 } from "firebase/firestore";
 import { 
@@ -77,6 +80,9 @@ function initFirebase(customConfig = null) {
 
 initFirebase();
 
+// Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
+
 export {
   app,
   auth,
@@ -85,6 +91,7 @@ export {
   firebaseConfig,
   isFirebaseInitialized,
   initFirebase,
+  googleProvider,
   
   // Auth Method
   signInWithEmailAndPassword,
@@ -92,6 +99,7 @@ export {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   updatePassword,
+  signInWithPopup,
   
   // Firestore Method
   collection,
@@ -105,6 +113,7 @@ export {
   query,
   where,
   orderBy,
+  limit,
   serverTimestamp,
   
   // Storage Method
