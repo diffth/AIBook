@@ -33,19 +33,33 @@ import {
   deleteObject 
 } from "firebase/storage";
 
-// 기본 Firebase 프로젝트 설정 값 (사용자의 이전 프로젝트 정보를 기반으로 설정)
+// 기본 Firebase 프로젝트 설정 값 (새로 생성한 mysns-664eb2 프로젝트 기준)
 const defaultFirebaseConfig = {
-  apiKey: "AIzaSyDf0hjzpuD1UroQNdQM19I0ghdpEF6bzng",
-  authDomain: "chatsample-378492.firebaseapp.com",
-  projectId: "chatsample-378492",
-  storageBucket: "chatsample-378492.firebasestorage.app",
-  messagingSenderId: "880492358594",
-  appId: "1:880492358594:web:5d0b9ee6b44d4d1da0845b"
+  apiKey: "AIzaSyBANmAJCT4dCbaKevxDoz0WEFg7ocLIDjc",
+  authDomain: "mysns-664eb2.firebaseapp.com",
+  projectId: "mysns-664eb2",
+  storageBucket: "mysns-664eb2.firebasestorage.app",
+  messagingSenderId: "1069518962821",
+  appId: "1:1069518962821:web:1b0a4ec92f7e853390e9ec"
 };
 
-// 로컬 스토리지에 저장된 설정이 있다면 우선 사용
-const savedConfig = localStorage.getItem("firebase_sns_config");
-const firebaseConfig = savedConfig ? JSON.parse(savedConfig) : defaultFirebaseConfig;
+// 로컬 스토리지에 저장된 설정이 있다면 우선 사용 (단, 기본 프로젝트 ID가 변경되면 초기화)
+const savedConfigStr = localStorage.getItem("firebase_sns_config");
+let firebaseConfig = defaultFirebaseConfig;
+
+if (savedConfigStr) {
+  try {
+    const parsed = JSON.parse(savedConfigStr);
+    if (parsed.projectId !== defaultFirebaseConfig.projectId) {
+      localStorage.removeItem("firebase_sns_config");
+      firebaseConfig = defaultFirebaseConfig;
+    } else {
+      firebaseConfig = parsed;
+    }
+  } catch (e) {
+    firebaseConfig = defaultFirebaseConfig;
+  }
+}
 
 let app;
 let auth;
