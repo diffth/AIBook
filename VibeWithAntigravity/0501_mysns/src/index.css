@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Facebook Classic Blue Theme */
+  --primary: #1877f2;
+  --primary-hover: #166fe5;
+  --primary-light: #e7f3ff;
+  --primary-glow: rgba(24, 119, 242, 0.2);
+  
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+  
+  --border-color: #e4e6eb;
+  --border-focus: rgba(24, 119, 242, 0.5);
+  
+  --text-primary: #050505;
+  --text-secondary: #65676b;
+  --text-muted: #8a8d91;
+  
+  /* Status Colors */
+  --success: #31a24c;
+  --success-light: #e6f4ea;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #f02849;
+  --danger-light: #ffebe9;
+  --info: #1877f2;
+  
+  /* Design Tokens */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+  
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  color-scheme: light;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  color: var(--text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Typography links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+button.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+button.btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+button.btn-primary:active {
+  transform: scale(0.98);
+}
+
+button.btn-secondary {
+  background-color: #e4e6eb;
+  color: #050505;
+}
+
+button.btn-secondary:hover {
+  background-color: #d8dadf;
+}
+
+button.btn-danger {
+  background-color: rgba(240, 40, 73, 0.1);
+  border: 1px solid rgba(240, 40, 73, 0.2);
+  color: var(--danger);
+}
+
+button.btn-danger:hover {
+  background-color: var(--danger);
+  color: white;
+}
+
+button.btn-icon {
+  padding: 8px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  color: #050505;
+  border: none;
+}
+
+button.btn-icon:hover {
+  background: #d8dadf;
+}
+
+button.btn-icon.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+textarea,
+select {
+  font-family: inherit;
+  background: #f0f2f5;
+  border: 1px solid #ced1d6;
+  color: var(--text-primary);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  outline: none;
+  font-size: 14px;
+  transition: var(--transition);
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+/* Utility Cards */
+.card-sns {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+/* Animations */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-pop {
+  animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
