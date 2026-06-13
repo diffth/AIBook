@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 // Firebase 웹/모바일 겸용 수동 옵션 설정 (mymembers-664eb2)
 const firebaseOptions = FirebaseOptions(
-  apiKey: "AIzaSyA_IOoePa3Kf6TG95BGxklJEWhfOUZCH20",
+  apiKey: "AIzaSyA_YOUR_API_KEY_MASKED_HERE",
   authDomain: "mymembers-664eb2.firebaseapp.com",
   projectId: "mymembers-664eb2",
   storageBucket: "mymembers-664eb2.firebasestorage.app",
