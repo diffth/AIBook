@@ -11,6 +11,7 @@ import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   collection,
+  addDoc,
   getDocs,
   getDoc,
   setDoc,
