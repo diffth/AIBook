@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI English - 관리자 콘솔</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background-image: radial-gradient(circle at 10% 20%, rgba(90, 24, 154, 0.15) 0%, transparent 45%);">
+
+  <!-- 글로벌 토스트 알림 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- 관리자 로그인 뷰 -->
+  <section id="admin-login-view" class="auth-wrapper" style="min-height: 100vh;">
+    <div class="auth-card glass-panel flex-column gap-24">
+      <div class="logo" style="justify-content: center; font-size: 2.2rem;">⚙️ AI English Admin</div>
+      <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center;">
+        관리자 계정 정보를 입력하여 시스템을 제어합니다.
+      </p>
+      
+      <div class="flex-column gap-8">
+        <label for="admin-id" style="font-size: 0.85rem; color: var(--text-muted);">아이디</label>
+        <input type="text" id="admin-id" class="input-field" placeholder="Admin ID">
+      </div>
+      <div class="flex-column gap-8">
+        <label for="admin-pw" style="font-size: 0.85rem; color: var(--text-muted);">비밀번호</label>
+        <input type="password" id="admin-pw" class="input-field" placeholder="Admin Password">
+      </div>
+      
+      <button id="admin-login-btn" class="btn btn-primary" style="width: 100%;">로그인</button>
+      
+      <div style="text-align: center; margin-top: 10px;">
+        <a href="index.html" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">👤 사용자 학습 사이트로</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 관리자 메인 제어판 레이아웃 -->
+  <div id="admin-main-layout" class="admin-layout" style="display: none;">
+    <!-- 관리자 사이드바 -->
+    <aside class="admin-sidebar">
+      <div class="logo">
+        <span>⚙️ Console</span>
+      </div>
+      
+      <ul class="admin-menu-list">
+        <li id="menu-dashboard" class="admin-menu-item active">📊 대시보드</li>
+        <li id="menu-users" class="admin-menu-item">👥 사용자 관리</li>
+        <li id="menu-sentences" class="admin-menu-item">📚 영어문장 관리</li>
+        <li id="menu-tests" class="admin-menu-item">📝 레벨테스트 관리</li>
+        <li id="menu-settings" class="admin-menu-item">🛠️ API 키 설정</li>
+      </ul>
+      
+      <button id="admin-logout-btn" class="btn btn-danger" style="margin-top: auto; width: 100%;">🚪 로그아웃</button>
+    </aside>
+
+    <!-- 관리자 메인 컨텐츠 영역 -->
+    <main class="admin-main">
+      
+      <!-- 1. 대시보드 뷰 -->
+      <section id="panel-dashboard">
+        <h2 class="mb-24">📊 서비스 대시보드</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card glass-panel flex-column">
+            <span class="stat-title">가입한 총 사용자</span>
+            <span id="stat-total-users" class="stat-value purple">0</span>
+          </div>
+          <div class="stat-card glass-panel flex-column">
+            <span class="stat-title">초급 학습 문장수</span>
+            <span id="stat-beginner-count" class="stat-value cyan">0</span>
+          </div>
+          <div class="stat-card glass-panel flex-column">
+            <span class="stat-title">중급 학습 문장수</span>
+            <span id="stat-intermediate-count" class="stat-value">0</span>
+          </div>
+          <div class="stat-card glass-panel flex-column">
+            <span class="stat-title">고급 학습 문장수</span>
+            <span id="stat-advanced-count" class="stat-value purple">0</span>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 30px;">
+          <h3 class="mb-24">⚙️ 시스템 정보</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
+            * 본 관리자 콘솔을 통해 Firestore 데이터베이스에 등록된 데이터를 통합 관리할 수 있습니다.<br>
+            * **[영어문장 관리]** 탭에서 AI를 통해 지속적으로 수준별 학습 단어 세트와 문법 가이드를 보강할 수 있습니다.<br>
+            * **[레벨테스트 관리]** 탭에서 신규 사용자용 가입 테스트 문항지를 AI로 무제한 출제할 수 있습니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. 사용자 관리 뷰 -->
+      <section id="panel-users" style="display: none;">
+        <div class="flex-between mb-24">
+          <h2>👥 사용자 계정 관리</h2>
+        </div>
+
+        <div class="glass-panel admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>사용자 정보</th>
+                <th>설정 레벨</th>
+                <th>접속 횟수</th>
+                <th>최근 접속일</th>
+                <th>가입일</th>
+                <th>사용 / 정지</th>
+              </tr>
+            </thead>
+            <tbody id="user-table-body">
+              <!-- 유저 리스트 동적 추가 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3. 영어문장 관리 뷰 -->
+      <section id="panel-sentences" style="display: none;">
+        <div class="flex-between mb-24">
+          <h2>📚 영어 문장 관리 데이터베이스</h2>
+          <div style="display: flex; gap: 12px;">
+            <select id="sentence-level-filter" class="input-field" style="width: 120px; padding: 8px 12px;">
+              <option value="all">전체 레벨</option>
+              <option value="초급">초급</option>
+              <option value="중급">중급</option>
+              <option value="고급">고급</option>
+            </select>
+            <input type="text" id="sentence-search-input" class="input-field" style="width: 200px; padding: 8px 12px;" placeholder="문장 키워드 검색...">
+            <button id="admin-create-sentence-btn" class="btn btn-primary" style="padding: 8px 16px;">🤖 AI 학습 문장 생성</button>
+          </div>
+        </div>
+
+        <div class="glass-panel admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>레벨</th>
+                <th>영어 문장</th>
+                <th>한국어 해석</th>
+                <th>상세 및 관리</th>
+              </tr>
+            </thead>
+            <tbody id="sentence-table-body">
+              <!-- 문장 목록 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. 레벨테스트 관리 뷰 -->
+      <section id="panel-tests" style="display: none;">
+        <div class="flex-between mb-24">
+          <h2>📝 레벨테스트 세트 관리</h2>
+          <button id="admin-create-test-btn" class="btn btn-primary">🤖 AI 테스트 세트 생성</button>
+        </div>
+
+        <div class="glass-panel admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>세트 ID</th>
+                <th>생성 일시</th>
+                <th>포함 문항 수</th>
+                <th>작업 및 제어</th>
+              </tr>
+            </thead>
+            <tbody id="test-table-body">
+              <!-- 테스트 세트 목록 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. API 키 설정 뷰 -->
+      <section id="panel-settings" style="display: none;">
+        <h2 class="mb-24">🛠️ Gemini API & Firebase 설정</h2>
+        <div class="glass-panel" style="padding: 30px; max-width: 700px; display: flex; flex-direction: column; gap: 20px;">
+          <div class="flex-column gap-8">
+            <label for="settings-gemini-key" style="font-weight: 600; font-size: 0.95rem; color: var(--text-muted);">Gemini API Key</label>
+            <input type="password" id="settings-gemini-key" class="input-field" placeholder="Gemini API Key 기입">
+            <p style="color: var(--text-muted); font-size: 0.8rem;">
+              * AI가 실시간 영어 문장 및 테스트 문제를 구성하는 데 사용되는 구글 제미나이 API 키입니다.
+            </p>
+          </div>
+          
+          <div class="flex-column gap-8">
+            <label for="settings-firebase-config" style="font-weight: 600; font-size: 0.95rem; color: var(--text-muted);">Firebase Web Config (JSON)</label>
+            <textarea id="settings-firebase-config" class="input-field" rows="6" style="font-family: monospace; font-size: 0.85rem;" placeholder="{ ... }"></textarea>
+            <p style="color: var(--text-muted); font-size: 0.8rem;">
+              * 기본 탑재된 프로젝트를 다른 Firebase 웹앱으로 이전하고자 할 때 JSON 문자열 설정을 붙여넣을 수 있습니다.
+            </p>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button id="settings-save-btn" class="btn btn-primary">💾 설정 저장</button>
+            <button id="settings-reset-btn" class="btn btn-secondary">⚠️ 기본 설정 복구</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 모달 팝업: 유저 상세 학습 정보 및 다이어리 -->
+  <div id="modal-user-detail" class="modal-overlay">
+    <div class="modal-content glass-panel">
+      <button class="modal-close" onclick="document.getElementById('modal-user-detail').classList.remove('open')">&times;</button>
+      <h3 id="modal-user-title" class="mb-24">학습자 상세 학습 정보</h3>
+      <div id="modal-user-content" class="flex-column gap-16">
+        <!-- 동적 렌더링 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 팝업: 문장 상세 정보 -->
+  <div id="modal-sentence-detail" class="modal-overlay">
+    <div class="modal-content glass-panel">
+      <button class="modal-close" onclick="document.getElementById('modal-sentence-detail').classList.remove('open')">&times;</button>
+      <h3 class="mb-24">📚 학습 문장 상세 정보</h3>
+      <div id="modal-sentence-content" class="flex-column gap-24">
+        <!-- 동적 렌더링 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 팝업: 레벨테스트 문항 리스트 및 테스트 해보기 -->
+  <div id="modal-test-detail" class="modal-overlay">
+    <div class="modal-content glass-panel" style="max-width: 700px;">
+      <button class="modal-close" onclick="document.getElementById('modal-test-detail').classList.remove('open')">&times;</button>
+      <h3 id="modal-test-title" class="mb-24">📝 테스트 문항 상세 목록</h3>
+      <div id="modal-test-content" class="flex-column gap-24">
+        <!-- 동적 렌더링 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 팝업: AI 학습 문장 대량 생성 대화상자 -->
+  <div id="modal-create-sentence" class="modal-overlay">
+    <div class="modal-content glass-panel" style="max-width: 450px;">
+      <button class="modal-close" onclick="document.getElementById('modal-create-sentence').classList.remove('open')">&times;</button>
+      <h3 class="mb-24">🤖 AI 학습 문장 생성</h3>
+      <div class="flex-column gap-16">
+        <div class="flex-column gap-8">
+          <label for="create-sent-level" style="font-size: 0.9rem; color: var(--text-muted);">대상 레벨</label>
+          <select id="create-sent-level" class="input-field">
+            <option value="초급">초급 (Beginner)</option>
+            <option value="중급">중급 (Intermediate)</option>
+            <option value="고급">고급 (Advanced)</option>
+          </select>
+        </div>
+        <div class="flex-column gap-8">
+          <label for="create-sent-count" style="font-size: 0.9rem; color: var(--text-muted);">생성할 문장 개수</label>
+          <select id="create-sent-count" class="input-field">
+            <option value="5">5개 문장 카드</option>
+            <option value="10">10개 문장 카드</option>
+          </select>
+        </div>
+        <button id="create-sent-execute-btn" class="btn btn-primary" style="margin-top: 10px; width: 100%;">✨ AI 문장 즉시 생성 및 삽입</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 관리자 로직 스크립트 로드 -->
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
