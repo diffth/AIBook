@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // UI 업데이트
     renderTodos();
+    
+    // 이벤트 리스너 바인딩
+    todoForm.addEventListener('submit', addTodo);
   }
 
   // 2. To-Do 렌더링 함수
@@ -81,6 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 통계(남은 일) 업데이트
     updateStats();
+  }
+
+  // 3. To-Do 추가 함수
+  function addTodo(e) {
+    e.preventDefault();
+    const text = todoInput.value.trim();
+    
+    if (text === '') return;
+
+    // 새 아이템 생성
+    const newTodo = {
+      id: Date.now(),
+      text: text,
+      completed: false
+    };
+
+    todos.push(newTodo);
+    saveToLocalStorage();
+    
+    // 리스트 다시 그리고 인풋 비우기
+    renderTodos();
+    todoInput.value = '';
+    todoInput.focus();
   }
 
   // 통계 및 개수 카운터 업데이트
