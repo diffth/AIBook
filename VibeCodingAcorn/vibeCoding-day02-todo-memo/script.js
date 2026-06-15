@@ -30,6 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 이벤트 리스너 바인딩
     todoForm.addEventListener('submit', addTodo);
+    clearAllBtn.addEventListener('click', clearAll);
+    
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFilter = e.target.getAttribute('data-filter');
+        renderTodos();
+      });
+    });
   }
 
   // 2. To-Do 렌더링 함수
@@ -150,13 +160,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 통계 및 개수 카운터 업데이트
+  // 6. 전체 삭제 함수
+  function clearAll() {
+    if (todos.length === 0) return;
+    
+    if (confirm('정말로 모든 할 일을 삭제하시겠습니까? 😮')) {
+      todos = [];
+      saveToLocalStorage();
+      renderTodos();
+    }
+  }
+
+  // 7. 통계 및 개수 카운터 업데이트
   function updateStats() {
     const activeTodos = todos.filter(todo => !todo.completed);
     activeCountEl.textContent = activeTodos.length;
   }
 
-  // 로컬스토리지 저장 함수
+  // 8. 로컬스토리지 저장 함수
   function saveToLocalStorage() {
     localStorage.setItem('vibe-todos', JSON.stringify(todos));
   }
