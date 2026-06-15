@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>도토리의 Vibe To-Do</title>
+  <!-- Google Fonts: Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="todo-app-container">
+    <!-- 1. Header Area -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="fa-solid fa-clipboard-list header-icon"></i>
+        <h1>Vibe To-Do</h1>
+      </div>
+      <p class="subtitle">도토리의 하루를 채우는 즐거운 기록 🌰</p>
+    </header>
+
+    <!-- 2. Input Area -->
+    <div class="input-section">
+      <form id="todoForm" autocomplete="off">
+        <div class="input-wrapper">
+          <input type="text" id="todoInput" placeholder="오늘 할 일이나 메모를 입력해 보세요..." required>
+          <button type="submit" class="btn-add" aria-label="추가">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 3. Filter Section -->
+    <div class="filter-section">
+      <button class="filter-btn active" data-filter="all">모두</button>
+      <button class="filter-btn" data-filter="active">진행중</button>
+      <button class="filter-btn" data-filter="completed">완료</button>
+    </div>
+
+    <!-- 4. Task List Container -->
+    <main class="list-section">
+      <ul id="todoList" class="todo-list">
+        <!-- Javascript가 동적으로 채워 넣을 영역 -->
+        <!-- 빈 상태 표시용 기본 HTML -->
+        <li class="empty-state">
+          <i class="fa-regular fa-folder-open empty-icon"></i>
+          <p>등록된 할 일이 없습니다.</p>
+        </li>
+      </ul>
+    </main>
+
+    <!-- 5. Footer Area (Stats & Actions) -->
+    <footer class="app-footer">
+      <div class="stats">
+        남은 할 일: <span id="activeCount">0</span>개
+      </div>
+      <button id="clearAllBtn" class="btn-clear">
+        <i class="fa-regular fa-trash-can"></i> 전체 삭제
+      </button>
+    </footer>
+  </div>
+
+  <!-- Custom JS -->
+  <script src="script.js"></script>
+</body>
+</html>
