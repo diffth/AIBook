@@ -1,0 +1,377 @@
+/* ==========================================================================
+   도토리의 Vibe To-Do - CSS 스타일시트
+   ========================================================================== */
+
+/* 1. 디자인 시스템 변수 설정 */
+:root {
+  /* 색상 코드 */
+  --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  --app-bg: rgba(255, 255, 255, 0.85);
+  --border-color: rgba(255, 255, 255, 0.4);
+  
+  --text-main: #2c3e50;
+  --text-sub: #7f8c8d;
+  --primary: #6c5ce7;
+  --primary-light: rgba(108, 92, 231, 0.1);
+  --accent-red: #ff7675;
+  --accent-red-light: rgba(255, 118, 117, 0.1);
+  --accent-green: #55efc4;
+  
+  --shadow-box: 0 15px 35px rgba(0, 0, 0, 0.1);
+  --shadow-item: 0 4px 12px rgba(108, 92, 231, 0.06);
+  --border-radius-lg: 24px;
+  --border-radius-md: 16px;
+  --border-radius-sm: 10px;
+  
+  --transition-normal: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-fast: all 0.15s ease;
+}
+
+/* 2. 기본 리셋 및 레이아웃 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* 3. App Container */
+.todo-app-container {
+  background: var(--app-bg);
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-box);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  transition: var(--transition-normal);
+}
+
+/* 4. Header Area */
+.app-header {
+  text-align: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.logo h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--primary), #4834d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-icon {
+  font-size: 1.8rem;
+  color: var(--primary);
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+/* 5. Input Area */
+.input-wrapper {
+  display: flex;
+  gap: 0.6rem;
+  position: relative;
+}
+
+#todoInput {
+  flex-grow: 1;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.95rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--border-radius-md);
+  background: #ffffff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+  transition: var(--transition-normal);
+}
+
+#todoInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(108, 92, 231, 0.15);
+}
+
+.btn-add {
+  background: var(--primary);
+  border: none;
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+  transition: var(--transition-normal);
+}
+
+.btn-add:hover {
+  background: #4834d4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(108, 92, 231, 0.4);
+}
+
+.btn-add:active {
+  transform: translateY(0);
+}
+
+/* 6. Filter Section */
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 0.3rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.filter-btn {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: calc(var(--border-radius-sm) - 2px);
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.filter-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 7. Task List Section */
+.list-section {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+}
+
+/* 스크롤바 디자인 */
+.list-section::-webkit-scrollbar {
+  width: 5px;
+}
+
+.list-section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list-section::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* 개별 아이템 스타일 */
+.todo-item {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-item);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition: var(--transition-normal);
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* 체크박스 커스텀 */
+.checkbox-wrapper {
+  margin-right: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.check-icon {
+  font-size: 1.15rem;
+  color: var(--text-sub);
+  transition: var(--transition-fast);
+}
+
+.todo-item.completed .check-icon {
+  color: var(--primary);
+}
+
+/* 할 일 텍스트 */
+.todo-text {
+  flex-grow: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-main);
+  transition: var(--transition-normal);
+  word-break: break-all;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--text-sub);
+  opacity: 0.65;
+}
+
+/* 삭제 버튼 */
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  transition: var(--transition-normal);
+}
+
+.btn-delete:hover {
+  color: var(--accent-red);
+  background: var(--accent-red-light);
+}
+
+/* 삭제 애니메이션 상태 */
+.todo-item.fall {
+  animation: fallOut 0.35s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+/* 8. Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-sub);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: rgba(108, 92, 231, 0.2);
+  margin-bottom: 0.8rem;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* 9. Footer Stats & Clear Actions */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.btn-clear {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: var(--transition-fast);
+}
+
+.btn-clear:hover {
+  color: var(--accent-red);
+}
+
+/* 10. Keyframe Animations */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fallOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+}
+
+/* 11. 반응형 모바일 최적화 */
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+  .todo-app-container {
+    padding: 1.8rem 1.2rem;
+    gap: 1.4rem;
+  }
+  .logo h1 {
+    font-size: 1.5rem;
+  }
+  #todoInput {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  .btn-add {
+    width: 44px;
+    height: 44px;
+  }
+}
