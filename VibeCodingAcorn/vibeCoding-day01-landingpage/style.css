@@ -490,3 +490,205 @@ a {
   line-height: 1.5;
   margin-top: auto;
 }
+
+/* 7. GitHub Section */
+.github-section {
+  padding: 6rem 0;
+  background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 10% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+}
+
+.github-card-wrapper {
+  background: linear-gradient(135deg, rgba(22, 31, 48, 0.5), rgba(10, 15, 26, 0.8));
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 3.5rem;
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .github-card-wrapper {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(241, 245, 249, 0.9));
+}
+
+.github-card-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
+}
+
+.github-icon-box {
+  font-size: 5.5rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  transition: var(--transition-smooth);
+}
+
+.github-card-wrapper:hover .github-icon-box {
+  transform: rotate(-10deg) scale(1.1);
+  color: var(--primary);
+}
+
+.github-content {
+  flex-grow: 1;
+}
+
+.github-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.github-project-name {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+.github-project-desc {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
+.github-tags {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.github-tags .tag {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-color);
+  padding: 0.35rem 0.85rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+[data-theme="light"] .github-tags .tag {
+  background: rgba(0,0,0,0.03);
+}
+
+/* 8. Contact Bar (Footer) */
+.contact-bar {
+  background-color: var(--bg-surface-solid);
+  border-top: 1px solid var(--border-color);
+  padding: 2.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: background-color 0.5s ease, border-color 0.5s ease;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.footer-email:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.footer-social-link {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  margin-left: 1.5rem;
+  display: inline-block;
+  transition: var(--transition-fast);
+}
+
+.footer-social-link:hover {
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* 9. 애니메이션 키프레임 및 스크롤 페이드 효과 */
+@keyframes logo-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 10. 반응형 미디어 쿼리 */
+@media (max-width: 992px) {
+  .github-card-wrapper {
+    flex-direction: column;
+    text-align: center;
+    padding: 2.5rem;
+    gap: 2rem;
+  }
+  .github-card-wrapper::before {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+  }
+  .github-icon-box {
+    font-size: 4.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* 모바일 단순화를 위해 링크 숨김 */
+  }
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-social-link {
+    margin: 0 0.75rem;
+  }
+  .hero-cta {
+    justify-content: center;
+  }
+  .hero-content {
+    text-align: center;
+  }
+  .hero-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
