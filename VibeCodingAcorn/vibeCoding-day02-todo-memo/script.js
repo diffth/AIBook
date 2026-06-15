@@ -78,6 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
           </button>
         `;
 
+        // 완료 토글 이벤트 바인딩 (체크박스 및 텍스트 영역 클릭 시)
+        const checkWrapper = li.querySelector('.checkbox-wrapper');
+        const textSpan = li.querySelector('.todo-text');
+        
+        [checkWrapper, textSpan].forEach(element => {
+          element.addEventListener('click', () => toggleTodo(todo.id));
+        });
+
+        // 삭제 이벤트 바인딩
+        const deleteBtn = li.querySelector('.btn-delete');
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // 완료 토글 이벤트 전파 방지
+          deleteTodo(todo.id, li);
+        });
+
         todoList.appendChild(li);
       });
     }
@@ -107,6 +122,32 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTodos();
     todoInput.value = '';
     todoInput.focus();
+  }
+
+  // 4. 완료 상태 토글 함수
+  function toggleTodo(id) {
+    todos = todos.map(todo => {
+      if (todo.id === id) {
+        return { ...todo, completed: !todo.completed };
+      }
+      return todo;
+    });
+
+    saveToLocalStorage();
+    renderTodos();
+  }
+
+  // 5. To-Do 삭제 함수 (애니메이션 적용)
+  function deleteTodo(id, itemElement) {
+    // 애니메이션 클래스 부여 (CSS에서 오른쪽으로 스르륵 사라짐)
+    itemElement.classList.add('fall');
+
+    // 애니메이션이 끝나면 데이터 삭제 및 재랜더링
+    itemElement.addEventListener('animationend', () => {
+      todos = todos.filter(todo => todo.id !== id);
+      saveToLocalStorage();
+      renderTodos();
+    });
   }
 
   // 통계 및 개수 카운터 업데이트
