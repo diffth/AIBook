@@ -1,0 +1,237 @@
+/* 기본 리셋 및 변수 설정 */
+:root {
+  --font-en: 'Outfit', sans-serif;
+  --font-ko: 'Noto Sans KR', sans-serif;
+  --bg-transition: background 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --card-transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ko);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  /* 부드러운 배경색 전환 */
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  transition: var(--bg-transition);
+}
+
+/* 감성적인 배경 입자 효과 데코레이션 */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 75% 40%, rgba(255, 255, 255, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px);
+  background-size: 100px 100px;
+  pointer-events: none;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+/* Glassmorphism Card */
+.card {
+  position: relative;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 32px;
+  padding: 50px 40px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: var(--card-transition);
+  transform: translateY(0);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* 카드 내부에 오묘하게 빛나는 효과 */
+.card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  transition: var(--card-transition);
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Quote 아이콘 데코 */
+.quote-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.quote-icon {
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  opacity: 0.8;
+}
+
+/* 명언 & 저자 스타일 */
+.quote-block {
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.quote-text {
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  word-break: keep-all;
+  min-height: 80px; /* 명언 변경 시 높이 급변 방지 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.quote-author {
+  font-family: var(--font-en);
+  font-size: 1.05rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.7);
+  display: block;
+  font-style: normal;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* 애니메이션 상태 클래스 */
+.fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 럭셔리 버튼 스타일 */
+.btn {
+  font-family: var(--font-ko);
+  font-weight: 500;
+  font-size: 1rem;
+  color: #1a1a1a;
+  background: #ffffff;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 50px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 
+              0 0 0 0px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: translateX(-100%);
+  transition: 0.6s;
+}
+
+.btn:hover::before {
+  transform: translateX(100%);
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 
+              0 0 0 6px rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+}
+
+.btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15), 
+              0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  color: #1a1a1a;
+  transition: transform 0.6s ease;
+}
+
+.btn:hover .btn-icon {
+  transform: rotate(180deg);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 480px) {
+  .card {
+    padding: 40px 24px;
+    border-radius: 24px;
+  }
+  .quote-text {
+    font-size: 1.35rem;
+    min-height: 100px;
+  }
+  .btn {
+    padding: 14px 28px;
+    font-size: 0.95rem;
+  }
+}
