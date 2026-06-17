@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Calculator</title>
+  <!-- Google Fonts 적용: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="calculator-container">
+    <div class="calculator">
+      <!-- 디스플레이 영역 -->
+      <div class="display-container">
+        <!-- readonly 속성을 추가하여 직접 입력 방지 -->
+        <input type="text" id="display" class="display-input" readonly placeholder="0">
+      </div>
+      
+      <!-- 키패드 영역 -->
+      <div class="keypad">
+        <button class="btn btn-action" data-action="clear">AC</button>
+        <button class="btn btn-action" data-action="delete">DEL</button>
+        <button class="btn btn-operator" data-value="/">/</button>
+        <button class="btn btn-operator" data-value="*">*</button>
+        
+        <button class="btn btn-number" data-value="7">7</button>
+        <button class="btn btn-number" data-value="8">8</button>
+        <button class="btn btn-number" data-value="9">9</button>
+        <button class="btn btn-operator" data-value="-">-</button>
+        
+        <button class="btn btn-number" data-value="4">4</button>
+        <button class="btn btn-number" data-value="5">5</button>
+        <button class="btn btn-number" data-value="6">6</button>
+        <button class="btn btn-operator" data-value="+">+</button>
+        
+        <button class="btn btn-number" data-value="1">1</button>
+        <button class="btn btn-number" data-value="2">2</button>
+        <button class="btn btn-number" data-value="3">3</button>
+        <button class="btn btn-equal" data-action="calculate">=</button>
+        
+        <button class="btn btn-number btn-zero" data-value="0">0</button>
+        <button class="btn btn-number" data-value=".">.</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
