@@ -1,0 +1,159 @@
+/* 기본 리셋 및 폰트 설정 */
+:root {
+  --bg-color: #e0f2fe; /* Light Blue 100 */
+  --calc-bg: rgba(255, 255, 255, 0.6);
+  --calc-border: rgba(255, 255, 255, 0.5);
+  --display-bg: #f0f9ff; /* Light Blue 50 */
+  --display-text: #0ea5e9; /* Light Blue 500 */
+  
+  --btn-bg: rgba(255, 255, 255, 0.7);
+  --btn-text: #334155; /* Slate 700 */
+  --btn-hover: rgba(255, 255, 255, 0.9);
+  --btn-active: rgba(224, 242, 254, 0.8);
+  
+  --btn-op-bg: #bae6fd; /* Light Blue 200 */
+  --btn-op-text: #0369a1; /* Light Blue 700 */
+  --btn-op-hover: #7dd3fc; /* Light Blue 300 */
+  
+  --btn-eq-bg: #38bdf8; /* Light Blue 400 */
+  --btn-eq-text: #ffffff;
+  --btn-eq-hover: #0ea5e9; /* Light Blue 500 */
+  
+  --btn-ac-bg: #fca5a5; /* Red 300 (포인트 컬러) */
+  --btn-ac-text: #ffffff;
+  --btn-ac-hover: #f87171; /* Red 400 */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(at 0% 0%, #bae6fd 0, transparent 50%), 
+    radial-gradient(at 100% 100%, #7dd3fc 0, transparent 50%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 계산기 컨테이너 (Glassmorphism & Neumorphism 혼합) */
+.calculator-container {
+  padding: 20px;
+}
+
+.calculator {
+  background: var(--calc-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--calc-border);
+  border-radius: 30px;
+  padding: 25px;
+  width: 320px;
+  box-shadow: 
+    10px 10px 30px rgba(186, 230, 253, 0.6), /* 외곽 밝은 그림자 */
+    -10px -10px 30px rgba(255, 255, 255, 0.8);
+}
+
+/* 디스플레이 영역 */
+.display-container {
+  margin-bottom: 20px;
+}
+
+.display-input {
+  width: 100%;
+  height: 80px;
+  border: none;
+  background: var(--display-bg);
+  border-radius: 15px;
+  padding: 15px;
+  font-size: 2.5rem;
+  font-weight: 500;
+  text-align: right;
+  color: var(--display-text);
+  outline: none;
+  box-shadow: inset 4px 4px 8px rgba(186, 230, 253, 0.5), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.display-input::placeholder {
+  color: #94a3b8;
+}
+
+/* 키패드 Grid 설정 */
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 12px;
+}
+
+/* 공통 버튼 스타일 */
+.btn {
+  border: none;
+  border-radius: 15px;
+  height: 60px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  box-shadow: 
+    4px 4px 10px rgba(186, 230, 253, 0.5), 
+    -4px -4px 10px rgba(255, 255, 255, 0.8);
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+  box-shadow: 
+    6px 6px 12px rgba(186, 230, 253, 0.5), 
+    -6px -6px 12px rgba(255, 255, 255, 0.9);
+}
+
+.btn:active {
+  transform: translateY(2px);
+  background: var(--btn-active);
+  box-shadow: 
+    inset 4px 4px 8px rgba(186, 230, 253, 0.3), 
+    inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+}
+
+/* 숫자 버튼(0) 확장 */
+.btn-zero {
+  grid-column: span 2;
+}
+
+/* 연산자 버튼 스타일 */
+.btn-operator {
+  background: var(--btn-op-bg);
+  color: var(--btn-op-text);
+}
+.btn-operator:hover { background: var(--btn-op-hover); }
+
+/* = 버튼 스타일 */
+.btn-equal {
+  grid-column: span 1;
+  grid-row: span 2;
+  height: auto; /* Grid 높이에 맞게 늘어남 */
+  background: var(--btn-eq-bg);
+  color: var(--btn-eq-text);
+}
+.btn-equal:hover { background: var(--btn-eq-hover); }
+
+/* AC, DEL 버튼 스타일 */
+.btn-action {
+  background: var(--btn-ac-bg);
+  color: var(--btn-ac-text);
+}
+.btn-action:hover { background: var(--btn-ac-hover); }
+
+/* 오류 발생 시 텍스트 색상 전환 애니메이션용 클래스 */
+.error-text {
+  color: #ef4444 !important; /* Red 500 */
+}
