@@ -40,6 +40,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* 부드러운 테마 전환 효과 */
+  transition: background-color 0.5s ease, background-image 0.5s ease;
 }
 
 /* 계산기 컨테이너 (Glassmorphism & Neumorphism 혼합) */
@@ -58,6 +60,8 @@ body {
   box-shadow: 
     10px 10px 30px rgba(186, 230, 253, 0.6), /* 외곽 밝은 그림자 */
     -10px -10px 30px rgba(255, 255, 255, 0.8);
+  /* 부드러운 테마 전환 */
+  transition: all 0.5s ease;
 }
 
 /* 디스플레이 영역 */
@@ -78,7 +82,8 @@ body {
   color: var(--display-text);
   outline: none;
   box-shadow: inset 4px 4px 8px rgba(186, 230, 253, 0.5), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-  transition: all 0.3s ease;
+  /* 테마 및 입력 반응 트랜지션 */
+  transition: all 0.3s ease, background-color 0.5s ease, color 0.5s ease;
 }
 
 .display-input::placeholder {
@@ -100,7 +105,8 @@ body {
   font-size: 1.4rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* 테마 및 클릭 액션 통합 트랜지션 */
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.5s ease, color 0.5s ease;
   background: var(--btn-bg);
   color: var(--btn-text);
   box-shadow: 
@@ -156,4 +162,106 @@ body {
 /* 오류 발생 시 텍스트 색상 전환 애니메이션용 클래스 */
 .error-text {
   color: #ef4444 !important; /* Red 500 */
+}
+
+/* 헤더 영역 */
+.calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.calculator-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--display-text);
+  transition: color 0.5s ease;
+}
+
+.theme-toggle-btn {
+  background: var(--btn-bg);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 
+    3px 3px 6px rgba(186, 230, 253, 0.4), 
+    -3px -3px 6px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease, background-color 0.5s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+  background: var(--btn-hover);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+  background: var(--btn-active);
+}
+
+.theme-icon {
+  font-size: 1rem;
+}
+
+/* 다크 테마 대응 스타일 */
+body.dark-theme {
+  --bg-color: #0f172a; /* Slate 900 */
+  --calc-bg: rgba(30, 41, 59, 0.7);
+  --calc-border: rgba(255, 255, 255, 0.05);
+  --display-bg: #1e293b;
+  --display-text: #38bdf8;
+  
+  --btn-bg: rgba(30, 41, 59, 0.8);
+  --btn-text: #e2e8f0;
+  --btn-hover: rgba(51, 65, 85, 0.9);
+  --btn-active: rgba(15, 23, 42, 0.8);
+  
+  --btn-op-bg: #0369a1;
+  --btn-op-text: #e0f2fe;
+  --btn-op-hover: #0284c7;
+  
+  --btn-eq-bg: #0ea5e9;
+  --btn-eq-text: #ffffff;
+  --btn-eq-hover: #38bdf8;
+  
+  --btn-ac-bg: #b91c1c;
+  --btn-ac-text: #ffffff;
+  --btn-ac-hover: #991b1b;
+}
+
+body.dark-theme {
+  background-image: 
+    radial-gradient(at 0% 0%, #0c4a6e 0, transparent 50%), 
+    radial-gradient(at 100% 100%, #1e1b4b 0, transparent 50%);
+}
+
+body.dark-theme .calculator {
+  box-shadow: 
+    10px 10px 30px rgba(0, 0, 0, 0.4), 
+    -10px -10px 30px rgba(15, 23, 42, 0.5);
+}
+
+body.dark-theme .btn {
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.3), 
+    -3px -3px 8px rgba(30, 41, 59, 0.4);
+}
+
+body.dark-theme .display-input {
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.4), 
+    inset -4px -4px 8px rgba(30, 41, 59, 0.5);
+}
+
+body.dark-theme .theme-toggle-btn {
+  box-shadow: 
+    3px 3px 6px rgba(0, 0, 0, 0.3), 
+    -3px -3px 6px rgba(30, 41, 59, 0.4);
 }

@@ -114,3 +114,18 @@ window.addEventListener('keydown', (e) => {
     handleInput(key);
   }
 });
+
+// 3. 테마 토글 버튼 이벤트 바인딩
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    
+    const icon = themeToggle.querySelector('.theme-icon');
+    if (document.body.classList.contains('dark-theme')) {
+      icon.textContent = '☀️';
+    } else {
+      icon.textContent = '🌙';
+    }
+  });
+}
