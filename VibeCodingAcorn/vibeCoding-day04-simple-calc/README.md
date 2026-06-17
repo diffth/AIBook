@@ -46,3 +46,7 @@
   * 계산 성공 시 `history.unshift(수식 + " = " + 결과)`로 맨 앞에 추가.
   * `if (history.length > 5) history.pop()`을 통해 최근 5개 유지.
   * 매 계산 완료 시 `console.table(history)`로 브라우저 개발자 도구 콘솔에 출력.
+
+---
+
+### 🚀 즐거운 코딩 라이프 되세요! ✨
