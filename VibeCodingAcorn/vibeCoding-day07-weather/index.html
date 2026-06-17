@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감성 날씨 웹앱</title>
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-default">
+
+  <!-- 1. API Key 입력 모달 폼 -->
+  <div id="key-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <i data-lucide="key" class="icon-key"></i>
+        <h2>OpenWeather API Key 입력</h2>
+      </div>
+      <p class="modal-desc">실시간 날씨 정보를 가져오기 위해 OpenWeather API 키가 필요합니다.</p>
+      <form id="key-form">
+        <input type="text" id="api-key-input" placeholder="API Key를 입력해주세요" required autocomplete="off">
+        <button type="submit" class="btn-submit">저장 및 날씨 확인</button>
+      </form>
+      <a href="https://openweathermap.org/api" target="_blank" class="help-link">API Key가 없으신가요? 무료 발급받기</a>
+    </div>
+  </div>
+
+  <!-- 2. 메인 컨테이너 -->
+  <div class="container">
+    <main class="weather-card" id="weather-card">
+      
+      <!-- 로딩 상태 표시 -->
+      <div id="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>현재 위치 정보를 수집하고 날씨를 불러오는 중입니다...</p>
+      </div>
+
+      <!-- 날씨 정보 표시 (초기에는 숨김) -->
+      <div id="weather-content" class="weather-content hidden">
+        <div class="location-box">
+          <i data-lucide="map-pin" class="pin-icon"></i>
+          <h1 id="city-name" class="city-name">서울 (디폴트)</h1>
+        </div>
+
+        <div class="temp-weather-box">
+          <div class="icon-wrapper">
+            <img id="weather-icon" src="" alt="날씨 아이콘">
+          </div>
+          <div class="temp-wrapper">
+            <span id="temp" class="temp-text">0.0</span>
+            <span class="unit">°C</span>
+          </div>
+        </div>
+
+        <div class="desc-box">
+          <p id="weather-desc" class="weather-desc">맑음</p>
+        </div>
+
+        <div class="meta-info-grid">
+          <div class="meta-item">
+            <i data-lucide="droplet" class="meta-icon"></i>
+            <div class="meta-text">
+              <span class="meta-label">습도</span>
+              <span id="humidity" class="meta-val">0%</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i data-lucide="wind" class="meta-icon"></i>
+            <div class="meta-text">
+              <span class="meta-label">풍속</span>
+              <span id="wind-speed" class="meta-val">0 m/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- 3. API Key 재설정 및 도움말 버튼 -->
+  <div class="settings-bar">
+    <button id="btn-reset-key" class="btn-settings" title="API Key 재설정">
+      <i data-lucide="settings-2" class="settings-icon"></i>
+      <span>API Key 재설정</span>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
