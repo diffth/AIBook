@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 명언 - 감성 명언 카드 생성기</title>
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons (감성적인 데코레이션을 위해 CDN 사용) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Glassmorphism Card -->
+    <main class="card" id="wisdom-card">
+      <div class="card-glow"></div>
+      <div class="card-content">
+        <!-- Quote Icon Deco -->
+        <div class="quote-icon-wrapper">
+          <i data-lucide="quote" class="quote-icon"></i>
+        </div>
+        
+        <!-- Quote Text & Author -->
+        <blockquote class="quote-block">
+          <p class="quote-text" id="quote">배움은 결코 마음을 지치게 하지 않는다.</p>
+          <cite class="quote-author" id="author">- 레오나르도 다 빈치 -</cite>
+        </blockquote>
+
+        <!-- Action Button -->
+        <button id="new-quote-btn" class="btn">
+          <span>새로운 명언 영접하기</span>
+          <i data-lucide="sparkles" class="btn-icon"></i>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Lucide 아이콘 초기화
+    lucide.createIcons();
+  </script>
+</body>
+</html>
