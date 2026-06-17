@@ -1,0 +1,408 @@
+/* 기본 변수 및 초기화 */
+:root {
+  --font-en: 'Outfit', sans-serif;
+  --font-ko: 'Noto Sans KR', sans-serif;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
+  --text-sub: rgba(255, 255, 255, 0.7);
+  --transition-speed: 0.8s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ko);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  transition: background var(--transition-speed) ease;
+  color: var(--text-main);
+}
+
+/* 🎨 날씨 상황별 배경 그라데이션 정의 (transition 지원) */
+body.theme-default {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+body.theme-clear {
+  /* 맑음: 활기찬 노을과 태양빛의 조화 */
+  background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+}
+
+body.theme-clouds {
+  /* 흐림: 차분하고 은은한 그레이 블루 톤 */
+  background: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
+}
+
+body.theme-rain, body.theme-drizzle {
+  /* 비/이슬비: 어둡고 차분한 다크 블루와 빗물 빛 */
+  background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
+}
+
+body.theme-snow {
+  /* 눈: 보들보들한 솜눈과 겨울 새벽하늘의 감성 */
+  background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
+  color: #2c3e50; /* 눈 내릴 때 대비를 위한 어두운 글자색 */
+}
+
+body.theme-snow :root {
+  --text-main: #2c3e50;
+  --text-sub: rgba(44, 62, 80, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.4);
+  --card-border: rgba(255, 255, 255, 0.5);
+}
+
+body.theme-thunder, body.theme-atmosphere {
+  /* 번개/안개: 어두운 폭풍우 전야와 신비로운 안개 필터 */
+  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+}
+
+/* 미세 입자 연출 (배경 감성 요소) */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 메인 컨테이너 */
+.container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  z-index: 10;
+}
+
+/* 🧊 Glassmorphism 날씨 카드 */
+.weather-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 30px;
+  padding: 40px 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  transition: all 0.5s ease;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+body.theme-snow .weather-card {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* 로딩 애니메이션 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-container p {
+  font-size: 0.95rem;
+  opacity: 0.8;
+  word-break: keep-all;
+  line-height: 1.5;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+body.theme-snow .spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #2c3e50;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 날씨 콘텐츠 스타일링 */
+.weather-content {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.location-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+.pin-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.city-name {
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+
+/* 온도 및 아이콘 박스 */
+.temp-weather-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.icon-wrapper img {
+  width: 85px;
+  height: 85px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.temp-wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+
+.temp-text {
+  font-family: var(--font-en);
+  font-size: 3.8rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.unit {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+.weather-desc {
+  font-size: 1.15rem;
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 18px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 35px;
+}
+
+body.theme-snow .weather-desc {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 하단 세부 그리드 메타 데이터 */
+.meta-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 25px;
+  gap: 20px;
+}
+
+body.theme-snow .meta-info-grid {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.meta-icon {
+  width: 22px;
+  height: 22px;
+  opacity: 0.8;
+}
+
+.meta-text {
+  text-align: left;
+}
+
+.meta-label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.meta-val {
+  font-family: var(--font-en);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* 🔑 API Key 입력 모달 디자인 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 40px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.icon-key {
+  width: 45px;
+  height: 45px;
+}
+
+.modal h2 {
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 30px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+#key-form input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+#key-form input:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.help-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.help-link:hover {
+  color: #fff;
+}
+
+/* ⚙️ 우하단 설정 바 */
+.settings-bar {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+}
+
+.btn-settings {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+body.theme-snow .btn-settings {
+  color: #2c3e50;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-settings:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Hidden 제어용 유틸리티 */
+.hidden {
+  display: none !important;
+}
