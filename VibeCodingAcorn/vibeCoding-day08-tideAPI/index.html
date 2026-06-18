@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>조석 & 천문 정보 캘린더</title>
+  
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- 1. Stormglass API Key 입력 모달 폼 -->
+  <div id="key-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <i data-lucide="key" class="icon-key"></i>
+        <h2>Stormglass API Key 입력</h2>
+      </div>
+      <p class="modal-desc">
+        실시간 조석 및 일출/일몰 정보를 가져오기 위해 Stormglass API 키가 필요합니다.<br>
+        (일일 무료 10회 제공)
+      </p>
+      <form id="key-form">
+        <input type="text" id="api-key-input" placeholder="Stormglass API Key를 입력해주세요" required autocomplete="off">
+        <button type="submit" class="btn-submit">저장 및 달력 조회</button>
+      </form>
+      <a href="https://stormglass.io/" target="_blank" class="help-link">Stormglass 홈페이지에서 무료 API Key 발급받기</a>
+    </div>
+  </div>
+
+  <!-- 2. 메인 컨테이너 -->
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <i data-lucide="waves" class="logo-icon"></i>
+        <h1>조석 & 천문 정보 캘린더</h1>
+      </div>
+      <p class="subtitle">지도를 클릭하거나 위치를 지정하여 주간 간조 시각과 낮 시간대(일출~일몰)가 겹치는 골든 타임을 찾아보세요.</p>
+    </header>
+
+    <main class="main-layout">
+      <!-- 좌측 패널: 위치 선택 지도 및 검색 -->
+      <section class="left-panel glass-card">
+        <div class="panel-header">
+          <i data-lucide="map" class="panel-icon"></i>
+          <h2>위치 선택 (지도)</h2>
+        </div>
+        
+        <div class="map-container-wrapper">
+          <div id="map"></div>
+        </div>
+
+        <form id="location-form" class="location-form">
+          <div class="input-grid">
+            <div class="input-group">
+              <label for="lat-input">위도 (Latitude)</label>
+              <input type="number" id="lat-input" step="0.0001" min="-90" max="90" placeholder="예: 37.5683" required>
+            </div>
+            <div class="input-group">
+              <label for="lng-input">경도 (Longitude)</label>
+              <input type="number" id="lng-input" step="0.0001" min="-180" max="180" placeholder="예: 126.9778" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-search">
+            <i data-lucide="search"></i>
+            <span>해당 좌표 데이터 조회</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- 우측 패널: 이번 주 달력 및 하이라이트 분석 -->
+      <section class="right-panel">
+        
+        <!-- 로딩 상태 표시 -->
+        <div id="loading" class="loading-overlay hidden">
+          <div class="spinner"></div>
+          <p class="loading-text">Stormglass API에서 조석 및 태양 고도 데이터를 분석 중입니다...</p>
+        </div>
+
+        <!-- 초기 상태 안내 -->
+        <div id="intro-message" class="intro-card glass-card">
+          <i data-lucide="compass" class="compass-icon"></i>
+          <h3>위치를 선택해 주세요</h3>
+          <p>지도상에서 조회하고자 하는 해안가 위치를 클릭하거나, 위도/경도를 직접 입력해 데이터를 조회할 수 있습니다.</p>
+        </div>
+
+        <!-- 캘린더 데이터 대시보드 (초기 숨김) -->
+        <div id="calendar-content" class="calendar-content hidden">
+          <div class="location-summary-card glass-card">
+            <div class="summary-details">
+              <i data-lucide="navigation" class="nav-icon"></i>
+              <div>
+                <h3 id="current-coords-text">위도: - / 경도: -</h3>
+                <p>이번 주 주간 간조(낮 시간대에 물이 가장 많이 빠지는 시각) 매칭 리포트</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7일 달력 그리드 -->
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- JavaScript에서 동적으로 생성됨 -->
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- 3. 하단 설정 바 -->
+  <div class="settings-bar">
+    <button id="btn-reset-key" class="btn-settings" title="API Key 재설정">
+      <i data-lucide="settings-2" class="settings-icon"></i>
+      <span>API Key 재설정</span>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
