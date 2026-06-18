@@ -42,40 +42,51 @@
 
       <!-- 날씨 정보 표시 (초기에는 숨김) -->
       <div id="weather-content" class="weather-content hidden">
-        <div class="location-box">
-          <i data-lucide="map-pin" class="pin-icon"></i>
-          <h1 id="city-name" class="city-name">서울 (디폴트)</h1>
-        </div>
-
-        <div class="temp-weather-box">
-          <div class="icon-wrapper">
-            <img id="weather-icon" src="" alt="날씨 아이콘">
-          </div>
-          <div class="temp-wrapper">
-            <span id="temp" class="temp-text">0.0</span>
-            <span class="unit">°C</span>
-          </div>
-        </div>
-
-        <div class="desc-box">
-          <p id="weather-desc" class="weather-desc">맑음</p>
-        </div>
-
-        <div class="meta-info-grid">
-          <div class="meta-item">
-            <i data-lucide="droplet" class="meta-icon"></i>
-            <div class="meta-text">
-              <span class="meta-label">습도</span>
-              <span id="humidity" class="meta-val">0%</span>
+        <div class="weather-columns">
+          
+          <!-- 좌측 열: 날씨 아이콘, 온도, 지역, 날씨 설명 -->
+          <div class="column-left">
+            <div class="icon-wrapper">
+              <img id="weather-icon" src="" alt="날씨 아이콘">
+            </div>
+            <div class="temp-wrapper">
+              <span id="temp" class="temp-text">0.0</span>
+              <span class="unit">°C</span>
+            </div>
+            <div class="location-box">
+              <i data-lucide="map-pin" class="pin-icon"></i>
+              <h1 id="city-name" class="city-name">서울 (디폴트)</h1>
+            </div>
+            <div class="desc-box">
+              <p id="weather-desc" class="weather-desc">맑음</p>
             </div>
           </div>
-          <div class="meta-item">
-            <i data-lucide="wind" class="meta-icon"></i>
-            <div class="meta-text">
-              <span class="meta-label">풍속</span>
-              <span id="wind-speed" class="meta-val">0 m/s</span>
+
+          <!-- 우측 열: 체감온도, 습도, 풍속 -->
+          <div class="column-right">
+            <div class="meta-item">
+              <i data-lucide="thermometer" class="meta-icon"></i>
+              <div class="meta-text">
+                <span class="meta-label">체감온도</span>
+                <span id="feels-like" class="meta-val">0.0°C</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <i data-lucide="droplet" class="meta-icon"></i>
+              <div class="meta-text">
+                <span class="meta-label">습도</span>
+                <span id="humidity" class="meta-val">0%</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <i data-lucide="wind" class="meta-icon"></i>
+              <div class="meta-text">
+                <span class="meta-label">풍속</span>
+                <span id="wind-speed" class="meta-val">0 m/s</span>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
