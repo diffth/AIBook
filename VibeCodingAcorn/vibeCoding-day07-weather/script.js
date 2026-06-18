@@ -28,7 +28,15 @@ window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   
   // API Key 검사
-  const savedKey = localStorage.getItem(STORAGE_KEY);
+  let savedKey = localStorage.getItem(STORAGE_KEY);
+  const defaultKey = '40b7008db450c5dd3e5ffc7f6d76704c';
+  
+  // 만약 로컬스토리지에 저장된 키가 없거나 이전 키인 경우, 새 기본 API Key로 자동 갱신 및 저장
+  if (!savedKey || savedKey === 'b4276ae7940198695e7329dab7149bde') {
+    localStorage.setItem(STORAGE_KEY, defaultKey);
+    savedKey = defaultKey;
+  }
+
   if (savedKey) {
     // 저장된 키가 있다면 바로 날씨 탐색 시작
     initWeatherSearch(savedKey);
@@ -54,7 +62,8 @@ keyForm.addEventListener('submit', (e) => {
 btnResetKey.addEventListener('click', () => {
   if (confirm('API Key를 재설정하시겠습니까?\n기존 키는 로컬스토리지에서 삭제됩니다.')) {
     localStorage.removeItem(STORAGE_KEY);
-    apiKeyInput.value = '';
+    // 기본 키를 입력란에 힌트로 미리 채워둡니다.
+    apiKeyInput.value = '40b7008db450c5dd3e5ffc7f6d76704c';
     // 날씨 정보 가리고 로딩창으로 복귀 후 모달 띄우기
     weatherContentEl.classList.add('hidden');
     loadingEl.classList.remove('hidden');
