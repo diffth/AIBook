@@ -1,0 +1,773 @@
+/* 🌊 조석 & 천문 정보 캘린더 - style.css */
+
+/* 1. 디자인 시스템 & 변수 */
+:root {
+  --font-en: 'Outfit', sans-serif;
+  --font-ko: 'Noto Sans KR', sans-serif;
+  
+  --bg-primary: #070c14;
+  --bg-secondary: #0c1424;
+  
+  --card-bg: rgba(15, 23, 42, 0.65);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.15);
+  
+  --color-cyan: #00f0ff;
+  --color-cyan-glow: rgba(0, 240, 255, 0.15);
+  --color-gold: #f59e0b;
+  --color-gold-glow: rgba(245, 158, 11, 0.15);
+  --color-danger: #ef4444;
+  
+  --text-main: #f3f4f6;
+  --text-sub: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 2. 전역 스타일 초기화 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-ko);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 30px 20px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 감성적인 백그라운드 오라 연출 */
+body::before, body::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  filter: blur(150px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+body::before {
+  top: 10%;
+  left: -100px;
+  background: rgba(0, 240, 255, 0.08);
+}
+
+body::after {
+  bottom: 10%;
+  right: -100px;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+/* 🧊 Glassmorphism 카드 공통 */
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+  transition: var(--transition-smooth);
+}
+
+/* 3. 레이아웃 구조 */
+.app-container {
+  width: 100%;
+  max-width: 1280px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* 헤더 영역 */
+.app-header {
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 20px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-cyan);
+  filter: drop-shadow(0 0 8px var(--color-cyan-glow));
+}
+
+.app-header h1 {
+  font-family: var(--font-ko);
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+/* 메인 2열 레이아웃 */
+.main-layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 25px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 4. 좌측 패널 (지도 및 검색) */
+.left-panel {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+.panel-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-cyan);
+}
+
+.panel-header h2 {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+/* Leaflet Map Styling */
+.map-container-wrapper {
+  width: 100%;
+  height: 320px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 5;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Dark theme patch for Leaflet tiles */
+.leaflet-container {
+  background: #111b2d !important;
+}
+
+.leaflet-tile {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* 위치 입력 폼 */
+.location-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.input-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: var(--font-en);
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.input-group input:focus {
+  border-color: var(--color-cyan);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+}
+
+.btn-search {
+  background: var(--text-main);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition-smooth);
+}
+
+.btn-search:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+}
+
+.btn-search i {
+  width: 18px;
+  height: 18px;
+}
+
+/* 5. 우측 패널 (결과 및 달력) */
+.right-panel {
+  position: relative;
+  min-height: 400px;
+}
+
+/* 안내 메세지 */
+.intro-card {
+  padding: 60px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.compass-icon {
+  width: 60px;
+  height: 60px;
+  color: var(--text-muted);
+  animation: rotateCompass 10s infinite linear;
+}
+
+@keyframes rotateCompass {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.intro-card h3 {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.intro-card p {
+  color: var(--text-sub);
+  max-width: 450px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+/* 로딩 오버레이 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(7, 12, 20, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 240, 255, 0.1);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 0.95rem;
+  color: var(--color-cyan);
+  letter-spacing: -0.3px;
+}
+
+/* 결과 대시보드 구조 */
+.calendar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.location-summary-card {
+  padding: 20px 24px;
+}
+
+.summary-details {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-cyan);
+}
+
+.summary-details h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-family: var(--font-en);
+}
+
+.summary-details p {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+
+/* 7일 달력 카드 그리드 */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 개별 일일 카드 */
+.day-card {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 30px;
+  align-items: center;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .day-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.day-card:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.45);
+}
+
+/* 주간 간조가 겹칠 때의 특수 하이라이트 스타일 */
+.day-card.highlight-card {
+  border: 1px solid var(--color-gold);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(15, 23, 42, 0.75) 100%);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+}
+
+/* ☀️ 주간 간조 골든타임 배지 */
+.golden-badge {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+}
+
+/* 일일 메타 (날짜 및 일출몰 시간) */
+.day-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding-right: 10px;
+}
+
+@media (max-width: 768px) {
+  .day-meta {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 15px;
+  }
+}
+
+.date-text h3 {
+  font-family: var(--font-en);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.date-text p {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.sun-times {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sun-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-sub);
+}
+
+.sun-item i {
+  width: 16px;
+  height: 16px;
+  color: var(--color-gold);
+}
+
+.sun-item span {
+  font-family: var(--font-en);
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* 6. 시각화 타임라인 영역 */
+.day-visuals {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 타임라인 바 */
+.timeline-bar-wrapper {
+  position: relative;
+  padding-top: 15px; /* 라벨 공간 확보 */
+}
+
+.timeline-bar {
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* 타임라인 상단 시간 인덱스 라벨 */
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-en);
+  margin-bottom: 5px;
+  padding: 0 4px;
+}
+
+/* 간조 도트 포인터 */
+.tide-dot {
+  position: absolute;
+  top: -4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 3px solid var(--color-cyan);
+  box-shadow: 0 0 10px var(--color-cyan-glow);
+  transform: translateX(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: var(--transition-smooth);
+}
+
+.tide-dot:hover {
+  transform: translateX(-50%) scale(1.15);
+  box-shadow: 0 0 15px var(--color-cyan);
+}
+
+.day-card.highlight-card .tide-dot {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.tide-dot i {
+  width: 14px;
+  height: 14px;
+  color: var(--color-cyan);
+}
+
+.day-card.highlight-card .tide-dot i {
+  color: var(--color-gold);
+}
+
+/* 간조 시각 라벨 말풍선 */
+.tide-tooltip {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--color-cyan);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-family: var(--font-en);
+  font-weight: 600;
+  color: var(--color-cyan);
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.day-card.highlight-card .tide-tooltip {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+/* 세부 조석 정보 텍스트 리스트 */
+.tide-details-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tide-info-chip {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.tide-info-chip.is-low {
+  border-color: rgba(0, 240, 255, 0.2);
+}
+
+.tide-info-chip.is-low.is-daylight {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.chip-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tide-info-chip.is-low .chip-icon {
+  color: var(--color-cyan);
+}
+
+.tide-info-chip.is-low.is-daylight .chip-icon {
+  color: var(--color-gold);
+}
+
+.chip-time {
+  font-family: var(--font-en);
+  font-weight: 500;
+}
+
+.chip-height {
+  font-family: var(--font-en);
+  color: var(--text-sub);
+  font-size: 0.8rem;
+}
+
+/* 7. 🔑 API Key 입력 모달 디자인 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.modal {
+  background: rgba(10, 16, 28, 0.9);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.icon-key {
+  width: 45px;
+  height: 45px;
+  color: var(--color-cyan);
+  filter: drop-shadow(0 0 10px var(--color-cyan-glow));
+}
+
+.modal h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.modal-desc {
+  font-size: 0.88rem;
+  color: var(--text-sub);
+  margin-bottom: 30px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+#key-form input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+  margin-bottom: 15px;
+  transition: var(--transition-smooth);
+}
+
+#key-form input:focus {
+  border-color: var(--color-cyan);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  background: var(--text-main);
+  color: var(--bg-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: var(--transition-smooth);
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(255,255,255,0.15);
+}
+
+.help-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  text-decoration: underline;
+  transition: var(--transition-smooth);
+}
+
+.help-link:hover {
+  color: var(--color-cyan);
+}
+
+/* ⚙️ 우하단 설정 바 */
+.settings-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+}
+
+.btn-settings {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--card-border);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+}
+
+.btn-settings:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--card-border-hover);
+  transform: translateY(-2px);
+}
+
+/* Hidden 제어용 유틸리티 */
+.hidden {
+  display: none !important;
+}
