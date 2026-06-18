@@ -18,6 +18,7 @@ const weatherIconEl = document.getElementById('weather-icon');
 const weatherDescEl = document.getElementById('weather-desc');
 const humidityEl = document.getElementById('humidity');
 const windSpeedEl = document.getElementById('wind-speed');
+const feelsLikeEl = document.getElementById('feels-like');
 
 // 로컬스토리지에 저장될 API Key 변수명
 const STORAGE_KEY = 'openweather_api_key';
@@ -141,9 +142,10 @@ function renderWeather(data) {
   tempEl.textContent = data.main.temp.toFixed(1);
   // 날씨 설명
   weatherDescEl.textContent = data.weather[0].description;
-  // 습도 및 풍속
+  // 습도 및 풍속, 체감온도
   humidityEl.textContent = `${data.main.humidity}%`;
   windSpeedEl.textContent = `${data.wind.speed} m/s`;
+  feelsLikeEl.textContent = `${data.main.feels_like.toFixed(1)}°C`;
 
   // 날씨 아이콘 연동 (OpenWeather 공식 2x 아이콘)
   const iconCode = data.weather[0].icon;

@@ -2,10 +2,12 @@
 :root {
   --font-en: 'Outfit', sans-serif;
   --font-ko: 'Noto Sans KR', sans-serif;
-  --card-bg: rgba(255, 255, 255, 0.08);
-  --card-border: rgba(255, 255, 255, 0.15);
+  --card-bg: rgba(15, 17, 26, 0.75);
+  --card-border: rgba(255, 255, 255, 0.1);
   --text-main: #ffffff;
   --text-sub: rgba(255, 255, 255, 0.7);
+  --text-muted: #9ca3af;
+  --color-salmon-accent: #ffa07a;
   --transition-speed: 0.8s;
 }
 
@@ -27,42 +29,34 @@ body {
   color: var(--text-main);
 }
 
-/* 🎨 날씨 상황별 배경 그라데이션 정의 (transition 지원) */
+/* 🎨 날씨 상황별 배경 그라데이션 정의 (salmon 계열) */
 body.theme-default {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(135deg, #ffa07a 0%, #fa8072 50%, #e9967a 100%);
 }
 
 body.theme-clear {
-  /* 맑음: 활기찬 노을과 태양빛의 조화 */
-  background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+  /* 맑음: 활기차고 화사한 톤의 샐먼 */
+  background: linear-gradient(135deg, #ffb399 0%, #fa8072 50%, #e65c49 100%);
 }
 
 body.theme-clouds {
-  /* 흐림: 차분하고 은은한 그레이 블루 톤 */
-  background: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
+  /* 흐림: 차분하고 약간 회색빛이 도는 샐먼 */
+  background: linear-gradient(135deg, #e9967a 0%, #d0776c 50%, #b36157 100%);
 }
 
 body.theme-rain, body.theme-drizzle {
-  /* 비/이슬비: 어둡고 차분한 다크 블루와 빗물 빛 */
-  background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
+  /* 비/이슬비: 어둡고 차분한 느낌의 딥 샐먼 */
+  background: linear-gradient(135deg, #d88276 0%, #b86257 50%, #8c4138 100%);
 }
 
 body.theme-snow {
-  /* 눈: 보들보들한 솜눈과 겨울 새벽하늘의 감성 */
-  background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
-  color: #2c3e50; /* 눈 내릴 때 대비를 위한 어두운 글자색 */
-}
-
-body.theme-snow {
-  --text-main: #2c3e50;
-  --text-sub: rgba(44, 62, 80, 0.7);
-  --card-bg: rgba(255, 255, 255, 0.4);
-  --card-border: rgba(255, 255, 255, 0.5);
+  /* 눈: 새벽안개처럼 밝고 화사한 미스티 샐먼 */
+  background: linear-gradient(135deg, #ffe4e1 0%, #f79489 50%, #d4766b 100%);
 }
 
 body.theme-thunder, body.theme-atmosphere {
-  /* 번개/안개: 어두운 폭풍우 전야와 신비로운 안개 필터 */
-  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  /* 번개/안개: 어두운 폭풍우 느낌의 다크 샐먼 */
+  background: linear-gradient(135deg, #a85f55 0%, #854941 50%, #592e29 100%);
 }
 
 /* 미세 입자 연출 (배경 감성 요소) */
@@ -82,32 +76,29 @@ body::before {
 /* 메인 컨테이너 */
 .container {
   width: 100%;
-  max-width: 420px;
+  max-width: 680px;
   padding: 20px;
   z-index: 10;
 }
 
-/* 🧊 Glassmorphism 날씨 카드 */
+/* 🧊 Glassmorphism 날씨 카드 (다크 테마 640x400px 고정) */
 .weather-card {
+  width: 640px;
+  height: 400px;
   background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--card-border);
   border-radius: 30px;
-  padding: 40px 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
   text-align: center;
   transition: all 0.5s ease;
-  min-height: 350px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-body.theme-snow .weather-card {
-  background: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
 }
 
 /* 로딩 애니메이션 */
@@ -120,7 +111,7 @@ body.theme-snow .weather-card {
 
 .loading-container p {
   font-size: 0.95rem;
-  opacity: 0.8;
+  color: var(--text-sub);
   word-break: keep-all;
   line-height: 1.5;
 }
@@ -129,22 +120,21 @@ body.theme-snow .weather-card {
   width: 45px;
   height: 45px;
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top-color: var(--text-main);
+  border-top-color: var(--color-salmon-accent);
   border-radius: 50%;
   animation: spin 1s infinite linear;
-}
-
-body.theme-snow .spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #2c3e50;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* 날씨 콘텐츠 스타일링 */
+/* 날씨 콘텐츠 스타일링 (가로 2열 그리드 레이아웃) */
 .weather-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   animation: fadeIn 0.8s ease forwards;
 }
 
@@ -153,97 +143,105 @@ body.theme-snow .spinner {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.location-box {
+.weather-columns {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+  height: 100%;
+  align-items: center;
+}
+
+/* 좌측 열: 날씨 아이콘, 온도, 지역, 날씨 설명 */
+.column-left {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 25px;
-}
-
-.pin-icon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.9;
-}
-
-.city-name {
-  font-size: 1.6rem;
-  font-weight: 500;
-  letter-spacing: -0.5px;
-}
-
-/* 온도 및 아이콘 박스 */
-.temp-weather-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 25px;
 }
 
 .icon-wrapper img {
-  width: 85px;
-  height: 85px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+  margin-bottom: 5px;
 }
 
 .temp-wrapper {
   display: flex;
   align-items: flex-start;
+  margin-bottom: 8px;
 }
 
 .temp-text {
   font-family: var(--font-en);
-  font-size: 3.8rem;
-  font-weight: 600;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--text-main);
   line-height: 1;
 }
 
 .unit {
   font-size: 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--color-salmon-accent);
   margin-top: 5px;
+  margin-left: 2px;
+}
+
+.location-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.pin-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-salmon-accent);
+}
+
+.city-name {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
 }
 
 .weather-desc {
-  font-size: 1.15rem;
-  font-weight: 400;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 8px 18px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-salmon-accent);
+  background: rgba(250, 128, 114, 0.18);
+  padding: 6px 16px;
   border-radius: 20px;
+  border: 1px solid rgba(250, 128, 114, 0.3);
   display: inline-block;
-  margin-bottom: 35px;
 }
 
-body.theme-snow .weather-desc {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-/* 하단 세부 그리드 메타 데이터 */
-.meta-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 25px;
+/* 우측 열: 세부 날씨 정보 (체감온도, 습도, 풍속) */
+.column-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 20px;
-}
-
-body.theme-snow .meta-info-grid {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-left: 30px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  height: 90%;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  gap: 15px;
 }
 
 .meta-icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.8;
+  width: 26px;
+  height: 26px;
+  color: var(--color-salmon-accent);
+  opacity: 0.95;
 }
 
 .meta-text {
@@ -252,14 +250,16 @@ body.theme-snow .meta-info-grid {
 
 .meta-label {
   display: block;
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
 }
 
 .meta-val {
   font-family: var(--font-en);
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 /* 🔑 API Key 입력 모달 디자인 */
@@ -279,10 +279,10 @@ body.theme-snow .meta-info-grid {
 }
 
 .modal {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 17, 26, 0.85);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 40px;
   width: 90%;
