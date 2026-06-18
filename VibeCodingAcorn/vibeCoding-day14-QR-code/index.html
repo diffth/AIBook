@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Studio - Premium QR Art Generator</title>
+  
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- node-qrcode Browser Build CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- 헤더 영역 -->
+    <header class="app-header">
+      <div class="logo-area">
+        <i data-lucide="qr-code" class="logo-icon"></i>
+        <h1>QR Code Studio</h1>
+      </div>
+      <p class="subtitle">나만의 로고와 스타일을 담은 커스텀 QR 코드를 디자인하고 고화질로 저장하세요.</p>
+    </header>
+
+    <main class="main-layout">
+      <!-- 좌측 패널: 설정 및 입력 -->
+      <section class="left-panel glass-card">
+        <div class="panel-section">
+          <h2><i data-lucide="text-cursor-input"></i> 1. 내용 입력</h2>
+          <div class="input-group">
+            <label for="qr-text">텍스트 또는 URL 주소</label>
+            <textarea id="qr-text" placeholder="여기에 QR 코드로 변환할 URL이나 메시지를 입력하세요..." rows="3">https://github.com</textarea>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2><i data-lucide="palette"></i> 2. 스타일 설정</h2>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="color-dark">QR 코드 색상</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="color-dark" value="#0f172a">
+                <span class="color-value">#0f172a</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="color-light">배경 색상</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="color-light" value="#ffffff">
+                <span class="color-value">#ffffff</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="qr-margin">여백 크기 (Margin)</label>
+              <div class="range-wrapper">
+                <input type="range" id="qr-margin" min="0" max="6" value="2" step="1">
+                <span class="range-value">2</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="error-level">에러 복구 레벨</label>
+              <select id="error-level">
+                <option value="L">L (7% 복구)</option>
+                <option value="M">M (15% 복구)</option>
+                <option value="Q">Q (25% 복구)</option>
+                <option value="H" selected>H (30% 복구 - 로고 삽입 권장)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2><i data-lucide="image"></i> 3. 로고 이미지 삽입 (선택)</h2>
+          
+          <!-- 로고 소스 선택 -->
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="preset">프리셋 아이콘</button>
+            <button class="tab-btn" data-tab="upload">이미지 업로드</button>
+          </div>
+
+          <!-- 프리셋 탭 콘텐츠 -->
+          <div class="tab-content active" id="tab-preset">
+            <div class="preset-grid">
+              <div class="preset-item active" data-preset="none">
+                <i data-lucide="prohibited" class="preset-icon"></i>
+                <span>없음</span>
+              </div>
+              <div class="preset-item" data-preset="github">
+                <i data-lucide="github" class="preset-icon"></i>
+                <span>GitHub</span>
+              </div>
+              <div class="preset-item" data-preset="globe">
+                <i data-lucide="globe" class="preset-icon"></i>
+                <span>웹사이트</span>
+              </div>
+              <div class="preset-item" data-preset="mail">
+                <i data-lucide="mail" class="preset-icon"></i>
+                <span>이메일</span>
+              </div>
+              <div class="preset-item" data-preset="heart">
+                <i data-lucide="heart" class="preset-icon"></i>
+                <span>좋아요</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 업로드 탭 콘텐츠 -->
+          <div class="tab-content" id="tab-upload">
+            <div class="upload-area" id="drop-zone">
+              <i data-lucide="upload-cloud" class="upload-icon"></i>
+              <p>마우스로 드래그하거나 클릭하여 로고 업로드</p>
+              <span class="upload-limit">PNG, JPG, SVG (권장: 투명 배경의 PNG)</span>
+              <input type="file" id="logo-file" accept="image/*" class="file-input">
+            </div>
+            <div class="uploaded-info hidden" id="logo-preview-container">
+              <span class="file-name" id="logo-file-name">파일명.png</span>
+              <button type="button" class="btn-remove-logo" id="btn-remove-logo">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 로고 설정 옵션 -->
+          <div class="logo-options mt-4">
+            <div class="input-group">
+              <label for="logo-size">로고 크기 비율</label>
+              <div class="range-wrapper">
+                <input type="range" id="logo-size" min="10" max="22" value="16" step="1">
+                <span class="range-value">16%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2><i data-lucide="align-left"></i> 4. 미리보기 텍스트 설정</h2>
+          <div class="input-group-row">
+            <label class="switch-container">
+              <input type="checkbox" id="show-text" checked>
+              <span class="slider round"></span>
+              <span class="switch-label">QR 하단에 링크 텍스트 표시</span>
+            </label>
+          </div>
+          
+          <div class="text-options" id="text-options-area">
+            <div class="input-group">
+              <label for="custom-preview-text">표시될 텍스트</label>
+              <input type="text" id="custom-preview-text" placeholder="미리보기 텍스트 직접 입력 (비워두면 주소 자동 추출)">
+            </div>
+            
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="text-color">텍스트 색상</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" id="text-color" value="#475569">
+                  <span class="color-value">#475569</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="text-size">글자 크기 (px)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="text-size" min="10" max="20" value="14" step="1">
+                  <span class="range-value">14px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 우측 패널: 실시간 렌더링 결과 -->
+      <section class="right-panel">
+        <div class="preview-card glass-card">
+          <div class="card-header">
+            <h3><i data-lucide="eye"></i> QR 코드 실시간 미리보기</h3>
+            <span class="badge">Canvas 렌더링</span>
+          </div>
+
+          <!-- QR Canvas Container -->
+          <div class="qr-canvas-wrapper">
+            <canvas id="qr-canvas"></canvas>
+          </div>
+
+          <div class="card-footer">
+            <button id="btn-download" class="btn-primary">
+              <i data-lucide="download"></i>
+              <span>고화질 PNG 다운로드</span>
+            </button>
+            <p class="download-tip"><i data-lucide="info"></i> 로고를 포함할 경우, 스캔이 잘 되는지 미리 테스트해 보시는 것을 추천합니다.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Lucide 아이콘 초기화
+    lucide.createIcons();
+  </script>
+</body>
+</html>
