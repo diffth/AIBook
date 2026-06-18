@@ -1,5 +1,5 @@
 /**
- * 🌊 조석 & 천문 정보 캘린더 - script.js (Commit 3)
+ * 🌊 조석 & 천문 정보 캘린더 - script.js
  * Stormglass API 연동 및 주간 간조 시간대 분석 로직
  */
 
@@ -188,31 +188,232 @@ async function fetchTideAndAstronomy(lat, lng, apiKey) {
   }
 }
 
-// 9. 임시 달력 렌더링 함수 (Commit 3 버전 - 구조적 골격만 표시)
+// 9. 달력 렌더링 함수
 function renderCalendar(tideData, astroData, lat, lng) {
   calendarGridEl.innerHTML = '';
   currentCoordsText.textContent = `위도 (Latitude): ${lat.toFixed(4)}° / 경도 (Longitude): ${lng.toFixed(4)}°`;
   calendarContentEl.classList.remove('hidden');
 
+  // 오늘 기준 향후 7일 리스트 생성
+  const dates = [];
   const startDay = new Date();
   startDay.setHours(0, 0, 0, 0);
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(startDay.getTime() + i * 24 * 60 * 60 * 1000);
-    const dateStr = d.toLocaleDateString();
-    
+    dates.push(d);
+  }
+
+  // 일자별 데이터 분석 및 렌더링 루프
+  dates.forEach(date => {
+    const localDateStr = formatDateString(date); // YYYY-MM-DD 포맷
+    const dayOfWeek = getDayOfWeekKR(date);       // 요일명
+
+    // 1) 해당 일자의 Astronomy(일출, 일몰) 매칭
+    const dayAstro = astroData.find(item => {
+      const itemDate = new Date(item.time);
+      return formatDateString(itemDate) === localDateStr;
+    });
+
+    let sunriseDate = null;
+    let sunsetDate = null;
+    let sunriseText = '--:--';
+    let sunsetText = '--:--';
+
+    if (dayAstro) {
+      if (dayAstro.sunrise) {
+        sunriseDate = new Date(dayAstro.sunrise);
+        sunriseText = formatTime(sunriseDate);
+      }
+      if (dayAstro.sunset) {
+        sunsetDate = new Date(dayAstro.sunset);
+        sunsetText = formatTime(sunsetDate);
+      }
+    }
+
+    // 2) 해당 일자의 조석(Tide) Extremes 데이터 매칭
+    const dayTides = tideData.filter(item => {
+      const itemDate = new Date(item.time);
+      return formatDateString(itemDate) === localDateStr;
+    });
+
+    // 3) 주간 간조(Daylight Low Tide) 검사
+    let hasDaylightLowTide = false;
+    const processedTides = dayTides.map(tide => {
+      const tideDate = new Date(tide.time);
+      const isLow = tide.type === 'low';
+      let isDaylight = false;
+
+      if (isLow && sunriseDate && sunsetDate) {
+        // 간조 시간이 일출과 일몰 사이에 일치하는지 비교
+        if (tideDate >= sunriseDate && tideDate <= sunsetDate) {
+          isDaylight = true;
+          hasDaylightLowTide = true;
+        }
+      }
+
+      return {
+        ...tide,
+        localTime: formatTime(tideDate),
+        dateObj: tideDate,
+        isLow: isLow,
+        isDaylight: isDaylight
+      };
+    });
+
+    // 4) 타임라인 바 배경 그라데이션 비율 계산
+    let timelineBg = 'linear-gradient(to right, #111b2d 0%, #111b2d 100%)';
+    let sunrisePercent = 0;
+    let sunsetPercent = 100;
+
+    if (sunriseDate && sunsetDate) {
+      sunrisePercent = getDayMinutePercent(sunriseDate);
+      sunsetPercent = getDayMinutePercent(sunsetDate);
+      // 일출 이전(밤) -> 일출~일몰(낮, 샐먼/골드) -> 일몰 이후(밤) 그라데이션 생성
+      timelineBg = `linear-gradient(to right, 
+        #0c1424 0%, 
+        #0c1424 ${sunrisePercent}%, 
+        rgba(245, 158, 11, 0.2) ${sunrisePercent}%, 
+        rgba(245, 158, 11, 0.2) ${sunsetPercent}%, 
+        #0c1424 ${sunsetPercent}%, 
+        #0c1424 100%)`;
+    }
+
+    // 5) 카드 엘리먼트 생성
     const dayCard = document.createElement('div');
     dayCard.className = 'day-card glass-card';
+    if (hasDaylightLowTide) {
+      dayCard.classList.add('highlight-card');
+    }
+
+    // 주간 간조 배지
+    const badgeHtml = hasDaylightLowTide 
+      ? `<div class="golden-badge">
+           <i data-lucide="sun"></i>
+           <span>주간 간조 골든타임</span>
+         </div>`
+      : '';
+
+    // 조석 칩 리스트 빌드
+    let chipsHtml = '';
+    processedTides.forEach(tide => {
+      const lowClass = tide.isLow ? 'is-low' : 'is-high';
+      const daylightClass = tide.isDaylight ? 'is-daylight' : '';
+      const icon = tide.isLow ? 'arrow-down-circle' : 'arrow-up-circle';
+      const label = tide.isLow ? '간조(썰물)' : '만조(밀물)';
+
+      chipsHtml += `
+        <div class="tide-info-chip ${lowClass} ${daylightClass}">
+          <i data-lucide="${icon}" class="chip-icon"></i>
+          <span><strong>${label}</strong></span>
+          <span class="chip-time">${tide.localTime}</span>
+          <span class="chip-height">(${tide.height.toFixed(2)}m)</span>
+        </div>
+      `;
+    });
+
+    if (processedTides.length === 0) {
+      chipsHtml = `<div class="tide-info-chip">일치하는 조석 정보가 없습니다.</div>`;
+    }
+
+    // 타임라인 내 도트 렌더링
+    let dotsHtml = '';
+    processedTides.forEach(tide => {
+      if (tide.isLow) {
+        const tidePercent = getDayMinutePercent(tide.dateObj);
+        const icon = 'waves';
+        
+        dotsHtml += `
+          <div class="tide-dot" style="left: ${tidePercent}%;" title="간조: ${tide.localTime} (${tide.height.toFixed(2)}m)">
+            <i data-lucide="${icon}"></i>
+            <div class="tide-tooltip">${tide.localTime} (${tide.height.toFixed(2)}m)</div>
+          </div>
+        `;
+      }
+    });
+
     dayCard.innerHTML = `
+      ${badgeHtml}
+      
+      <!-- 날짜 및 일출/일몰 메타 영역 -->
       <div class="day-meta">
         <div class="date-text">
-          <h3>${dateStr}</h3>
+          <h3>${formatDateKR(date)}</h3>
+          <p>${dayOfWeek}</p>
+        </div>
+        <div class="sun-times">
+          <div class="sun-item" title="일출 시간">
+            <i data-lucide="sunrise"></i>
+            <span>일출 <strong>${sunriseText}</strong></span>
+          </div>
+          <div class="sun-item" title="일몰 시간">
+            <i data-lucide="sunset"></i>
+            <span>일몰 <strong>${sunsetText}</strong></span>
+          </div>
         </div>
       </div>
+
+      <!-- 시각화 영역 (24H 타임라인 & 상세 칩 리스트) -->
       <div class="day-visuals">
-        <p>조석 및 태양 천문 데이터 로딩 뼈대 완료. 다음 단계에서 시각화 및 매칭 분석을 진행합니다.</p>
+        <div class="timeline-bar-wrapper">
+          <div class="timeline-labels">
+            <span>00:00 (자정)</span>
+            <span>12:00 (정오)</span>
+            <span>24:00 (자정)</span>
+          </div>
+          <div class="timeline-bar" style="background: ${timelineBg};">
+            ${dotsHtml}
+          </div>
+        </div>
+
+        <div class="tide-details-list">
+          ${chipsHtml}
+        </div>
       </div>
     `;
+
     calendarGridEl.appendChild(dayCard);
-  }
+  });
+
+  // 아이콘 렌더링
+  lucide.createIcons();
+}
+
+// --- 유틸리티 헬퍼 함수 정의 ---
+
+// Date 객체를 YYYY-MM-DD 형태의 지역 스트링으로 변환
+function formatDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// 한국어 날짜 표시 포맷 (MM월 DD일)
+function formatDateKR(date) {
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${m}월 ${d}일`;
+}
+
+// 요일 구하기
+function getDayOfWeekKR(date) {
+  const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+  return days[date.getDay()];
+}
+
+// 시간 문자열 포맷팅 (HH:MM)
+function formatTime(date) {
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+// 하루 24시간 중 경과 비율 계산 (0 ~ 100%)
+function getDayMinutePercent(date) {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const totalMinutes = (hours * 60) + minutes;
+  const dayMinutes = 24 * 60;
+  return (totalMinutes / dayMinutes) * 100;
 }
