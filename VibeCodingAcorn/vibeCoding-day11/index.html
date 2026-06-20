@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYSE 섹터 동향 & AI 마켓 분석</title>
+  
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- 1. API Key 입력 설정 모달 폼 -->
+  <div id="key-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <i data-lucide="key" class="icon-key"></i>
+        <h2>API 설정 및 연동</h2>
+      </div>
+      <p class="modal-desc">
+        실시간 NYSE 데이터 수집 및 Claude AI 요약을 제공하기 위해 API 키가 필요합니다.<br>
+        키를 입력하지 않으면 <strong>모의 데이터(Mock Data) 모드</strong>로 구동됩니다.
+      </p>
+      <form id="key-form">
+        <div class="modal-input-group">
+          <label for="fmp-key-input">FMP (Financial Modeling Prep) API Key</label>
+          <input type="text" id="fmp-key-input" placeholder="FMP API Key를 입력하세요 (선택)" autocomplete="off">
+        </div>
+        <div class="modal-input-group">
+          <label for="claude-key-input">Anthropic Claude API Key</label>
+          <input type="password" id="claude-key-input" placeholder="Claude API Key를 입력하세요 (선택)" autocomplete="off">
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn-submit">설정 저장 및 데이터 조회</button>
+          <button type="button" id="btn-skip-modal" class="btn-secondary">모의 데이터 모드로 시작</button>
+        </div>
+      </form>
+      <div class="key-help-links">
+        <a href="https://site.financialmodelingprep.com/developer/docs/" target="_blank" class="help-link">FMP 무료 키 발급</a>
+        <span>|</span>
+        <a href="https://console.anthropic.com/" target="_blank" class="help-link">Claude API 키 발급</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 메인 웹앱 컨테이너 -->
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <i data-lucide="trending-up" class="logo-icon"></i>
+        <h1>NYSE 섹터 동향 & AI 마켓 분석</h1>
+        <span id="data-mode-badge" class="mode-badge mock-mode">모의 데이터 모드</span>
+      </div>
+      <p class="subtitle">NYSE 상장 기업들의 실시간 섹터별 시가총액 볼륨과 등락률을 분석하고 AI가 추천하는 오늘의 섹터 리포트를 확인하세요.</p>
+    </header>
+
+    <!-- 상단 주요 지표 요약 카드 그리드 -->
+    <section class="summary-cards-grid">
+      <div class="summary-card glass-card">
+        <div class="card-icon-wrapper"><i data-lucide="dollar-sign"></i></div>
+        <div class="card-info">
+          <span class="card-label">NYSE 총 시가총액</span>
+          <h3 id="total-market-cap" class="card-value">$0.00T</h3>
+        </div>
+      </div>
+      <div class="summary-card glass-card">
+        <div class="card-icon-wrapper"><i data-lucide="bar-chart-2"></i></div>
+        <div class="card-info">
+          <span class="card-label">평균 시장 변동률</span>
+          <h3 id="overall-avg-change" class="card-value">0.00%</h3>
+        </div>
+      </div>
+      <div class="summary-card glass-card top-performer">
+        <div class="card-icon-wrapper"><i data-lucide="arrow-up-right"></i></div>
+        <div class="card-info">
+          <span class="card-label">최고 상승 섹터</span>
+          <h3 id="top-sector-name" class="card-value">-</h3>
+          <span id="top-sector-change" class="card-sub-value">0.00%</span>
+        </div>
+      </div>
+      <div class="summary-card glass-card worst-performer">
+        <div class="card-icon-wrapper"><i data-lucide="arrow-down-right"></i></div>
+        <div class="card-info">
+          <span class="card-label">최고 하락 섹터</span>
+          <h3 id="worst-sector-name" class="card-value">-</h3>
+          <span id="worst-sector-change" class="card-sub-value">0.00%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 메인 대시보드 그리드 -->
+    <main class="dashboard-main">
+      
+      <!-- 중앙 차트 카드 -->
+      <section class="chart-section glass-card">
+        <div class="section-header">
+          <div class="title-with-desc">
+            <i data-lucide="pie-chart" class="section-icon"></i>
+            <h2>섹터별 시장 버블 맵 (Bubble Map)</h2>
+          </div>
+          <span class="chart-legend">※ 버블 크기: 총 시가총액 규모 | 색상: 상승(초록) / 하락(빨강)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="bubbleChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 하단 분석 정보 레이아웃 (테이블 & AI 요약) -->
+      <div class="bottom-analysis-grid">
+        
+        <!-- 좌측: 섹터별 상세 지표 테이블 -->
+        <section class="table-section glass-card">
+          <div class="section-header">
+            <i data-lucide="list" class="section-icon"></i>
+            <h2>섹터별 상세 실적 목록</h2>
+          </div>
+          <div class="table-wrapper">
+            <table class="sector-table">
+              <thead>
+                <tr>
+                  <th>섹터명 (Sector)</th>
+                  <th class="text-right">평균 변동률</th>
+                  <th class="text-right">총 시가총액</th>
+                  <th class="text-center">상장 종목수</th>
+                </tr>
+              </thead>
+              <tbody id="sector-table-body">
+                <!-- JS 동적 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 우측: Claude AI 오늘 주목할 섹터 TOP 3 리포트 -->
+        <section class="ai-section glass-card">
+          <div class="section-header">
+            <div class="title-with-desc">
+              <i data-lucide="sparkles" class="section-icon ai-sparkle"></i>
+              <h2>Claude AI 요약: 오늘 주목할 섹터 TOP 3</h2>
+            </div>
+            <button id="btn-refresh-ai" class="btn-ai-refresh" title="AI 요약 재생성">
+              <i data-lucide="rotate-cw"></i>
+              <span>요약 생성</span>
+            </button>
+          </div>
+          <div class="ai-content-box">
+            <div id="ai-loading" class="ai-loading hidden">
+              <div class="ai-spinner"></div>
+              <p>Claude가 시장 지표를 토대로 분석 리포트를 작성하는 중입니다...</p>
+            </div>
+            <div id="ai-summary-text" class="ai-summary-markdown">
+              <!-- AI 요약 내용 마크다운 렌더링 -->
+              <p class="ai-placeholder">위치 조회 및 금융 데이터를 로딩한 후 '요약 생성' 버튼을 클릭하시면 Claude AI 리포트가 표시됩니다.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 3. 우하단 API Key 설정 버튼 바 -->
+  <div class="settings-bar">
+    <button id="btn-reset-key" class="btn-settings" title="API Key 재설정 및 설정 모달 열기">
+      <i data-lucide="settings-2" class="settings-icon"></i>
+      <span>API 설정 관리</span>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
