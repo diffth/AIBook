@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acorn AutoML - CSV Data Analyzer & Machine Learning Dashboard</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- PapaParse for CSV Parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-brain-circuit brand-icon"></i>
+        <span>Acorn <span class="text-accent">AutoML</span></span>
+      </div>
+      <nav class="sidebar-menu">
+        <button class="menu-item active" data-tab="overview">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>대시보드 개요</span>
+        </button>
+        <button class="menu-item" data-tab="eda" id="nav-eda" disabled>
+          <i class="fa-solid fa-chart-line"></i>
+          <span>탐색적 데이터 분석 (EDA)</span>
+        </button>
+        <button class="menu-item" data-tab="training" id="nav-training" disabled>
+          <i class="fa-solid fa-gears"></i>
+          <span>AutoML 모델 학습</span>
+        </button>
+        <button class="menu-item" data-tab="evaluation" id="nav-evaluation" disabled>
+          <i class="fa-solid fa-square-poll-vertical"></i>
+          <span>모델 검증 및 비교</span>
+        </button>
+        <button class="menu-item" data-tab="tree-viewer" id="nav-tree" disabled>
+          <i class="fa-solid fa-diagram-project"></i>
+          <span>의사결정나무 시각화</span>
+        </button>
+        <button class="menu-item" data-tab="predictor" id="nav-predictor" disabled>
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>예측 플레이그라운드</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="status-badge" id="app-status">
+          <span class="status-dot red"></span>
+          <span class="status-text">데이터 대기 중</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1 id="page-heading">대시보드 개요</h1>
+          <p id="page-subheading">분석할 CSV 파일을 업로드하여 자동화된 머신러닝 프로세스를 시작하세요.</p>
+        </div>
+        <div class="dataset-info-chip" id="data-chip" style="display: none;">
+          <i class="fa-solid fa-file-csv"></i>
+          <span id="data-chip-name">churn.csv</span>
+          <span class="badge badge-accent" id="data-chip-rows">100 샘플</span>
+        </div>
+      </header>
+
+      <!-- Scrollable Tab Content -->
+      <div class="content-body">
+        
+        <!-- TAB 1: OVERVIEW -->
+        <section class="tab-content active" id="tab-overview">
+          <div class="hero-card glass-card">
+            <div class="hero-text">
+              <h2>Data Automation & ML Platform</h2>
+              <p>CSV 파일을 업로드하면 데이터를 구조화하여 특징(Feature)을 분석하고, 머신러닝 최적 모델을 자동 추천 및 학습합니다. 의사결정나무, 랜덤 포레스트, XGBoost(GBDT) 알고리즘이 브라우저에서 실시간으로 구동됩니다.</p>
+            </div>
+            <div class="hero-visual">
+              <i class="fa-solid fa-cubes-stacked floating-icon"></i>
+            </div>
+          </div>
+
+          <div class="upload-grid">
+            <!-- Dropzone Card -->
+            <div class="glass-card upload-card" id="dropzone">
+              <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+              <div class="dropzone-content">
+                <i class="fa-solid fa-cloud-arrow-up upload-icon animate-bounce"></i>
+                <h3>CSV 파일을 이곳에 드래그하거나 클릭하여 업로드</h3>
+                <p>로컬 PC에서 분석 및 예측을 실행할 데이터 파일을 선택해 주세요.</p>
+                <div class="button-group">
+                  <button class="btn btn-primary" id="selectFileBtn">파일 선택</button>
+                  <span class="divider-text">또는</span>
+                  <button class="btn btn-secondary" id="loadDemoBtn">
+                    <i class="fa-solid fa-play"></i> 데모 데이터 실행 (churn.csv)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dataset Meta Card -->
+            <div class="glass-card info-card" id="meta-card">
+              <h3>데이터셋 요약 정보</h3>
+              <div class="meta-placeholder">
+                <i class="fa-solid fa-database placeholder-icon"></i>
+                <p>데이터가 로드되면 메타데이터 정보가 활성화됩니다.</p>
+              </div>
+              <div class="meta-content" style="display: none;">
+                <div class="meta-grid">
+                  <div class="meta-item">
+                    <span class="label">파일명</span>
+                    <span class="value text-accent" id="meta-filename">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="label">전체 원본 크기</span>
+                    <span class="value" id="meta-original-shape">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="label">자동 샘플링 크기</span>
+                    <span class="value" id="meta-sampled-shape">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="label">자동 감지 타겟 컬럼</span>
+                    <span class="value text-emerald" id="meta-target">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="label">작업 유형(Task)</span>
+                    <span class="value badge badge-purple" id="meta-task">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="label">피처 개수</span>
+                    <span class="value" id="meta-features-count">-</span>
+                  </div>
+                </div>
+                <div class="action-bar">
+                  <button class="btn btn-secondary btn-full" id="downloadSampleBtn">
+                    <i class="fa-solid fa-download"></i> 샘플링 데이터(100행) 다운로드
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Table Card -->
+          <div class="glass-card preview-card" id="preview-section" style="display: none;">
+            <div class="card-header">
+              <h3>랜덤 샘플링 데이터 미리보기 (상위 5행)</h3>
+              <span class="subtitle">무작위로 선택된 100개의 샘플 데이터 중 일부입니다.</span>
+            </div>
+            <div class="table-container">
+              <table id="previewTable">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: EXPLORATORY DATA ANALYSIS (EDA) -->
+        <section class="tab-content" id="tab-eda">
+          <div class="eda-grid">
+            <!-- Left Column: Column Stats -->
+            <div class="glass-card col-stats-card">
+              <div class="card-header">
+                <h3>변수별 기술 통계량 (Column Profiling)</h3>
+                <p>각 피처의 타입, 결측치 비율 및 주요 통계치를 나타냅니다.</p>
+              </div>
+              <div class="table-container">
+                <table id="statsTable">
+                  <thead>
+                    <tr>
+                      <th>컬럼명</th>
+                      <th>타입</th>
+                      <th>결측치(%)</th>
+                      <th>고유값 수</th>
+                      <th>평균 (Mean)</th>
+                      <th>표준편차 (Std)</th>
+                      <th>최소값 (Min)</th>
+                      <th>최대값 (Max)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column: Charts & Correlation -->
+            <div class="eda-sidebar-grid">
+              <!-- Target variable distribution -->
+              <div class="glass-card target-dist-card">
+                <h3>타겟 변수 분포 비율</h3>
+                <div class="chart-wrapper">
+                  <canvas id="targetDistChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Correlation Heatmap -->
+              <div class="glass-card heatmap-card">
+                <div class="heatmap-header">
+                  <h3>수치형 피처 상관관계 히트맵</h3>
+                  <span class="badge badge-accent">Interactive Canvas</span>
+                </div>
+                <p class="heatmap-desc">피처 간 피어슨 상관관계를 분석하여 나타냅니다. 셀에 마우스를 올리면 상관계수가 출력됩니다.</p>
+                <div class="canvas-wrapper">
+                  <div class="canvas-tooltip" id="heatmapTooltip"></div>
+                  <canvas id="heatmapCanvas" width="400" height="400"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: AUTOML MODEL TRAINING -->
+        <section class="tab-content" id="tab-training">
+          <div class="training-grid">
+            <!-- Settings Card -->
+            <div class="glass-card settings-card">
+              <h3>AutoML 학습 및 데이터 설정</h3>
+              <p class="section-desc">모델 학습에 사용할 피처와 하이퍼파라미터를 설정합니다.</p>
+              
+              <div class="form-group">
+                <label for="targetColumnSelect">예측할 타겟 변수 (Target Y)</label>
+                <select id="targetColumnSelect" class="form-control"></select>
+              </div>
+
+              <div class="form-group">
+                <label>제외할 피처 (Exclude Features)</label>
+                <div class="checkbox-scroll-box" id="excludeFeaturesBox">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h4>모델별 하이퍼파라미터 (Hyperparameters)</h4>
+              
+              <div class="param-row">
+                <div class="form-group">
+                  <label for="testSplitRange">테스트 데이터 비율 (<span id="testSplitVal">20</span>%)</label>
+                  <input type="range" id="testSplitRange" min="10" max="40" step="5" value="20" class="slider">
+                </div>
+              </div>
+
+              <div class="param-row">
+                <div class="form-group">
+                  <label for="maxDepthRange">의사결정나무 최대 깊이 (<span id="maxDepthVal">5</span>)</label>
+                  <input type="range" id="maxDepthRange" min="2" max="15" step="1" value="5" class="slider">
+                </div>
+              </div>
+
+              <div class="param-row">
+                <div class="form-group">
+                  <label for="rfTreesRange">랜덤 포레스트 트리 개수 (<span id="rfTreesVal">30</span>)</label>
+                  <input type="range" id="rfTreesRange" min="10" max="100" step="5" value="30" class="slider">
+                </div>
+              </div>
+
+              <div class="param-row-gb">
+                <div class="form-group">
+                  <label for="gbTreesRange">GBDT (XGBoost) 트리 개수 (<span id="gbTreesVal">40</span>)</label>
+                  <input type="range" id="gbTreesRange" min="10" max="100" step="5" value="40" class="slider">
+                </div>
+                <div class="form-group">
+                  <label for="gbLrRange">GBDT 학습률 (Learning Rate: <span id="gbLrVal">0.1</span>)</label>
+                  <input type="range" id="gbLrRange" min="0.01" max="0.5" step="0.01" value="0.1" class="slider">
+                </div>
+              </div>
+
+              <button class="btn btn-accent btn-full btn-lg animate-pulse" id="startTrainingBtn">
+                <i class="fa-solid fa-play"></i> AutoML 파이프라인 학습 실행
+              </button>
+            </div>
+
+            <!-- Recommendation & Logs Card -->
+            <div class="training-sidebar">
+              <!-- AutoML Recommendation Report -->
+              <div class="glass-card recommend-card">
+                <h3>데이터 분석 기반 모델 추천</h3>
+                <div class="recommend-placeholder" id="recommend-placeholder">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <p>데이터 구조 분석 후 최적의 알고리즘과 전처리 지침을 추천합니다.</p>
+                </div>
+                <div class="recommend-details" id="recommend-details" style="display: none;">
+                  <div class="recommend-badge-container">
+                    <span class="label">추천 알고리즘</span>
+                    <span class="value-badge" id="recommendedModelName">Random Forest</span>
+                  </div>
+                  <div class="recommend-reasoning" id="recommendReasonText">
+                    <!-- Dynamic reason -->
+                  </div>
+                  <ul class="recommend-list" id="recommendGuides">
+                    <!-- Preprocessing checklists -->
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Terminal Logging Console -->
+              <div class="glass-card console-card">
+                <div class="console-header">
+                  <span><i class="fa-solid fa-terminal"></i> AutoML Training Console</span>
+                  <span class="console-dot-group">
+                    <span class="c-dot red"></span>
+                    <span class="c-dot yellow"></span>
+                    <span class="c-dot green"></span>
+                  </span>
+                </div>
+                <div class="console-body" id="consoleBody">
+                  <div class="console-line text-muted">Ready to train. Run the AutoML pipeline...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: MODEL EVALUATION & COMPARISON -->
+        <section class="tab-content" id="tab-evaluation">
+          <!-- Model performance cards -->
+          <div class="metrics-grid" id="metricsCardsContainer">
+            <!-- Decision Tree metrics -->
+            <div class="glass-card metric-card" id="card-dt">
+              <div class="model-badge">Decision Tree</div>
+              <div class="score-display">
+                <span class="label" id="main-metric-label-dt">정확도 (Accuracy)</span>
+                <span class="score" id="score-dt">-</span>
+              </div>
+              <div class="sub-metrics">
+                <div><span>Precision:</span> <strong id="prec-dt">-</strong></div>
+                <div><span>Recall:</span> <strong id="rec-dt">-</strong></div>
+                <div><span>F1-score:</span> <strong id="f1-dt">-</strong></div>
+              </div>
+            </div>
+
+            <!-- Random Forest metrics -->
+            <div class="glass-card metric-card featured" id="card-rf">
+              <div class="featured-tag"><i class="fa-solid fa-star"></i> BEST</div>
+              <div class="model-badge">Random Forest</div>
+              <div class="score-display">
+                <span class="label" id="main-metric-label-rf">정확도 (Accuracy)</span>
+                <span class="score" id="score-rf">-</span>
+              </div>
+              <div class="sub-metrics">
+                <div><span>Precision:</span> <strong id="prec-rf">-</strong></div>
+                <div><span>Recall:</span> <strong id="rec-rf">-</strong></div>
+                <div><span>F1-score:</span> <strong id="f1-rf">-</strong></div>
+              </div>
+            </div>
+
+            <!-- GBDT/XGBoost metrics -->
+            <div class="glass-card metric-card" id="card-gb">
+              <div class="model-badge">GBDT (XGBoost)</div>
+              <div class="score-display">
+                <span class="label" id="main-metric-label-gb">정확도 (Accuracy)</span>
+                <span class="score" id="score-gb">-</span>
+              </div>
+              <div class="sub-metrics">
+                <div><span>Precision:</span> <strong id="prec-gb">-</strong></div>
+                <div><span>Recall:</span> <strong id="rec-gb">-</strong></div>
+                <div><span>F1-score:</span> <strong id="f1-gb">-</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="evaluation-graphs-grid">
+            <!-- Metrics comparison chart -->
+            <div class="glass-card eval-chart-card">
+              <h3>알고리즘별 주요 성능 지표 비교</h3>
+              <div class="chart-wrapper">
+                <canvas id="metricsCompareChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Confusion Matrix & Feature Importance -->
+            <div class="eval-details-column">
+              <!-- Feature Importance -->
+              <div class="glass-card importance-card">
+                <h3>피처 중요도 (Feature Importance)</h3>
+                <p class="subtitle">선택된 모델의 특징별 평균 불순도 감소 기반 중요도입니다.</p>
+                <div class="model-select-small">
+                  <label for="importanceModelSelect">모델 선택:</label>
+                  <select id="importanceModelSelect" class="form-control-sm">
+                    <option value="dt">Decision Tree</option>
+                    <option value="rf" selected>Random Forest</option>
+                    <option value="gb">GBDT (XGBoost)</option>
+                  </select>
+                </div>
+                <div class="chart-wrapper-small">
+                  <canvas id="importanceChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Confusion Matrix -->
+              <div class="glass-card conf-matrix-card">
+                <h3>오차 행렬 (Confusion Matrix)</h3>
+                <p class="subtitle" id="confMatrixTitle">Random Forest 모델의 테스트 세트 예측 검증</p>
+                <div class="matrix-grid">
+                  <div class="matrix-cell label-cell"></div>
+                  <div class="matrix-cell header-cell">Predicted: Negative</div>
+                  <div class="matrix-cell header-cell">Predicted: Positive</div>
+
+                  <div class="matrix-cell header-cell row-header">Actual: Negative</div>
+                  <div class="matrix-cell value-cell tn" id="cm-tn">
+                    <span class="value" id="cm-tn-val">0</span>
+                    <span class="label">True Negative</span>
+                  </div>
+                  <div class="matrix-cell value-cell fp" id="cm-fp">
+                    <span class="value" id="cm-fp-val">0</span>
+                    <span class="label">False Positive</span>
+                  </div>
+
+                  <div class="matrix-cell header-cell row-header">Actual: Positive</div>
+                  <div class="matrix-cell value-cell fn" id="cm-fn">
+                    <span class="value" id="cm-fn-val">0</span>
+                    <span class="label">False Negative</span>
+                  </div>
+                  <div class="matrix-cell value-cell tp" id="cm-tp">
+                    <span class="value" id="cm-tp-val">0</span>
+                    <span class="label">True Positive</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 5: DECISION TREE VISUALIZER -->
+        <section class="tab-content" id="tab-tree-viewer">
+          <div class="glass-card tree-viewer-card">
+            <div class="viewer-header">
+              <div>
+                <h3>의사결정나무 인터랙티브 구조 (Tree Node Viewer)</h3>
+                <p>생성된 Decision Tree의 계층적 규칙들을 분석하고 직접 탐색해 보세요.</p>
+              </div>
+              <div class="viewer-legend">
+                <span class="legend-item"><span class="color-dot root-dot"></span> 루트/중간 노드</span>
+                <span class="legend-item"><span class="color-dot leaf-dot"></span> 리프 노드</span>
+              </div>
+            </div>
+            
+            <div class="tree-viewer-container" id="treeContainer">
+              <div class="tree-placeholder">
+                <i class="fa-solid fa-diagram-project"></i>
+                <p>모델 학습을 성공적으로 완료하면 의사결정나무의 전체 분할 조건 규칙들이 이곳에 로컬 노드 트리 구조로 렌더링됩니다.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 6: PREDICTION PLAYGROUND -->
+        <section class="tab-content" id="tab-predictor">
+          <div class="predictor-grid">
+            <!-- Input Form Card -->
+            <div class="glass-card input-form-card">
+              <h3>가상 인스턴스 예측 시뮬레이션</h3>
+              <p class="subtitle">학습 기여도가 가장 높은 상위 피처값을 조절하며 결과를 실시간으로 예측합니다.</p>
+              <div class="divider"></div>
+              
+              <form id="predictionForm" onsubmit="event.preventDefault();">
+                <!-- Dynamically generated fields based on top 5 features -->
+                <div id="dynamicFieldsContainer"></div>
+                
+                <div class="divider"></div>
+                
+                <div class="form-group">
+                  <label for="predictModelSelect">추론 예측에 적용할 모델</label>
+                  <select id="predictModelSelect" class="form-control">
+                    <option value="dt">Decision Tree</option>
+                    <option value="rf" selected>Random Forest (앙상블 다수결)</option>
+                    <option value="gb">GBDT (XGBoost 그레디언트 부스팅)</option>
+                    <option value="voting">3개 모델 소프트 보팅 (평균 확률)</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            <!-- Result Gauge Card -->
+            <div class="glass-card inference-result-card">
+              <h3>실시간 예측 결과 리포트</h3>
+              
+              <div class="inference-display" id="inferenceResultBox">
+                <!-- Probability Gauge Circular structure -->
+                <div class="gauge-container">
+                  <svg class="gauge-ring" width="220" height="220">
+                    <circle class="gauge-ring-bg" cx="110" cy="110" r="95"></circle>
+                    <circle class="gauge-ring-fill" id="gaugeFill" cx="110" cy="110" r="95" style="stroke-dasharray: 597; stroke-dashoffset: 597;"></circle>
+                  </svg>
+                  <div class="gauge-center">
+                    <span class="percentage" id="gaugePercentage">0%</span>
+                    <span class="label">확률</span>
+                  </div>
+                </div>
+
+                <div class="result-text-block">
+                  <div class="result-heading">
+                    <span class="label">최종 예측 클래스</span>
+                    <h2 id="resultClass">대기 중</h2>
+                  </div>
+                  <p class="result-desc" id="resultDescription">피처 데이터를 조절하면 선택한 머신러닝 분류 알고리즘이 실시간 추론 연산을 진행합니다.</p>
+                </div>
+
+                <!-- Compare Probabilities across all models -->
+                <div class="model-prob-bars">
+                  <h4>모델별 예측 확률 비교</h4>
+                  
+                  <div class="prob-bar-item">
+                    <div class="bar-labels">
+                      <span>Decision Tree</span>
+                      <span id="prob-val-dt">0%</span>
+                    </div>
+                    <div class="bar-track">
+                      <div class="bar-fill bg-dt" id="prob-fill-dt" style="width: 0%;"></div>
+                    </div>
+                  </div>
+
+                  <div class="prob-bar-item">
+                    <div class="bar-labels">
+                      <span>Random Forest</span>
+                      <span id="prob-val-rf">0%</span>
+                    </div>
+                    <div class="bar-track">
+                      <div class="bar-fill bg-rf" id="prob-fill-rf" style="width: 0%;"></div>
+                    </div>
+                  </div>
+
+                  <div class="prob-bar-item">
+                    <div class="bar-labels">
+                      <span>GBDT (XGBoost)</span>
+                      <span id="prob-val-gb">0%</span>
+                    </div>
+                    <div class="bar-track">
+                      <div class="bar-fill bg-gb" id="prob-fill-gb" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="ml.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
