@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini AirTranslate - 실시간 AI 번역 및 감정 분석</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i data-lucide="languages"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Gemini <span>AirTranslate</span></h1>
+          <p>Real-time Translation & Sentiment Insights</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-api-settings" class="btn-icon-label" title="API 설정">
+          <i data-lucide="key"></i>
+          <span>Gemini API Key</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="translator-workspace">
+      <!-- Input Panel -->
+      <section class="card glass-card translation-card">
+        <div class="card-header">
+          <div class="lang-selector-group">
+            <label for="src-lang"><i data-lucide="globe"></i> 입력 언어</label>
+            <select id="src-lang" class="lang-select">
+              <option value="auto" selected>자동 감지 (Auto-Detect)</option>
+              <option value="ko">한국어 (Korean)</option>
+              <option value="en">영어 (English)</option>
+              <option value="ja">일본어 (Japanese)</option>
+              <option value="zh">중국어 (Chinese)</option>
+              <option value="es">스페인어 (Spanish)</option>
+              <option value="fr">프랑스어 (French)</option>
+              <option value="de">독일어 (German)</option>
+            </select>
+          </div>
+          <div class="mic-status-badge hidden" id="mic-badge">
+            <span class="pulse-dot"></span>
+            <span>음성 인식 중...</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <textarea id="src-text" placeholder="번역할 텍스트를 입력하거나 마이크 버튼을 눌러 말씀해 주세요..." maxlength="2000"></textarea>
+        </div>
+
+        <div class="card-footer">
+          <div class="left-actions">
+            <div class="mic-container">
+              <button id="btn-mic" class="btn-mic" title="음성 입력 시작/종료">
+                <i data-lucide="mic"></i>
+              </button>
+              <div class="waveform hidden" id="voice-waveform">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+              </div>
+            </div>
+            <button id="btn-clear-src" class="btn-secondary-action" title="텍스트 지우기">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+          <span class="char-counter"><span id="src-char-count">0</span> / 2000</span>
+        </div>
+      </section>
+
+      <!-- Action Divider / Mobile Arrow -->
+      <div class="action-divider">
+        <button id="btn-translate-manual" class="btn-primary-action" title="즉시 번역 (Gemini AI)">
+          <i data-lucide="sparkles"></i>
+        </button>
+        <button id="btn-swap-languages" class="btn-swap-action" title="언어 및 텍스트 맞바꾸기">
+          <i data-lucide="repeat"></i>
+        </button>
+        <div class="loading-bar-container hidden" id="translator-loader">
+          <div class="loading-bar"></div>
+        </div>
+      </div>
+
+      <!-- Output Panel -->
+      <section class="card glass-card translation-card">
+        <div class="card-header">
+          <div class="lang-selector-group">
+            <label for="target-lang"><i data-lucide="arrow-right-circle"></i> 대상 언어</label>
+            <select id="target-lang" class="lang-select">
+              <option value="ko">한국어 (Korean)</option>
+              <option value="en" selected>영어 (English)</option>
+              <option value="ja">일본어 (Japanese)</option>
+              <option value="zh">중국어 (Chinese)</option>
+              <option value="es">스페인어 (Spanish)</option>
+              <option value="fr">프랑스어 (French)</option>
+              <option value="de">독일어 (German)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="output-placeholder" id="output-placeholder-text">
+            번역 결과가 여기에 표시됩니다.
+          </div>
+          <div id="target-text" class="output-text-area hidden" tabindex="0"></div>
+        </div>
+
+        <div class="card-footer">
+          <div class="left-actions">
+            <button id="btn-tts" class="btn-secondary-action" title="번역결과 음성 듣기 (TTS)" disabled>
+              <i data-lucide="volume-2"></i>
+            </button>
+            <button id="btn-copy-target" class="btn-secondary-action" title="클립보드 복사" disabled>
+              <i data-lucide="copy"></i>
+            </button>
+          </div>
+          <span class="detected-lang-badge hidden" id="detected-badge">감지됨: <strong id="detected-lang-name">-</strong></span>
+        </div>
+      </section>
+    </main>
+
+    <!-- Sentiment Analysis Dashboard Section -->
+    <section class="card glass-card sentiment-insights-card">
+      <div class="insights-header">
+        <div class="insights-title">
+          <i data-lucide="brain-circuit" class="icon-pulse"></i>
+          <div>
+            <h2>실시간 감정 분석 Insights</h2>
+            <p>Gemini AI가 원본 텍스트의 감정과 뉘앙스를 분석합니다.</p>
+          </div>
+        </div>
+        <div class="sentiment-indicator-badge neutral" id="sentiment-badge-display">
+          <span id="sentiment-emoji">😐</span>
+          <span id="sentiment-text">대기 중</span>
+        </div>
+      </div>
+
+      <div class="insights-body">
+        <div class="sentiment-visualization">
+          <!-- Sentiment Gauge -->
+          <div class="sentiment-meters">
+            <div class="meter-row">
+              <div class="meter-label">긍정 (Positive)</div>
+              <div class="meter-track">
+                <div class="meter-fill positive" id="meter-positive" style="width: 0%;"></div>
+              </div>
+              <div class="meter-value" id="val-positive">0%</div>
+            </div>
+            <div class="meter-row">
+              <div class="meter-label">중립 (Neutral)</div>
+              <div class="meter-track">
+                <div class="meter-fill neutral" id="meter-neutral" style="width: 100%;"></div>
+              </div>
+              <div class="meter-value" id="val-neutral">100%</div>
+            </div>
+            <div class="meter-row">
+              <div class="meter-label">부정 (Negative)</div>
+              <div class="meter-track">
+                <div class="meter-fill negative" id="meter-negative" style="width: 0%;"></div>
+              </div>
+              <div class="meter-value" id="val-negative">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sentiment-explanation-box">
+          <h3 class="box-title"><i data-lucide="message-square-text"></i> 감정 분석 상세 설명</h3>
+          <p id="sentiment-explanation-text">텍스트를 입력하고 번역을 진행하면 Gemini AI의 심층 뉘앙스 분석 결과가 이곳에 채워집니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- History & Trend Section -->
+    <div class="history-trend-grid">
+      <!-- Translation History Card -->
+      <section class="card glass-card history-card">
+        <div class="history-header">
+          <div class="history-title">
+            <i data-lucide="history"></i>
+            <div>
+              <h2>번역 및 감정 기록</h2>
+              <p>최근 번역된 내역 및 감정 분석 기록을 보관합니다.</p>
+            </div>
+          </div>
+          <button id="btn-clear-history" class="btn-text-action" title="기록 전체 삭제">
+            <i data-lucide="trash-2"></i> <span>기록 지우기</span>
+          </button>
+        </div>
+        <div class="history-body">
+          <ul id="history-list" class="history-list">
+            <li class="history-empty">저장된 번역 기록이 없습니다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Sentiment Trend Card -->
+      <section class="card glass-card trend-card">
+        <div class="trend-header">
+          <div class="trend-title">
+            <i data-lucide="bar-chart-3"></i>
+            <div>
+              <h2>최근 감정 분석 트렌드</h2>
+              <p>최근 번역한 문장들의 감정 비율 통계입니다.</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-body">
+          <div class="chart-container">
+            <div class="trend-chart-bar-stack">
+              <div class="trend-chart-fill positive" id="trend-fill-pos" style="width: 0%;" title="긍정"></div>
+              <div class="trend-chart-fill neutral" id="trend-fill-neu" style="width: 100%;" title="중립"></div>
+              <div class="trend-chart-fill negative" id="trend-fill-neg" style="width: 0%;" title="부정"></div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot positive"></span> 긍정 (<span id="trend-pct-pos">0%</span>)</div>
+              <div class="legend-item"><span class="legend-dot neutral"></span> 중립 (<span id="trend-pct-neu">100%</span>)</div>
+              <div class="legend-item"><span class="legend-dot negative"></span> 부정 (<span id="trend-pct-neg">0%</span>)</div>
+            </div>
+          </div>
+          <div class="trend-stats-summary" id="trend-stats-summary-text">
+            아직 누적된 데이터가 없습니다. 번역을 진행하여 감정을 분석해 보세요!
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- API Key Modal -->
+  <div class="modal-overlay hidden" id="api-modal">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <div class="modal-logo">
+          <i data-lucide="key-round"></i>
+        </div>
+        <h2>Gemini API Key 설정</h2>
+        <p>번역 및 감정 분석을 위해 Google Gemini API Key가 필요합니다.</p>
+      </div>
+      <form id="api-key-form">
+        <div class="form-group">
+          <div class="input-with-icon">
+            <i data-lucide="lock"></i>
+            <input type="password" id="gemini-key-input" placeholder="AIzaSy...">
+          </div>
+          <p class="help-text">API 키는 브라우저의 LocalStorage에 안전하게 보관되며 외부 서버로 전송되지 않습니다.</p>
+        </div>
+        
+        <!-- Demo Mode Toggle -->
+        <div class="form-group demo-toggle-group">
+          <label class="switch-container">
+            <input type="checkbox" id="demo-mode-toggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span class="switch-label-text">데모 모드 사용 (API 키 없이 번역 체험)</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" id="btn-close-modal">닫기</button>
+          <button type="submit" class="btn-save">저장 후 연결</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Custom JS -->
+  <script src="script.js"></script>
+</body>
+</html>
