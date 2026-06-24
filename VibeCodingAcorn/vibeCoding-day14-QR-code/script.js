@@ -61,27 +61,33 @@ function initApp() {
   // --- Helper: Format URL Domain for Preview ---
   function getAutoPreviewText(text) {
     if (!text) return '';
-    try {
-      // If it looks like a URL but doesn't have protocol, add it temporarily for URL parser
-      let urlString = text.trim();
-      if (!/^https?:\/\//i.test(urlString)) {
-        urlString = 'http://' + urlString;
+    const cleanText = text.trim();
+    
+    // Check if the input is a valid URL or Domain name using regex
+    const domainRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+    
+    if (domainRegex.test(cleanText)) {
+      try {
+        let urlString = cleanText;
+        if (!/^https?:\/\//i.test(urlString)) {
+          urlString = 'http://' + urlString;
+        }
+        const url = new URL(urlString);
+        let host = url.hostname;
+        if (host.startsWith('www.')) {
+          host = host.substring(4);
+        }
+        return host.toUpperCase();
+      } catch (e) {
+        // Fallback if URL parsing fails
       }
-      const url = new URL(urlString);
-      // Return host (e.g. github.com)
-      let host = url.hostname;
-      if (host.startsWith('www.')) {
-        host = host.substring(4);
-      }
-      return host.toUpperCase();
-    } catch (e) {
-      // If not a URL, truncate text
-      const cleanText = text.trim();
-      if (cleanText.length > 25) {
-        return cleanText.substring(0, 22) + '...';
-      }
-      return cleanText;
     }
+    
+    // If not a domain/URL, truncate and return raw text
+    if (cleanText.length > 25) {
+      return cleanText.substring(0, 22) + '...';
+    }
+    return cleanText;
   }
 
   // --- Core Function: Render QR Code to Canvas ---
