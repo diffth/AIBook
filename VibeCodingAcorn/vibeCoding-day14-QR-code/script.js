@@ -357,31 +357,31 @@ function initApp() {
     renderQRCode();
   });
 
-  // --- High Quality PNG Download ---
+  // --- 고화질 PNG 다운로드 실행 ---
   btnDownload.addEventListener('click', () => {
     try {
-      // 1. Generate Data URL synchronously to preserve User Gesture Context
+      // 1. 동기식으로 Canvas 이미지 데이터를 Data URL로 획득 (사용자 제스처 유지)
       const dataURL = mainCanvas.toDataURL('image/png');
       
-      // 2. Force download MIME-type (octet-stream) to bypass rendering navigation blocks
+      // 2. MIME 타입을 octet-stream으로 변환하여 브라우저의 다운로드 동작 강제화
       const forcedDownloadURL = dataURL.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
       
-      // 3. Generate intelligent file name supporting English, Korean and numbers
+      // 3. 파일 이름 안전 필터링 생성 (한글, 영문, 숫자 지원)
       const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
       const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '_').trim() : 'qr_code';
       const fileName = `qrcode_${safeName || 'code'}.png`;
 
-      // 4. Create temporary anchor and set properties
+      // 4. 가상 다운로드 앵커 생성 및 속성 정의
       const link = document.createElement('a');
       link.download = fileName;
       link.href = forcedDownloadURL;
       
-      // 5. Append to DOM (Required for modern browsers to respect user gesture & download attribute)
+      // 5. DOM에 임시 부착 후 클릭 이벤트 실행 (브라우저 호환성 확보)
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      // 6. Show friendly fallback modal for immediate right-click manual save
+      // 6. 다운로드 지연/차단 대비용 수동 저장 지원 모달 팝업 노출
       if (modalQrImg) modalQrImg.src = dataURL;
       if (downloadModal) downloadModal.classList.remove('hidden');
 
