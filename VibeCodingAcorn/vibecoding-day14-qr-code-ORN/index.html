@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 생성기 | Acorn QR Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 QR 코드 생성기</h1>
+            <p class="subtitle">텍스트나 URL을 입력하여 나만의 QR 코드를 생성하세요</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 입력 섹션 -->
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="textInput">텍스트 또는 URL</label>
+                    <textarea 
+                        id="textInput" 
+                        placeholder="예: https://www.example.com 또는 원하는 텍스트를 입력하세요"
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="logoUpload">로고 이미지 (선택사항)</label>
+                    <div class="file-input-wrapper">
+                        <input 
+                            type="file" 
+                            id="logoUpload" 
+                            accept="image/*"
+                            class="file-input"
+                        >
+                        <label for="logoUpload" class="file-label">
+                            <span id="fileName">파일 선택</span>
+                        </label>
+                        <button id="clearLogo" class="btn-clear" style="display: none;">✕</button>
+                    </div>
+                    <small class="helper-text">로고는 QR 코드 중앙에 삽입됩니다</small>
+                </div>
+
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label for="errorLevel">오류 수정 레벨</label>
+                        <select id="errorLevel">
+                            <option value="L">Low (7%)</option>
+                            <option value="M" selected>Medium (15%)</option>
+                            <option value="Q">Quartile (25%)</option>
+                            <option value="H">High (30%)</option>
+                        </select>
+                        <small class="helper-text">높을수록 손상 복구력이 좋습니다</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qrColor">QR 코드 색상</label>
+                        <input type="color" id="qrColor" value="#000000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bgColor">배경 색상</label>
+                        <input type="color" id="bgColor" value="#ffffff">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qrSize">크기 (px)</label>
+                        <input type="number" id="qrSize" value="300" min="200" max="800" step="50">
+                    </div>
+                </div>
+
+                <button id="generateBtn" class="btn-generate">QR 코드 생성</button>
+            </div>
+
+            <!-- 결과 섹션 -->
+            <div class="result-section">
+                <div id="qrContainer" class="qr-container">
+                    <div class="placeholder">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                            <rect x="10" y="10" width="35" height="35" fill="#e0e0e0"/>
+                            <rect x="10" y="75" width="35" height="35" fill="#e0e0e0"/>
+                            <rect x="75" y="10" width="35" height="35" fill="#e0e0e0"/>
+                            <rect x="55" y="55" width="55" height="55" fill="#e0e0e0"/>
+                        </svg>
+                        <p>QR 코드가 여기에 표시됩니다</p>
+                    </div>
+                    <div id="qrcode"></div>
+                    <canvas id="qrCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div id="linkPreview" class="link-preview" style="display: none;">
+                    <strong>링크 미리보기:</strong>
+                    <a id="previewLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+                </div>
+
+                <div class="action-buttons" style="display: none;" id="actionButtons">
+                    <button id="downloadBtn" class="btn-download">다운로드</button>
+                    <button id="copyBtn" class="btn-copy">이미지 복사</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- davidshimjs/qrcodejs 라이브러리 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
