@@ -181,39 +181,19 @@ function initApp() {
       ctx.drawImage(tempCanvas, 0, 0);
 
       // 3. Draw Logo Image if selected/uploaded
-      let logoImg = null;
-      
-      if (activeTab === 'preset' && selectedPreset !== 'none') {
-        const svgDataUrl = getPresetSvgDataUrl(selectedPreset, darkColor);
-        if (svgDataUrl) {
-          logoImg = new Image();
-          logoImg.src = svgDataUrl;
-        }
-      } else if (activeTab === 'upload' && uploadedLogoImage) {
-        logoImg = uploadedLogoImage;
-      }
+      const drawLogoBackground = (lx, ly, logoWidth, logoHeight) => {
+        const padding = 6;
+        const bgX = lx - padding;
+        const bgY = ly - padding;
+        const bgW = logoWidth + padding * 2;
+        const bgH = logoHeight + padding * 2;
+        const radius = 10;
 
-      // If we have a logo, draw it when loaded or draw immediately if cached
-      if (logoImg) {
-        const drawLogo = () => {
-          const logoSizePercent = parseInt(logoSizeInput.value, 10);
-          const logoWidth = qrSize * (logoSizePercent / 100);
-          const logoHeight = logoWidth;
-          
-          const lx = (qrSize - logoWidth) / 2;
-          const ly = (qrSize - logoHeight) / 2;
-
-          // Background box behind logo (to clear QR code cells)
-          // Uses rounded rectangle for luxury visual styling
-          const padding = 6;
-          const bgX = lx - padding;
-          const bgY = ly - padding;
-          const bgW = logoWidth + padding * 2;
-          const bgH = logoHeight + padding * 2;
-          const radius = 10;
-
-          ctx.fillStyle = lightColor;
-          ctx.beginPath();
+        ctx.fillStyle = lightColor;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(bgX, bgY, bgW, bgH, radius);
+        } else {
           ctx.moveTo(bgX + radius, bgY);
           ctx.lineTo(bgX + bgW - radius, bgY);
           ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + radius);
@@ -224,22 +204,48 @@ function initApp() {
           ctx.lineTo(bgX, bgY + radius);
           ctx.quadraticCurveTo(bgX, bgY, bgX + radius, bgY);
           ctx.closePath();
-          ctx.fill();
+        }
+        ctx.fill();
+      };
 
-          // Render Logo
-          ctx.drawImage(logoImg, lx, ly, logoWidth, logoHeight);
+      if (activeTab === 'preset' && selectedPreset !== 'none') {
+        const logoSizePercent = parseInt(logoSizeInput.value, 10);
+        const logoWidth = qrSize * (logoSizePercent / 100);
+        const logoHeight = logoWidth;
+        const lx = (qrSize - logoWidth) / 2;
+        const ly = (qrSize - logoHeight) / 2;
+
+        drawLogoBackground(lx, ly, logoWidth, logoHeight);
+
+        // Render Preset Logo directly using Path2D (No Canvas Tainting in Chrome)
+        drawPresetLogo(ctx, selectedPreset, lx, ly, logoWidth, darkColor);
+
+        if (showTextCheckbox.checked) {
+          renderTextOverlay(ctx, qrSize, textSectionHeight, textValue);
+        }
+      } else if (activeTab === 'upload' && uploadedLogoImage) {
+        const drawUploadedLogo = () => {
+          const logoSizePercent = parseInt(logoSizeInput.value, 10);
+          const logoWidth = qrSize * (logoSizePercent / 100);
+          const logoHeight = logoWidth;
+          const lx = (qrSize - logoWidth) / 2;
+          const ly = (qrSize - logoHeight) / 2;
+
+          drawLogoBackground(lx, ly, logoWidth, logoHeight);
+
+          // Render Uploaded Logo
+          ctx.drawImage(uploadedLogoImage, lx, ly, logoWidth, logoHeight);
           
-          // Re-render text overlay in case logo load asynchronous race overlaps
           if (showTextCheckbox.checked) {
             renderTextOverlay(ctx, qrSize, textSectionHeight, textValue);
           }
         };
 
-        if (logoImg.complete) {
-          drawLogo();
+        if (uploadedLogoImage.complete) {
+          drawUploadedLogo();
         } else {
-          logoImg.onload = () => {
-            drawLogo();
+          uploadedLogoImage.onload = () => {
+            drawUploadedLogo();
           };
         }
       }
