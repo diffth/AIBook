@@ -389,51 +389,76 @@ function initApp() {
   });
 
   // --- 고화질 PNG 다운로드 실행 ---
-  btnDownload.addEventListener('click', (e) => {
-    e.preventDefault(); // 버튼 클릭 시 브라우저 기본 동작(서브밋/새로고침) 방지하여 다운로드 세션 파괴 예방
+  btnDownload.addEventListener('click', async (e) => {
+    e.preventDefault();
     
     try {
-      // 1. Canvas 이미지 데이터를 Data URL로 획득 (크롬의 Tainted Canvas 에러가 없으므로 동기식으로 즉시 추출)
+      // 1. Canvas 이미지 데이터를 Data URL로 동기 획득
       const dataURL = mainCanvas.toDataURL('image/png');
       
-      // 2. 파일 이름 안전 필터링 생성 (크롬 파일 쓰기 취소 방지를 위해 안전한 영문/숫자 및 언더바로만 한정)
+      // 2. 파일명 생성
       const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
-      const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9]/g, '_').trim() : 'qr_code';
+      const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9가-힣]/g, '_').substring(0, 30) : 'qr_code';
       const fileName = `qrcode_${safeName || 'code'}.png`;
 
-      // 3. Data URL을 File 객체로 동기 변환하여 파일 이름을 가상 객체 속성에 고정
-      // 이렇게 하면 크롬 브라우저가 download 속성을 무시하더라도 File 객체의 실제 name 속성을 복원해 저장합니다.
+      // 3. Data URL → Blob 변환 (동기)
       const byteString = atob(dataURL.split(',')[1]);
-      const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
       }
-      
-      const file = new File([ab], fileName, { type: mimeString });
-      const fileURL = URL.createObjectURL(file);
+      const blob = new Blob([ab], { type: 'image/png' });
 
-      // 4. HTML에 미리 생성해 둔 보이지 않는 고정식 다운로드 앵커 사용 (크롬 엘리먼트 삭제 타이밍 버그 방지)
-      const hiddenDownloader = document.getElementById('hidden-downloader');
-      if (hiddenDownloader) {
-        hiddenDownloader.download = fileName;
-        hiddenDownloader.href = fileURL;
-        hiddenDownloader.click();
-        
-        // 5. 메모리 해제는 20초 후에 지연 처리하여 다운로드 처리 중 URL 유실을 안전하게 방지
-        setTimeout(() => {
-          URL.revokeObjectURL(fileURL);
-        }, 20000);
+      // 4. 크롬 전용: File System Access API (showSaveFilePicker) 사용
+      //    네이티브 "다른 이름으로 저장" 대화상자가 열려 파일명/저장위치 100% 보장!
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: fileName,
+            types: [{
+              description: 'PNG 이미지',
+              accept: { 'image/png': ['.png'] }
+            }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          
+          // 저장 완료 모달 표시
+          if (modalQrImg) modalQrImg.src = dataURL;
+          if (downloadModal) downloadModal.classList.remove('hidden');
+          return;
+        } catch (pickerError) {
+          // 사용자가 취소한 경우 (AbortError)는 정상 처리
+          if (pickerError.name === 'AbortError') return;
+          // 그 외 에러는 폴백으로 넘어감
+          console.warn('showSaveFilePicker 실패, 폴백 다운로드 시도:', pickerError);
+        }
       }
 
-      // 6. 다운로드 지연/차단 대비용 수동 저장 지원 모달 팝업 노출
+      // 5. 폴백: Blob URL + 동적 앵커 (Edge, Firefox, Safari 등)
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      
+      // 메모리 정리는 충분한 시간 후 실행
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }, 10000);
+
+      // 다운로드 안내 모달 표시
       if (modalQrImg) modalQrImg.src = dataURL;
       if (downloadModal) downloadModal.classList.remove('hidden');
 
     } catch (error) {
       console.error('Download failed:', error);
-      alert('다운로드 도중 오류가 발생했습니다. QR 코드 이미지를 마우스 우클릭(모바일은 길게 터치)하여 "이미지를 다른 이름으로 저장"을 이용해 주세요!');
+      alert('다운로드 중 오류가 발생했습니다. QR 코드 이미지를 마우스 우클릭 → "이미지를 다른 이름으로 저장"을 이용해 주세요!');
     }
   });
 
