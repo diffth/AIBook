@@ -11,10 +11,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
   
   <!-- node-qrcode Browser Build CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
   
   <link rel="stylesheet" href="style.css">
 </head>
@@ -90,7 +90,7 @@
           <div class="tab-content active" id="tab-preset">
             <div class="preset-grid">
               <div class="preset-item active" data-preset="none">
-                <i data-lucide="prohibited" class="preset-icon"></i>
+                <i data-lucide="ban" class="preset-icon"></i>
                 <span>없음</span>
               </div>
               <div class="preset-item" data-preset="github">
@@ -199,6 +199,25 @@
         </div>
       </section>
     </main>
+  </div>
+  
+  <!-- 다운로드 지원 모달 -->
+  <div id="download-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i data-lucide="download"></i> QR 코드 저장 안내</h3>
+        <button id="btn-close-modal" class="btn-close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">다운로드가 완료되지 않았나요?<br>아래 이미지를 <strong>마우스 우클릭</strong>(모바일은 <strong>길게 누르기</strong>)하여 <strong>'다른 이름으로 이미지 저장'</strong>을 선택해 저장해 주세요.</p>
+        <div class="modal-qr-preview">
+          <img id="modal-qr-img" src="" alt="QR Code Preview">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-ok" class="btn-primary">확인</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>

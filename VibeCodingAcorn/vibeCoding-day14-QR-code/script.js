@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   // --- DOM Elements ---
   const qrTextInput = document.getElementById('qr-text');
   const colorDarkInput = document.getElementById('color-dark');
@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const mainCanvas = document.getElementById('qr-canvas');
   const btnDownload = document.getElementById('btn-download');
+  
+  // Download Modal Elements
+  const downloadModal = document.getElementById('download-modal');
+  const btnCloseModal = document.getElementById('btn-close-modal');
+  const btnModalOk = document.getElementById('btn-modal-ok');
+  const modalQrImg = document.getElementById('modal-qr-img');
 
   // --- State Variables ---
   let activeTab = 'preset'; // 'preset' or 'upload'
@@ -80,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Core Function: Render QR Code to Canvas ---
   function renderQRCode() {
+    if (typeof QRCode === 'undefined') {
+      console.error('QRCode library is not loaded yet!');
+      return;
+    }
     const textValue = qrTextInput.value.trim() || ' ';
     const darkColor = colorDarkInput.value;
     const lightColor = colorLightInput.value;
@@ -343,18 +353,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- High Quality PNG Download ---
   btnDownload.addEventListener('click', () => {
-    const dataURL = mainCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    
-    // Generate intelligent file name based on input/preview text
-    const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
-    const safeName = textSample ? textSample.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'qr_code';
-    
-    link.download = `qrcode_${safeName}.png`;
-    link.href = dataURL;
-    link.click();
+    try {
+      // 1. Generate Data URL synchronously to preserve User Gesture Context
+      const dataURL = mainCanvas.toDataURL('image/png');
+      
+      // 2. Force download MIME-type (octet-stream) to bypass rendering navigation blocks
+      const forcedDownloadURL = dataURL.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
+      
+      // 3. Generate intelligent file name supporting English, Korean and numbers
+      const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
+      const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '_').trim() : 'qr_code';
+      const fileName = `qrcode_${safeName || 'code'}.png`;
+
+      // 4. Create temporary anchor and set properties
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = forcedDownloadURL;
+      
+      // 5. Append to DOM (Required for modern browsers to respect user gesture & download attribute)
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // 6. Show friendly fallback modal for immediate right-click manual save
+      if (modalQrImg) modalQrImg.src = dataURL;
+      if (downloadModal) downloadModal.classList.remove('hidden');
+
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('다운로드 도중 오류가 발생했습니다. QR 코드 이미지를 마우스 우클릭(모바일은 길게 터치)하여 "이미지를 다른 이름으로 저장"을 이용해 주세요!');
+    }
   });
+
+  // --- Modal Close Events ---
+  const closeModal = () => {
+    if (downloadModal) downloadModal.classList.add('hidden');
+    if (modalQrImg) modalQrImg.src = '';
+  };
+
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+  if (btnModalOk) btnModalOk.addEventListener('click', closeModal);
+  
+  // Close modal when clicking outside content
+  if (downloadModal) {
+    downloadModal.addEventListener('click', (e) => {
+      if (e.target === downloadModal) {
+        closeModal();
+      }
+    });
+  }
 
   // --- Initial Render ---
   renderQRCode();
-});
+}
+
+// Ensure the app initializes regardless of whether DOMContentLoaded has already fired
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
