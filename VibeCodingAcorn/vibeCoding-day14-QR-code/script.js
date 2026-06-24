@@ -38,26 +38,6 @@ function initApp() {
   let uploadedLogoImage = null; // Image object for uploaded file
   let logoFile = null; // File object
 
-  // --- Helper: SVG Preset Data URL Generator ---
-  // Generates inline SVGs with dynamic stroke color based on QR code color for premium integration.
-  function getPresetSvgDataUrl(presetName, strokeColor) {
-    let svgContent = '';
-    const svgHeader = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">`;
-    
-    if (presetName === 'github') {
-      svgContent = `${svgHeader}<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`;
-    } else if (presetName === 'globe') {
-      svgContent = `${svgHeader}<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`;
-    } else if (presetName === 'mail') {
-      svgContent = `${svgHeader}<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`;
-    } else if (presetName === 'heart') {
-      svgContent = `${svgHeader}<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
-    }
-    
-    if (!svgContent) return null;
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
-  }
-
   // --- Helper: Draw SVG Path directly onto Canvas to prevent Chrome Tainted Canvas Security Error ---
   function drawPresetLogo(ctx, presetName, lx, ly, size, strokeColor) {
     ctx.save();
@@ -132,6 +112,8 @@ function initApp() {
     }
     return cleanText;
   }
+
+
 
   // --- Core Function: Render QR Code to Canvas ---
   function renderQRCode() {
@@ -408,28 +390,42 @@ function initApp() {
 
   // --- 고화질 PNG 다운로드 실행 ---
   btnDownload.addEventListener('click', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 버튼 클릭 시 브라우저 기본 동작(서브밋/새로고침) 방지하여 다운로드 세션 파괴 예방
+    
     try {
-      // 1. 동기식으로 Canvas 이미지 데이터를 Data URL로 획득 (사용자 제스처 유지)
+      // 1. Canvas 이미지 데이터를 Data URL로 획득 (크롬의 Tainted Canvas 에러가 없으므로 동기식으로 즉시 추출)
       const dataURL = mainCanvas.toDataURL('image/png');
       
-      // 2. MIME 타입을 octet-stream으로 변환하여 브라우저의 다운로드 동작 강제화
-      const forcedDownloadURL = dataURL.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
-      
-      // 3. 파일 이름 안전 필터링 생성 (한글, 영문, 숫자 지원)
+      // 2. 파일 이름 안전 필터링 생성 (한글, 영문, 숫자 지원)
       const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
       const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '_').trim() : 'qr_code';
       const fileName = `qrcode_${safeName || 'code'}.png`;
 
-      // 4. 가상 다운로드 앵커 생성 및 속성 정의
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = forcedDownloadURL;
+      // 3. Data URL을 File 객체로 동기 변환하여 파일 이름을 가상 객체 속성에 고정
+      // 이렇게 하면 크롬 브라우저가 download 속성을 무시하더라도 File 객체의 실제 name 속성을 복원해 저장합니다.
+      const byteString = atob(dataURL.split(',')[1]);
+      const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
       
-      // 5. DOM에 임시 부착 후 클릭 이벤트 실행 (브라우저 호환성 확보)
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const file = new File([ab], fileName, { type: mimeString });
+      const fileURL = URL.createObjectURL(file);
+
+      // 4. HTML에 미리 생성해 둔 보이지 않는 고정식 다운로드 앵커 사용 (크롬 엘리먼트 삭제 타이밍 버그 방지)
+      const hiddenDownloader = document.getElementById('hidden-downloader');
+      if (hiddenDownloader) {
+        hiddenDownloader.download = fileName;
+        hiddenDownloader.href = fileURL;
+        hiddenDownloader.click();
+        
+        // 5. 메모리 해제는 20초 후에 지연 처리하여 다운로드 처리 중 URL 유실을 안전하게 방지
+        setTimeout(() => {
+          URL.revokeObjectURL(fileURL);
+        }, 20000);
+      }
 
       // 6. 다운로드 지연/차단 대비용 수동 저장 지원 모달 팝업 노출
       if (modalQrImg) modalQrImg.src = dataURL;
