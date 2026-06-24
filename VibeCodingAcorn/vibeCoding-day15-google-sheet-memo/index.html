@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sheet Memo - 구글 시트 메모장</title>
+  <meta name="description" content="구글 시트를 데이터베이스로 활용하는 프리미엄 메모장 웹앱. 메모 저장, 검색, 대시보드 시각화까지.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <i data-lucide="file-spreadsheet" class="logo-icon"></i>
+        <h1>Sheet Memo</h1>
+      </div>
+      <p class="subtitle">구글 시트를 데이터베이스로 활용하는 스마트 메모장</p>
+    </header>
+
+    <!-- Config Banner (GAS URL 미설정 시 표시) -->
+    <div id="config-banner" class="config-banner" style="display: none;">
+      <i data-lucide="alert-triangle"></i>
+      <span>Google Apps Script 배포 URL이 설정되지 않았습니다. <a href="SETUP.md" target="_blank">설정 가이드</a>를 참고하여 <code>script.js</code>의 <code>GAS_URL</code>을 설정해 주세요.</span>
+    </div>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-navigation">
+      <button class="tab-btn active" data-tab="write">
+        <i data-lucide="pen-line"></i>
+        <span class="tab-label">메모 작성</span>
+      </button>
+      <button class="tab-btn" data-tab="list">
+        <i data-lucide="list"></i>
+        <span class="tab-label">메모 목록</span>
+      </button>
+      <button class="tab-btn" data-tab="dashboard">
+        <i data-lucide="bar-chart-3"></i>
+        <span class="tab-label">대시보드</span>
+      </button>
+    </nav>
+
+    <!-- ============ TAB 1: 메모 작성 ============ -->
+    <section id="tab-write" class="tab-content active">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <i data-lucide="sparkles"></i>
+          새 메모 작성
+        </h2>
+
+        <form id="memo-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="memo-title">제목</label>
+              <input type="text" id="memo-title" class="form-input" placeholder="메모 제목을 입력하세요" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="memo-category">카테고리</label>
+              <select id="memo-category" class="form-select">
+                <option value="업무">💼 업무</option>
+                <option value="개인">🏠 개인</option>
+                <option value="아이디어">💡 아이디어</option>
+                <option value="학습">📚 학습</option>
+                <option value="기타">📌 기타</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="memo-content">내용</label>
+            <textarea id="memo-content" class="form-textarea" placeholder="메모 내용을 자유롭게 적어보세요..." required></textarea>
+          </div>
+
+          <button type="submit" id="btn-save" class="btn btn-primary btn-full">
+            <i data-lucide="save"></i>
+            메모 저장하기
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ TAB 2: 메모 목록 ============ -->
+    <section id="tab-list" class="tab-content">
+      <!-- Search & Filter -->
+      <div class="filter-bar">
+        <div class="search-wrapper">
+          <i data-lucide="search"></i>
+          <input type="text" id="search-input" class="search-input" placeholder="메모 검색...">
+        </div>
+        <select id="filter-category" class="filter-select">
+          <option value="all">전체 카테고리</option>
+          <option value="업무">💼 업무</option>
+          <option value="개인">🏠 개인</option>
+          <option value="아이디어">💡 아이디어</option>
+          <option value="학습">📚 학습</option>
+          <option value="기타">📌 기타</option>
+        </select>
+      </div>
+
+      <!-- Memo List Container -->
+      <div id="memo-list" class="memo-list">
+        <div class="empty-state">
+          <i data-lucide="inbox"></i>
+          <h3>아직 메모가 없습니다</h3>
+          <p>'메모 작성' 탭에서 첫 번째 메모를 만들어 보세요!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 3: 대시보드 ============ -->
+    <section id="tab-dashboard" class="tab-content">
+      <!-- Summary Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label"><i data-lucide="file-text"></i> 총 메모 수</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i data-lucide="calendar"></i> 이번 주</div>
+          <div class="stat-value" id="stat-week">0</div>
+          <div class="stat-sub" id="stat-week-sub">이번 주 작성한 메모</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i data-lucide="clock"></i> 최근 작성</div>
+          <div class="stat-value" id="stat-recent" style="font-size: 1.2rem;">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i data-lucide="flame"></i> 연속 작성</div>
+          <div class="stat-value" id="stat-streak">0</div>
+          <div class="stat-sub">일 연속</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-container">
+          <div class="chart-header">
+            <div class="chart-title"><i data-lucide="trending-up"></i> 일별 작성 추이</div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-daily"></canvas>
+          </div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-header">
+            <div class="chart-title"><i data-lucide="pie-chart"></i> 카테고리 분포</div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-category"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Status Bar (Toast) -->
+  <div id="status-bar" class="status-bar"></div>
+
+  <script src="script.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
