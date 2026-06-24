@@ -856,3 +856,10 @@ input:checked + .slider:before {
   display: none !important;
 }
 
+/* Hide empty images to prevent broken image icon in download modal */
+.modal-qr-preview img:not([src]), 
+.modal-qr-preview img[src=""] {
+  opacity: 0;
+  pointer-events: none;
+}
+
