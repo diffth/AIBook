@@ -58,6 +58,49 @@ function initApp() {
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
   }
 
+  // --- Helper: Draw SVG Path directly onto Canvas to prevent Chrome Tainted Canvas Security Error ---
+  function drawPresetLogo(ctx, presetName, lx, ly, size, strokeColor) {
+    ctx.save();
+    ctx.translate(lx, ly);
+    const scale = size / 24; // Standard viewbox is 24x24
+    ctx.scale(scale, scale);
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (presetName === 'github') {
+      const p1 = new Path2D("M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4");
+      const p2 = new Path2D("M9 18c-4.51 2-5-2-7-2");
+      ctx.stroke(p1);
+      ctx.stroke(p2);
+    } else if (presetName === 'globe') {
+      ctx.beginPath();
+      ctx.arc(12, 12, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      const p1 = new Path2D("M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20");
+      const p2 = new Path2D("M2 12h20");
+      ctx.stroke(p1);
+      ctx.stroke(p2);
+    } else if (presetName === 'mail') {
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(2, 4, 20, 16, 2);
+      } else {
+        ctx.rect(2, 4, 20, 16);
+      }
+      ctx.stroke();
+      const p1 = new Path2D("m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7");
+      ctx.stroke(p1);
+    } else if (presetName === 'heart') {
+      const p1 = new Path2D("M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z");
+      ctx.stroke(p1);
+    }
+
+    ctx.restore();
+  }
+
   // --- Helper: Format URL Domain for Preview ---
   function getAutoPreviewText(text) {
     if (!text) return '';
