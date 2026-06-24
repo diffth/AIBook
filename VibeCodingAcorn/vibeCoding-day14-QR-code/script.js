@@ -396,9 +396,9 @@ function initApp() {
       // 1. Canvas 이미지 데이터를 Data URL로 획득 (크롬의 Tainted Canvas 에러가 없으므로 동기식으로 즉시 추출)
       const dataURL = mainCanvas.toDataURL('image/png');
       
-      // 2. 파일 이름 안전 필터링 생성 (한글, 영문, 숫자 지원)
+      // 2. 파일 이름 안전 필터링 생성 (크롬 파일 쓰기 취소 방지를 위해 안전한 영문/숫자 및 언더바로만 한정)
       const textSample = customPreviewInput.value.trim() || getAutoPreviewText(qrTextInput.value);
-      const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '_').trim() : 'qr_code';
+      const safeName = textSample ? textSample.replace(/[^a-zA-Z0-9]/g, '_').trim() : 'qr_code';
       const fileName = `qrcode_${safeName || 'code'}.png`;
 
       // 3. Data URL을 File 객체로 동기 변환하여 파일 이름을 가상 객체 속성에 고정
