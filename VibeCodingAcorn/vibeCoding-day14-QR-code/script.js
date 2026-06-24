@@ -407,7 +407,8 @@ function initApp() {
   });
 
   // --- 고화질 PNG 다운로드 실행 ---
-  btnDownload.addEventListener('click', () => {
+  btnDownload.addEventListener('click', (e) => {
+    e.preventDefault();
     try {
       // 1. 동기식으로 Canvas 이미지 데이터를 Data URL로 획득 (사용자 제스처 유지)
       const dataURL = mainCanvas.toDataURL('image/png');
