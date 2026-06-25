@@ -11,15 +11,15 @@ import {
     updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// TODO: 아래 설정을 본인의 Firebase 프로젝트 설정으로 변경하세요.
-// Firebase Console -> Project Settings -> General -> 하단의 'Your apps'에서 확인 가능
+// Firebase 프로젝트 설정
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCOE4b00JGRouN0_q3ootAo9v8zCNN-SIA",
+  authDomain: "vibefireauth-5a839.firebaseapp.com",
+  projectId: "vibefireauth-5a839",
+  storageBucket: "vibefireauth-5a839.firebasestorage.app",
+  messagingSenderId: "681154168808",
+  appId: "1:681154168808:web:19138328ab3095d1a1c65d",
+  measurementId: "G-5DGWCK45PJ"
 };
 
 // Initialize Firebase
