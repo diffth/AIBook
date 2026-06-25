@@ -11,6 +11,8 @@ import {
     updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
 // Firebase 프로젝트 설정
 const firebaseConfig = {
   apiKey: "AIzaSyCOE4b00JGRouN0_q3ootAo9v8zCNN-SIA",
@@ -23,10 +25,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app, auth;
+let app, auth, analytics;
 try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    analytics = getAnalytics(app);
 } catch (error) {
     console.error("Firebase 초기화 실패. firebaseConfig 값을 확인해주세요:", error);
 }
