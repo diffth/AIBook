@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Blog Auto-Publisher</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <i class="fa-brands fa-notion neon-icon"></i>
+                <h1>Notion Linker <span>Blog Publisher</span></h1>
+            </div>
+            <p class="subtitle">노션 데이터베이스의 포스트를 한 번의 클릭으로 완벽한 마크다운 블로그 포스팅으로 변환하여 발행합니다.</p>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="main-grid">
+            <!-- Setup & Config Panel -->
+            <aside class="sidebar-panel glass-card">
+                <h2><i class="fa-solid fa-gears"></i> 연동 설정</h2>
+                <p class="panel-desc">시작하려면 Notion API 키와 데이터베이스 ID를 입력해 주세요.</p>
+                
+                <form id="config-form">
+                    <div class="input-wrapper">
+                        <label for="api-key"><i class="fa-solid fa-key"></i> Notion API Key</label>
+                        <input type="password" id="api-key" placeholder="secret_..." required autocomplete="off">
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <label for="db-id"><i class="fa-solid fa-database"></i> Database ID</label>
+                        <input type="text" id="db-id" placeholder="32자리 문자열" required>
+                    </div>
+
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="save-info">
+                        <label for="save-info">설정 정보 브라우저에 기억하기</label>
+                    </div>
+
+                    <button type="submit" id="btn-connect" class="btn btn-neon">
+                        <span><i class="fa-solid fa-plug"></i> 노션 DB 연결하기</span>
+                        <div class="loader hidden"></div>
+                    </button>
+                </form>
+
+                <div class="guide-box">
+                    <h3>💡 빠른 연동 팁</h3>
+                    <ul>
+                        <li><a href="https://www.notion.so/my-integrations" target="_blank">Notion Integrations</a>에서 API 키를 생성하세요.</li>
+                        <li>생성한 Integration을 해당 데이터베이스 페이지에 <strong>연결(커넥션 추가)</strong>해야 액세스가 허용됩니다.</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Notion Page List & Dashboard -->
+            <main class="content-panel">
+                <!-- Status/Message Area -->
+                <div id="status-display" class="glass-card status-card">
+                    <i class="fa-solid fa-circle-info info-icon"></i>
+                    <div>
+                        <h3>노션 연결 대기 중</h3>
+                        <p>왼쪽 설정창에서 노션 API 연동을 진행해 주세요. 연결 시 작성된 글들이 이곳에 로드됩니다.</p>
+                    </div>
+                </div>
+
+                <!-- Database Content Grid (Hidden by default) -->
+                <div id="db-content-section" class="hidden">
+                    <div class="section-header">
+                        <h2><i class="fa-solid fa-list-check"></i> 발행 대기 중인 글 목록</h2>
+                        <span id="page-count" class="badge">0 Posts</span>
+                    </div>
+
+                    <div id="notion-cards-grid" class="cards-grid">
+                        <!-- Cards injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Published Posts Simulator (Bottom Section) -->
+                <div id="published-section" class="glass-card published-simulator-card">
+                    <div class="section-header">
+                        <h2><i class="fa-solid fa-globe"></i> 내 블로그 게시물 현황 (시뮬레이터)</h2>
+                        <button id="btn-refresh-posts" class="btn btn-icon"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                    <div id="published-list" class="published-list">
+                        <p class="empty-state">아직 블로그로 발행된 게시물이 없습니다. 노션에서 글을 선택해 발행해 보세요!</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Article Preview / Markdown Modal -->
+    <div id="preview-modal" class="modal hidden">
+        <div class="modal-content glass-card">
+            <span class="close-btn">&times;</span>
+            <div class="modal-header">
+                <span class="preview-badge">Markdown Preview</span>
+                <h2 id="modal-title">게시물 제목</h2>
+                <div id="modal-tags" class="tags-container"></div>
+            </div>
+            <div class="modal-body">
+                <div class="image-preview-container">
+                    <img id="modal-image" src="" alt="Thumbnail Preview">
+                </div>
+                <div class="markdown-preview-box">
+                    <pre><code id="modal-markdown-content">마크다운 본문 파싱 중...</code></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-modal-publish" class="btn btn-neon">
+                    <span><i class="fa-solid fa-paper-plane"></i> 블로그에 최종 발행</span>
+                    <div class="loader hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container"></div>
+</body>
+</html>
