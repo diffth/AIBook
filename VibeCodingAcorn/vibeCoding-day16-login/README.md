@@ -7,7 +7,7 @@
 - LocalStorage를 사용한 세션 관리
 - 글래스모피즘(Glassmorphism) UI 디자인 적용
 
-## Setup
-1. Update `firebaseConfig` in `app.js` with your Firebase project keys.
-2. Enable Email/Password and Google providers in Firebase Console.
-3. Run using a local development server (e.g., Live Server or `python3 -m http.server`).
+## 설정 및 실행 방법
+1. app.js 파일의 firebaseConfig 객체에 여러분의 Firebase 프로젝트 키를 입력해 주세요.
+2. Firebase Console에서 이메일/비밀번호 및 Google 로그인 제공업체(Provider)를 활성화해 주세요.
+3. 로컬 개발 서버를 이용해 실행합니다 (예: VS Code의 Live Server 플러그인 또는 터미널에서 npx http-server 실행).
