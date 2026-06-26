@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vision - CNN 이미지 분석</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <h1><i class="fa-solid fa-eye"></i> AI Vision</h1>
+            <p>TensorFlow CNN 모델 기반 이미지 인식기</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <div class="upload-area" id="drop-area">
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <h3>이미지를 업로드하거나 드래그 앤 드롭하세요</h3>
+                    <p>지원 형식: JPG, PNG, JPEG</p>
+                    <button class="btn primary-btn" id="browse-btn">파일 선택</button>
+                </div>
+            </section>
+
+            <section class="preview-section hidden" id="preview-section">
+                <div class="image-preview">
+                    <img id="preview-img" src="" alt="미리보기">
+                </div>
+                <button class="btn action-btn" id="analyze-btn">
+                    <i class="fa-solid fa-microchip"></i> AI 분석 시작
+                </button>
+            </section>
+
+            <section class="result-section hidden" id="result-section">
+                <div class="result-card">
+                    <h2 class="result-label" id="result-label">결과 라벨</h2>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="probability-bar"></div>
+                        <span class="probability-text" id="probability-text">0%</span>
+                    </div>
+                    <p class="description" id="result-description">이미지 설명이 여기에 표시됩니다.</p>
+                </div>
+                <button class="btn secondary-btn" id="reset-btn">
+                    <i class="fa-solid fa-rotate-left"></i> 다른 이미지 분석하기
+                </button>
+            </section>
+
+            <!-- Loading overlay -->
+            <div class="loading-overlay hidden" id="loading-overlay">
+                <div class="spinner"></div>
+                <p>AI가 이미지를 분석하고 있습니다...</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
