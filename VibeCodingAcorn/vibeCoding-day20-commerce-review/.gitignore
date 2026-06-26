@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+backend/venv/
+
+# Build outputs
+dist/
+
+# Local env files
+.env
+backend/.env
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Local Netlify
+.netlify/
