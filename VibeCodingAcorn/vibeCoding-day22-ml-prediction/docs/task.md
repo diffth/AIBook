@@ -1,0 +1,25 @@
+# Task List: 매출 리포트 자동 생성 웹앱 (Day 22)
+
+- [x] 프로젝트 기초 설정 및 환경 구축
+    - [x] `vibeCoding-day22-ml-prediction` 폴더 내 `package.json` 작성 및 의존성 설치
+    - [x] `requirements.txt` 작성 및 Python 패키지 설치
+    - [x] `.env` 생성 (Day 21의 `GEMINI_API_KEY` 연동)
+- [x] 샘플 데이터셋 및 유틸 생성
+    - [x] `generate_sample.py` 및 `Sample-100-superstore.csv` 생성 스크립트 작성/실행
+- [x] 파이썬 데이터 분석 및 리포트 생성기 (`report_generator.py`) 개발
+    - [x] Pandas 데이터 분석 로직 구현 (describe, groupby)
+    - [x] Gemini API 연동 로직 구현 (자연어 비즈니스 보고서 생성)
+    - [x] Matplotlib 시각화 로직 구현 (매출 그래프 그리기)
+    - [x] ReportLab PDF 레이아웃 및 한글 폰트 적용 로직 구현
+- [x] Express.js 백엔드 서버 (`server.js`) 개발
+    - [x] 파일 업로드 처리 (Multer) 및 임시 저장
+    - [x] 파이썬 프로세스 호출 및 에러 핸들링
+    - [x] 생성된 PDF 브라우저로 전송 (즉시 다운로드 설정)
+- [x] 프론트엔드 UI 개발
+    - [x] 드래그 앤 드롭 파일 업로드 HTML 레이아웃 작성 (`index.html`)
+    - [x] 모던 다크/글래스모피즘 CSS 스타일링 (`style.css`)
+    - [x] 파일 업로드, 진행 상황 표시 및 자동 다운로드 JS 구현 (`app.js`)
+- [x] 검증 및 수동 테스트
+    - [x] 샘플 파일 업로드 테스트
+    - [x] 한글 폰트 및 그래프 포함 PDF 다운로드 및 포맷 검증
+    - [x] Walkthrough 아티팩트 작성

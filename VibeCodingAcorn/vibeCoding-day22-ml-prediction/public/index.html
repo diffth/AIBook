@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Insight | AI 매출 리포트 생성기</title>
+  <!-- Google Fonts - Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS Link -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glass-bg"></div>
+  
+  <main class="container">
+    <header class="header">
+      <div class="logo">
+        <i class="fa-solid fa-chart-line-up"></i>
+        <span>SALES<span class="highlight">INSIGHT</span></span>
+      </div>
+      <h1>AI 매출 분석 &amp; PDF 보고서 생성기</h1>
+      <p class="subtitle">Pandas 분석 결과와 Google Gemini API를 활용하여 완벽한 비즈니스 리포트를 10초 만에 생성하세요.</p>
+    </header>
+
+    <section class="card upload-card">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-cloud-arrow-up"></i> 데이터 파일 업로드</h2>
+        <p>CSV 또는 Excel (.xlsx, .xls) 형식의 매출 데이터 파일을 선택해 주세요.</p>
+      </div>
+
+      <!-- 드래그앤드롭 영역 -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-content">
+          <div class="icon-wrapper">
+            <i class="fa-solid fa-file-csv file-icon csv-icon"></i>
+            <i class="fa-solid fa-file-excel file-icon excel-icon"></i>
+          </div>
+          <h3>파일을 이곳에 끌어다 놓거나 클릭하세요</h3>
+          <p class="file-limits">지원 형식: CSV, XLSX, XLS (최대 10MB)</p>
+          <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;">
+        </div>
+        <div class="selected-file-info" id="selectedFileInfo" style="display: none;">
+          <i class="fa-solid fa-file-circle-check success-icon"></i>
+          <span class="file-name" id="fileName">selected_file.csv</span>
+          <span class="file-size" id="fileSize">0 KB</span>
+          <button class="btn btn-icon-only remove-file-btn" id="removeFileBtn" title="파일 제거">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 액션 영역 -->
+      <div class="actions">
+        <button class="btn btn-secondary" id="btnDownloadSample">
+          <i class="fa-solid fa-download"></i> 예시 파일 다운로드
+        </button>
+        <button class="btn btn-primary" id="btnGenerate" disabled>
+          <i class="fa-solid fa-wand-magic-sparkles"></i> AI 리포트 생성 시작
+        </button>
+      </div>
+    </section>
+
+    <!-- 로딩 및 진행 상태 -->
+    <section class="card loading-card" id="loadingCard" style="display: none;">
+      <div class="loader-wrapper">
+        <div class="spinner"></div>
+      </div>
+      <h3 id="loadingTitle">데이터 분석 진행 중...</h3>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <p class="loading-desc" id="loadingDesc">Pandas로 업로드된 매출 요약 데이터를 추출하고 있습니다.</p>
+      
+      <!-- 스텝 트래커 -->
+      <div class="step-tracker">
+        <div class="step active" id="step1">
+          <div class="step-icon"><i class="fa-solid fa-table"></i></div>
+          <span>1. Pandas 데이터 연산</span>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-icon"><i class="fa-solid fa-robot"></i></div>
+          <span>2. Gemini AI 전략 보고서</span>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span>3. Matplotlib 시각화</span>
+        </div>
+        <div class="step" id="step4">
+          <div class="step-icon"><i class="fa-solid fa-file-pdf"></i></div>
+          <span>4. PDF 문서 컴파일</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 성공 및 다운로드 완료 피드백 -->
+    <section class="card success-card" id="successCard" style="display: none;">
+      <div class="success-icon-wrapper">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h2>AI 매출 리포트 다운로드 완료!</h2>
+      <p>분석 데이터와 시각화 차트, 비즈니스 추천안이 포함된 PDF 보고서가 브라우저를 통해 즉시 다운로드 되었습니다.</p>
+      <div class="success-actions">
+        <button class="btn btn-primary" id="btnReset">
+          <i class="fa-solid fa-arrow-rotate-left"></i> 다른 파일로 다시 생성
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 SalesInsight AI. Powered by Pandas, Gemini &amp; Express.js</p>
+  </footer>
+
+  <!-- 인라인 스크립트 (캐시 문제 완전 해결) -->
+  <script>
+  // =====================================================================
+  // SalesInsight - AI 매출 리포트 생성기
+  // showSaveFilePicker API로 "다른 이름으로 저장" 창 표시
+  // =====================================================================
+  document.addEventListener('DOMContentLoaded', () => {
+    const dropZone       = document.getElementById('dropZone');
+    const fileInput      = document.getElementById('fileInput');
+    const selectedInfo   = document.getElementById('selectedFileInfo');
+    const fileNameSpan   = document.getElementById('fileName');
+    const fileSizeSpan   = document.getElementById('fileSize');
+    const removeFileBtn  = document.getElementById('removeFileBtn');
+    const btnSample      = document.getElementById('btnDownloadSample');
+    const btnGenerate    = document.getElementById('btnGenerate');
+    const uploadCard     = document.querySelector('.upload-card');
+    const loadingCard    = document.getElementById('loadingCard');
+    const successCard    = document.getElementById('successCard');
+    const progressBar    = document.getElementById('progressBar');
+    const loadingTitle   = document.getElementById('loadingTitle');
+    const loadingDesc    = document.getElementById('loadingDesc');
+    const btnReset       = document.getElementById('btnReset');
+
+    let selectedFile = null;
+    let progressInterval = null;
+
+    // ── 드래그앤드롭 ──────────────────────────────────────────────────
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) setFile(e.target.files[0]); });
+
+    function setFile(f) {
+      const ext = f.name.split('.').pop().toLowerCase();
+      if (!['csv','xlsx','xls'].includes(ext)) { alert('CSV 또는 Excel 파일만 지원합니다.'); return; }
+      selectedFile = f;
+      fileNameSpan.textContent = f.name;
+      fileSizeSpan.textContent = fmtBytes(f.size);
+      dropZone.querySelector('.drop-zone-content').style.display = 'none';
+      selectedInfo.style.display = 'flex';
+      btnGenerate.removeAttribute('disabled');
+    }
+    removeFileBtn.addEventListener('click', e => { e.stopPropagation(); clearFile(); });
+    function clearFile() {
+      selectedFile = null; fileInput.value = '';
+      selectedInfo.style.display = 'none';
+      dropZone.querySelector('.drop-zone-content').style.display = 'flex';
+      btnGenerate.setAttribute('disabled','true');
+    }
+
+    // ── 예시 파일 다운로드 ────────────────────────────────────────────
+    btnSample.addEventListener('click', () => { window.location.href = '/api/sample'; });
+
+    // ── 리포트 생성 ───────────────────────────────────────────────────
+    btnGenerate.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      uploadCard.style.display = 'none';
+      loadingCard.style.display = 'block';
+      startProgress();
+
+      const form = new FormData();
+      form.append('file', selectedFile);
+
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: form });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || err.details || '서버 오류');
+        }
+
+        // PDF 바이너리를 arrayBuffer로 수신
+        const buffer = await res.arrayBuffer();
+        const pdfBlob = new Blob([buffer], { type: 'application/pdf' });
+
+        stopProgress(100);
+
+        // ── 다른 이름으로 저장 창 ─────────────────────────────────────
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+        const suggestedName = `AI_Sales_Report_${dateStr}.pdf`;
+
+        if (typeof window.showSaveFilePicker === 'function') {
+          // ✅ Chrome 86+: 네이티브 "다른 이름으로 저장" 창
+          try {
+            const fileHandle = await window.showSaveFilePicker({
+              suggestedName: suggestedName,
+              types: [{ description: 'PDF 문서', accept: { 'application/pdf': ['.pdf'] } }]
+            });
+            const writable = await fileHandle.createWritable();
+            await writable.write(pdfBlob);
+            await writable.close();
+          } catch (pickerErr) {
+            if (pickerErr.name === 'AbortError') {
+              // 사용자가 취소한 경우
+              stopProgress(0);
+              loadingCard.style.display = 'none';
+              uploadCard.style.display = 'block';
+              return;
+            }
+            // 기타 오류 → 자동 다운로드로 폴백
+            fallbackDownload(pdfBlob, suggestedName);
+          }
+        } else {
+          // showSaveFilePicker 미지원 브라우저 → 자동 다운로드
+          fallbackDownload(pdfBlob, suggestedName);
+        }
+
+        // 성공 카드 표시
+        setTimeout(() => {
+          loadingCard.style.display = 'none';
+          successCard.style.display = 'block';
+        }, 300);
+
+      } catch (err) {
+        stopProgress(0);
+        alert(`오류: ${err.message}`);
+        loadingCard.style.display = 'none';
+        uploadCard.style.display = 'block';
+      }
+    });
+
+    // 폴백: blob URL + <a download> 방식
+    function fallbackDownload(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    btnReset.addEventListener('click', () => {
+      successCard.style.display = 'none';
+      uploadCard.style.display = 'block';
+      clearFile();
+    });
+
+    // ── 로딩 시뮬레이션 ──────────────────────────────────────────────
+    function startProgress() {
+      let pct = 0;
+      progressBar.style.width = '0%';
+      document.querySelectorAll('.step').forEach(s => s.className = 'step');
+      document.getElementById('step1').className = 'step active';
+
+      const steps = [
+        { pct:25, title:'Pandas 데이터 연산 중...', desc:'카테고리별 매출 집계 및 기술 통계를 계산하고 있습니다.', id:'step1' },
+        { pct:55, title:'Gemini AI 보고서 작성 중...', desc:'Gemini 2.5 Flash가 비즈니스 인사이트를 도출하고 있습니다.', id:'step2' },
+        { pct:80, title:'Matplotlib 차트 렌더링 중...', desc:'카테고리별 매출 시각화 그래프를 생성하고 있습니다.', id:'step3' },
+        { pct:95, title:'PDF 문서 컴파일 중...', desc:'ReportLab으로 최종 PDF 보고서를 조합하고 있습니다.', id:'step4' }
+      ];
+
+      progressInterval = setInterval(() => {
+        if (pct < 95) {
+          pct++;
+          progressBar.style.width = pct + '%';
+          const cur = steps.find(s => pct <= s.pct) || steps.at(-1);
+          if (loadingTitle) loadingTitle.textContent = cur.title;
+          if (loadingDesc)  loadingDesc.textContent  = cur.desc;
+          steps.forEach((s,i) => {
+            const el = document.getElementById(s.id);
+            if (!el) return;
+            if (pct > s.pct)                                     el.className = 'step completed';
+            else if (pct <= s.pct && pct > (steps[i-1]?.pct||0)) el.className = 'step active';
+          });
+        }
+      }, 150);
+    }
+
+    function stopProgress(to) {
+      if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+      progressBar.style.width = to + '%';
+      if (to === 100) document.querySelectorAll('.step').forEach(s => s.className = 'step completed');
+    }
+
+    function fmtBytes(b) {
+      if (!b) return '0 Bytes';
+      const k = 1024, sz = ['Bytes','KB','MB','GB'], i = Math.floor(Math.log(b)/Math.log(k));
+      return +(b/Math.pow(k,i)).toFixed(2) + ' ' + sz[i];
+    }
+  });
+  </script>
+</body>
+</html>
