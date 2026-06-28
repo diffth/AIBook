@@ -1,0 +1,8 @@
+{
+  "name": "gemini-product-hunt-poster",
+  "version": "1.0.0",
+  "description": "Gemini API 및 Product Hunt API 연동 자동화 스크립트",
+  "main": "generate-and-post.js",
+  "type": "module",
+  "dependencies": {}
+}

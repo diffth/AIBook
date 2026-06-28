@@ -1,0 +1,23 @@
+# Task List - vibeCoding-day26-youtube-scrip
+
+- [x] 프로젝트 디렉토리 생성 및 Vite 초기화
+- [x] 의존성 라이브러리 설치 (React, Express, youtube-transcript 등)
+- [x] 백엔드 서버 (`server.js`) 구축
+  - [x] Express 서버 및 환경 변수 연동
+  - [x] 유튜브 자막 파싱 및 본문 가공 로직 구현
+  - [x] `/api/analyze` (유튜브/파일 내용 요약 및 제목 3개 추천) 구현
+  - [x] `/api/generate-script` (선택된 제목과 타겟 시간 기준 마크다운 대본 생성) 구현
+- [x] 프론트엔드 기본 템플릿 및 설정 수정
+  - [x] `vite.config.js` 에 API 프록시 설정 추가
+  - [x] `index.html` 타이틀 및 폰트 설정 수정
+  - [x] `src/index.css` 유튜브 다크 테마 및 위저드 UI 스타일 정의
+- [x] 프론트엔드 컴포넌트 개발
+  - [x] `src/components/InputSection.jsx` (URL 및 텍스트 파일 입력 제어)
+  - [x] `src/components/TitleSelector.jsx` (추천 제목 및 재생시간 라디오/카드 선택기)
+  - [x] `src/components/ScriptViewer.jsx` (클립보드 복사 및 다른이름 저장 탑재 마크다운 대본 뷰어)
+  - [x] `src/App.jsx` (단계별 흐름 제어, 로딩 처리, 데이터 관리)
+- [x] 수동 검증 및 동작 확인
+  - [x] 개발 서버 구동 및 실제 유튜브 URL 분석 테스트
+  - [x] 텍스트 대본 파일 업로드 테스트
+  - [x] 마크다운 대본 생성, 복사 및 저장 기능 검증
+  - [x] 프로젝트 폴더 내부 `docs/` 폴더에 최종 마크다운 보관 및 Walkthrough 생성
