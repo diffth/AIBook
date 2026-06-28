@@ -1,0 +1,65 @@
+name: Vercel Deploy & Product Hunt Post Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-and-post:
+    name: Deploy to Vercel & Post to Product Hunt
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Node.js 실행 환경 구성
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Vercel CLI 설치 및 배포 준비
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # 4. Vercel 프로젝트 환경 설정 풀링
+      - name: Pull Vercel Project Settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # 5. Vercel 빌드 수행
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # 6. Vercel 프로덕션 배포 진행 및 배포 URL 획득
+      - name: Deploy to Vercel
+        id: vercel_deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=$DEPLOY_URL" >> $GITHUB_ENV
+          echo "Vercel 배포 완료 URL: $DEPLOY_URL"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # 7. 스크립트 종속성 설치 및 실행
+      # Gemini API 및 Product Hunt API 연동 스크립트 구동
+      - name: Run Gemini & Product Hunt Poster
+        run: |
+          cd scripts
+          npm install
+          node generate-and-post.js
+        env:
+          DEPLOYMENT_URL: ${{ env.DEPLOYMENT_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PRODUCT_HUNT_DEVELOPER_TOKEN: ${{ secrets.PRODUCT_HUNT_DEVELOPER_TOKEN }}
+          # 마지막 깃 커밋 메시지를 넘겨주어 AI 프롬프트 분석에 활용함
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
