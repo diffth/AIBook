@@ -1,0 +1,337 @@
+/* 아보카도 다크 그린 웰니스 테마 시스템 */
+:root {
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --bg-dark: #0b0f0b;          /* 매우 어두운 숲속 그린 색상 */
+  --bg-card: #131a13;          /* 어두운 가시성 웰니스 카드 배경 */
+  --bg-input: #1b241b;
+  
+  --primary: #8bc34a;          /* 밝은 아보카도 그린 */
+  --primary-hover: #7cb342;
+  --primary-glow: rgba(139, 195, 74, 0.25);
+  
+  --text-main: #e8ede8;
+  --text-muted: #8fa08f;
+  
+  --border-light: rgba(139, 195, 74, 0.08);
+  --border-glow: rgba(139, 195, 74, 0.25);
+  
+  --shadow: rgba(0, 0, 0, 0.5) 0 10px 30px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 195, 74, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(139, 195, 74, 0.02) 0px, transparent 50%);
+}
+
+#root {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 50px 20px;
+}
+
+/* 헤더 */
+.app-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.gradient-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  background: linear-gradient(to right, #a0d468, #8bc34a, #7cb342);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 8px;
+  letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* 웰니스 카드 공통 */
+.wellness-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wellness-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 8px 30px rgba(139, 195, 74, 0.05);
+}
+
+/* 폼 스타일 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  font-family: var(--font-heading);
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  background-color: var(--bg-input);
+  border: 1px solid rgba(139, 195, 74, 0.1);
+  border-radius: 10px;
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* 드롭존 (이미지 파일 업로드) */
+.food-dropzone {
+  border: 2px dashed rgba(139, 195, 74, 0.2);
+  background-color: rgba(139, 195, 74, 0.01);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.food-dropzone:hover {
+  border-color: var(--primary);
+  background-color: rgba(139, 195, 74, 0.03);
+}
+
+.preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 10px auto;
+  border: 1px solid var(--border-light);
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-img-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.remove-img-btn:hover {
+  background-color: #ff4d4d;
+}
+
+/* 버튼 */
+.btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  font-family: var(--font-heading);
+}
+
+.btn-green {
+  background-color: var(--primary);
+  color: #0b0f0b;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-green:hover:not(:disabled) {
+  background-color: #fff;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  border: 1px solid rgba(139, 195, 74, 0.1);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ★ 중요 요구사항: 정보 카드가 동일한 가로 크기를 가지고, 행 방향으로 동일하게 정렬 ★ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3개의 열을 균일한 너비(1fr)로 고정 배치 */
+  gap: 20px;
+  margin-top: 32px;
+  align-items: stretch; /* 모든 카드의 높이가 행(Row) 방향으로 나란히 늘어나도록 설정 */
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* 모바일 대응 시 1열 정렬 */
+    align-items: initial;
+  }
+}
+
+.dashboard-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px; /* 고정 최소 높이 부여 */
+  animation: fadeIn 0.4s ease-out;
+}
+
+.card-header-area {
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(139, 195, 74, 0.1);
+  padding-bottom: 12px;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 영양소 수치 가로 바 차트 */
+.nutrient-row {
+  margin-bottom: 14px;
+}
+
+.nutrient-label-group {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.nutrient-bar-bg {
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.nutrient-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* 식단 제안 가독성 영역 */
+.ai-suggestion-box {
+  background-color: rgba(139, 195, 74, 0.02);
+  border-left: 4px solid var(--primary);
+  padding: 14px 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  line-height: 1.6;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* 로딩 스피너 및 펄스 */
+.pulse-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 40px 0;
+}
+
+.pulse-circle {
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.pulse-circle:nth-child(2) { animation-delay: 0.2s; }
+.pulse-circle:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(0.6); opacity: 0.4; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
