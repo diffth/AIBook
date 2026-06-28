@@ -1,0 +1,23 @@
+# Task List - vibeCoding-day25-github-portfolio
+
+- [x] 프로젝트 디렉토리 생성 및 Vite 초기화
+- [x] 의존성 라이브러리 설치 (React, chart.js, Express 등)
+- [x] 백엔드 서버 (`server.js`) 구축
+  - [x] Express 기본 설정 및 `/api/visitor` 엔드포인트 구현
+  - [x] GitHub API 연동 및 README 가져오기 기능 구현
+  - [x] Gemini API 연동 및 README 한국어 요약 프롬프트/API 호출 구현
+  - [x] `/api/portfolio/:username` 통합 엔드포인트 구현
+- [x] 프론트엔드 기본 템플릿 및 설정 수정
+  - [x] `vite.config.js` 에 API 프록시 설정 추가
+  - [x] `index.html` 타이틀 및 폰트 설정 수정
+  - [x] `src/index.css` 디자인 시스템 및 글래스모피즘 CSS 스타일 정의
+- [x] 프론트엔드 컴포넌트 개발
+  - [x] `src/components/VisitorCounter.jsx` (방문자 수 표시)
+  - [x] `src/components/LanguageChart.jsx` (Chart.js 언어 비율 도넛 차트)
+  - [x] `src/components/ProfileCard.jsx` (GitHub 프로필 카드)
+  - [x] `src/components/RepoGrid.jsx` (Gemini 요약 리포지토리 카드 그리드)
+  - [x] `src/App.jsx` (레이아웃, 검색 폼, 실시간 자동 새로고침 타이머)
+- [x] 수동 검증 및 동작 확인
+  - [x] 로컬 개발 서버 동시 구동 (`npm run dev`)
+  - [x] 실제 유저 아이디 검색을 통한 통합 테스트
+  - [x] 최종 결과 정리 (Walkthrough 작성)
