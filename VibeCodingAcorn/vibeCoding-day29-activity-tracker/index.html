@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비비드 습관 추적기 | Vivid Habit Tracker</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg-decor decor-1"></div>
+    <div class="glass-bg-decor decor-2"></div>
+    <div class="glass-bg-decor decor-3"></div>
+
+    <div class="app-container">
+        <!-- 헤더 영역 -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="sparkles" class="neon-text-blue"></i>
+                </div>
+                <div>
+                    <h1>Vivid Habit Tracker</h1>
+                    <p class="subtitle">매일의 작은 습관이 만드는 놀라운 변화</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-export" class="btn btn-secondary" title="데이터 백업하기">
+                    <i data-lucide="download"></i>
+                    <span>Export</span>
+                </button>
+                <button id="btn-import-trigger" class="btn btn-secondary" title="데이터 복원하기">
+                    <i data-lucide="upload"></i>
+                    <span>Import</span>
+                </button>
+                <!-- 실제 파일 선택 창은 숨겨둠 -->
+                <input type="file" id="file-import" accept=".json" style="display: none;">
+                
+                <button id="btn-reset" class="btn btn-danger" title="전체 데이터 초기화">
+                    <i data-lucide="trash-2"></i>
+                    <span>Reset</span>
+                </button>
+                <button id="btn-open-modal" class="btn btn-primary">
+                    <i data-lucide="plus"></i>
+                    <span>습관 추가</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="app-main">
+            <!-- 습관 카드가 렌더링될 컨테이너 -->
+            <div id="habits-container" class="habits-grid">
+                <!-- 동적으로 생성될 카드 예시 -->
+            </div>
+
+            <!-- 습관이 없을 때 보여주는 빈 상태 화면 -->
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-icon-wrapper">
+                    <i data-lucide="calendar-check-2" class="empty-icon"></i>
+                </div>
+                <h3>나만의 습관을 만들어보세요</h3>
+                <p>아직 등록된 습관이 없습니다. 우측 상단의 '습관 추가' 버튼을 눌러 첫 발걸음을 떼어보세요!</p>
+                <button id="btn-empty-add" class="btn btn-primary btn-lg">
+                    <i data-lucide="plus"></i>
+                    <span>첫 습관 추가하기</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- 푸터 영역 -->
+        <footer class="app-footer">
+            <p>&copy; 2026 Vivid Habit Tracker. Designed for Premium Goal Achievement.</p>
+        </footer>
+    </div>
+
+    <!-- 습관 추가 모달 창 -->
+    <div id="add-habit-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>새로운 습관 만들기</h2>
+                <button id="btn-close-modal" class="btn-icon" aria-label="닫기">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="add-habit-form" class="modal-body">
+                <!-- 습관 이름 -->
+                <div class="form-group">
+                    <label for="habit-name">습관 이름 <span class="required">*</span></label>
+                    <input type="text" id="habit-name" placeholder="예: 매일 아침 독서하기, 3km 조깅" required max="30">
+                </div>
+
+                <!-- 상세 설명 -->
+                <div class="form-group">
+                    <label for="habit-desc">상세 설명</label>
+                    <textarea id="habit-desc" rows="3" placeholder="습관에 대한 다짐이나 구체적인 규칙을 적어보세요."></textarea>
+                </div>
+
+                <!-- 아이콘 선택 -->
+                <div class="form-group">
+                    <label>대표 아이콘 선택</label>
+                    <div class="icon-selector-grid">
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🔥" checked>
+                            <span class="icon-box">🔥</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="📚">
+                            <span class="icon-box">📚</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🏋️">
+                            <span class="icon-box">🏋️</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🧘">
+                            <span class="icon-box">🧘</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="💧">
+                            <span class="icon-box">💧</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="😴">
+                            <span class="icon-box">😴</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="⭐">
+                            <span class="icon-box">⭐</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="❤️">
+                            <span class="icon-box">❤️</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🍏">
+                            <span class="icon-box">🍏</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🎨">
+                            <span class="icon-box">🎨</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="💻">
+                            <span class="icon-box">💻</span>
+                        </label>
+                        <label class="icon-option">
+                            <input type="radio" name="habit-icon" value="🌱">
+                            <span class="icon-box">🌱</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 테마 색상 선택 -->
+                <div class="form-group">
+                    <label>테마 색상 선택</label>
+                    <div class="color-selector-grid">
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#00f0ff" checked>
+                            <span class="color-box" style="background-color: #00f0ff;" title="네온 블루"></span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#ff007f">
+                            <span class="color-box" style="background-color: #ff007f;" title="네온 핑크"></span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#00ff88">
+                            <span class="color-box" style="background-color: #00ff88;" title="에메랄드 그린"></span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#a020f0">
+                            <span class="color-box" style="background-color: #a020f0;" title="퍼플 바이올렛"></span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#ffbd03">
+                            <span class="color-box" style="background-color: #ffbd03;" title="골드 옐로우"></span>
+                        </label>
+                        <label class="color-option">
+                            <input type="radio" name="habit-color" value="#ff6b6b">
+                            <span class="color-box" style="background-color: #ff6b6b;" title="코랄 레드"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 모달 버튼 -->
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel" class="btn btn-secondary">취소</button>
+                    <button type="submit" class="btn btn-primary">생성하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 스크립트 로드 -->
+    <script src="app.js"></script>
+</body>
+</html>
