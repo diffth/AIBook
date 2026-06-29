@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StyleAI - Physical Info</title>
+<!-- Google Fonts: Playfair Display & Hanken Grotesk -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#241a00",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#efeded",
+                    "surface-variant": "#e4e2e2",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "tertiary-fixed": "#ffe088",
+                    "primary-container": "#1c1b1b",
+                    "surface-dim": "#dbdad9",
+                    "on-tertiary-fixed": "#241a00",
+                    "on-primary-fixed": "#1c1b1b",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "secondary-container": "#dcdddd",
+                    "inverse-surface": "#303031",
+                    "surface-tint": "#5f5e5e",
+                    "primary-fixed": "#e5e2e1",
+                    "inverse-on-surface": "#f2f0f0",
+                    "inverse-primary": "#c8c6c5",
+                    "surface": "#fbf9f8",
+                    "surface-container-low": "#f5f3f3",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#5d5f5f",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-surface": "#1b1c1c",
+                    "on-tertiary-container": "#a08000",
+                    "on-secondary-container": "#5f6161",
+                    "background": "#fbf9f8",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1b1c1c",
+                    "surface-container-highest": "#e4e2e2",
+                    "on-error": "#ffffff",
+                    "tertiary": "#000000",
+                    "on-primary-fixed-variant": "#474646",
+                    "primary": "#000000",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#858383",
+                    "outline": "#747878",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-surface-variant": "#444748",
+                    "outline-variant": "#c4c7c7",
+                    "surface-bright": "#fbf9f8",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#c8c6c5",
+                    "surface-container-high": "#e9e8e7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "container-max": "1200px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-sm": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-lg": ["Playfair Display"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-md": ["Hanken Grotesk"],
+                    "headline-md": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        /* Atelier Input Custom Style */
+        .atelier-input {
+            border: none;
+            border-bottom: 1px solid #E0E0E0;
+            background: transparent;
+            padding: 12px 0;
+            transition: border-bottom 0.3s ease;
+        }
+        .atelier-input:focus {
+            outline: none;
+            border-bottom: 2px solid #000000;
+            box-shadow: none;
+        }
+        
+        .luxury-shadow {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+ 
+        /* Gold Progress Line animation */
+        @keyframes progress-glow {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .gold-line {
+            background-color: #ffe088; /* Gold from tertiary-fixed */
+            height: 2px;
+            animation: progress-glow 2s infinite ease-in-out;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background docked full-width top-0 z-50 border-b border-outline-variant dark:border-outline flex justify-between items-center w-full px-margin-mobile h-16">
+<button onclick="location.href='index.html'" aria-label="Go back" class="hover:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">arrow_back</span>
+</button>
+<h1 class="font-headline-md-mobile text-headline-md-mobile font-bold tracking-tight text-primary dark:text-primary-fixed cursor-pointer" onclick="location.href='index.html'">StyleAI</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden border border-outline-variant">
+<span class="material-symbols-outlined text-secondary">person</span>
+</div>
+</header>
+<!-- Progress Indicator -->
+<div class="w-full bg-surface-container-low h-1">
+<div class="gold-line w-1/3"></div>
+</div>
+<main class="flex-grow flex flex-col items-center px-margin-mobile pt-16 pb-24 md:pt-24 max-w-container-max mx-auto w-full">
+<!-- Header Section -->
+<div class="w-full max-w-md text-left mb-12">
+<span class="font-label-md text-label-md text-on-tertiary-container tracking-widest uppercase mb-4 block">Step 01 / 03</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-2">당신의 신체 정보를<br/>입력해 주세요.</h2>
+<p class="font-body-md text-on-surface-variant opacity-70">AI가 당신의 체형에 가장 잘 어울리는 핏을 분석하기 위해 필요합니다.</p>
+</div>
+<!-- Form Section -->
+<div class="w-full max-w-md space-y-10">
+<!-- Height Input -->
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-secondary mb-1 uppercase tracking-wider" for="height">키 (cm)</label>
+<div class="relative flex items-center">
+<input class="atelier-input w-full font-headline-md text-headline-md text-primary" id="height" max="300" min="50" name="height" placeholder="175" type="number"/>
+<span class="absolute right-0 font-label-md text-label-md text-outline">CM</span>
+</div>
+</div>
+<!-- Weight Input -->
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-secondary mb-1 uppercase tracking-wider" for="weight">몸무게 (kg)</label>
+<div class="relative flex items-center">
+<input class="atelier-input w-full font-headline-md text-headline-md text-primary" id="weight" max="300" min="20" name="weight" placeholder="70" type="number"/>
+<span class="absolute right-0 font-label-md text-label-md text-outline">KG</span>
+</div>
+</div>
+</div>
+<!-- Illustration / Mood Decor -->
+<div class="mt-auto pt-16 w-full max-w-md hidden md:block">
+<div class="aspect-[16/9] bg-surface-container-lowest border border-outline-variant flex items-center justify-center p-8 luxury-shadow">
+<div class="text-center">
+<span class="material-symbols-outlined text-4xl text-outline mb-4">straighten</span>
+<p class="font-label-md text-label-md text-secondary italic">"정확한 수치는 더 정교한 스타일 큐레이션의 시작입니다."</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Button -->
+<footer class="fixed bottom-0 left-0 w-full p-margin-mobile bg-surface/80 backdrop-blur-md z-40">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 tracking-[0.2em] uppercase hover:opacity-90 active:scale-[0.98] transition-all duration-200 luxury-shadow">
+                다음으로
+            </button>
+</div>
+</footer>
+<!-- Decorative Corner Visual -->
+<div class="fixed top-32 -right-16 opacity-5 pointer-events-none hidden lg:block">
+<span class="font-display-lg text-[240px] leading-none select-none italic text-primary">AI</span>
+</div>
+<script>
+        // Micro-interactions for form feedback
+        document.querySelectorAll('.atelier-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.previousElementSibling.style.color = '#000';
+            });
+            input.addEventListener('blur', function() {
+                if(!this.value) this.previousElementSibling.style.color = '#5d5f5f';
+            });
+        });
+
+        // Simple button active state visual feedback
+        const nextBtn = document.querySelector('button.bg-primary');
+        nextBtn.addEventListener('click', () => {
+            console.log('Navigating to step 2...');
+            location.href = 'style_upload.html';
+        });
+    </script>
+</body></html>
