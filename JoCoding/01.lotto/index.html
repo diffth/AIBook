@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>프리미엄 로또 번호 추천기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --border-color: rgba(99, 102, 241, 0.2);
+      --neon-glow: 0 0 20px rgba(99, 102, 241, 0.4);
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+
+      /* 로또 공 색상 정의 */
+      --ball-yellow: radial-gradient(circle at 30% 30%, #fef08a 0%, #eab308 70%, #ca8a04 100%);
+      --ball-blue: radial-gradient(circle at 30% 30%, #93c5fd 0%, #3b82f6 70%, #1d4ed8 100%);
+      --ball-red: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 70%, #b91c1c 100%);
+      --ball-grey: radial-gradient(circle at 30% 30%, #cbd5e1 0%, #64748b 70%, #475569 100%);
+      --ball-green: radial-gradient(circle at 30% 30%, #86efac 0%, #22c55e 70%, #15803d 100%);
+    }
+
+    /* 라이트 모드 색상 스키마 재정의 */
+    body.light-mode {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --border-color: rgba(99, 102, 241, 0.15);
+      --neon-glow: 0 0 15px rgba(99, 102, 241, 0.1);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    body.light-mode .bg-decor {
+      opacity: 0.08;
+    }
+
+    body.light-mode .balls-row {
+      background: rgba(0, 0, 0, 0.02);
+      border-line: 1px solid rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    body.light-mode .history-item {
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* 배경 데코레이션 */
+    .bg-decor {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      filter: blur(120px);
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .decor-1 { top: 10%; left: 10%; }
+    .decor-2 { bottom: 10%; right: 10%; }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--neon-glow);
+      text-align: center;
+    }
+
+    /* 테마 토글 버튼 스타일 */
+    .theme-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      font-size: 1.1rem;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      z-index: 10;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body.light-mode .theme-toggle-btn {
+      background: rgba(0, 0, 0, 0.03);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .theme-toggle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: var(--neon-glow);
+    }
+
+    .theme-toggle-btn:active {
+      transform: scale(0.95);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #a5b4fc, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    /* 공 번호 영역 */
+    .balls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 35px;
+      min-height: 80px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .balls-row {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      width: 100%;
+      box-sizing: border-box;
+      animation: slideIn 0.4s ease forwards;
+    }
+
+    .row-label {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent-color);
+      width: 40px;
+      text-align: left;
+      text-shadow: var(--neon-glow);
+    }
+
+    .row-balls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-grow: 1;
+    }
+
+    .ball {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 -4px 8px rgba(0,0,0,0.2);
+      transform: scale(0);
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes popIn {
+      to {
+        transform: scale(1);
+      }
+    }
+
+    /* 공 색상 클래스 */
+    .ball.color-yellow { background: var(--ball-yellow); }
+    .ball.color-blue { background: var(--ball-blue); }
+    .ball.color-red { background: var(--ball-red); }
+    .ball.color-grey { background: var(--ball-grey); }
+    .ball.color-green { background: var(--ball-green); }
+
+    /* 로딩 플레이스홀더 */
+    .placeholder-text {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-style: italic;
+      animation: pulse 1.5s infinite ease-in-out;
+      padding: 20px 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* 생성 버튼 */
+    .generate-btn {
+      width: 100%;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6), 0 0 15px rgba(168, 85, 247, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* 버튼 내 반짝임 효과 */
+    .generate-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: rotate(45deg);
+      transition: 0.5s;
+      opacity: 0;
+    }
+
+    .generate-btn:hover::after {
+      left: 120%;
+      opacity: 1;
+      transition: all 0.6s ease-in-out;
+    }
+
+    /* 히스토리 섹션 */
+    .history-section {
+      margin-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 25px;
+      text-align: left;
+    }
+
+    .history-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .clear-history-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: color 0.2s;
+    }
+
+    .clear-history-btn:hover {
+      color: #ef4444;
+      text-decoration: underline;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    /* 스크롤바 디자인 */
+    .history-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .history-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 3px;
+    }
+    .history-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    .history-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .history-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .history-balls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .history-ball {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 반응형 스타일링 */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        padding: 35px 15px 25px 15px;
+        border-radius: 18px;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-top: 10px;
+      }
+      .subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+      }
+      .theme-toggle-btn {
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+      .balls-container {
+        gap: 8px;
+        margin-bottom: 25px;
+      }
+      .balls-row {
+        padding: 8px 10px;
+        border-radius: 12px;
+      }
+      .row-label {
+        font-size: 0.95rem;
+        width: 20px;
+      }
+      .row-balls {
+        gap: 6px;
+      }
+      .ball {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 -2px 4px rgba(0,0,0,0.2);
+      }
+      .generate-btn {
+        padding: 14px 20px;
+        font-size: 1.05rem;
+        border-radius: 12px;
+      }
+      .history-section {
+        margin-top: 30px;
+        padding-top: 20px;
+      }
+      .history-item {
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+      .history-time {
+        font-size: 0.75rem;
+      }
+      .history-balls {
+        gap: 4px;
+      }
+      .history-ball {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .container {
+        padding: 30px 10px 20px 10px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      .row-label {
+        width: 15px;
+        font-size: 0.85rem;
+      }
+      .row-balls {
+        gap: 4px;
+      }
+      .ball {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+      }
+      .history-balls {
+        gap: 3px;
+      }
+      .history-ball {
+        width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-decor decor-1"></div>
+  <div class="bg-decor decor-2"></div>
+
+  <div class="container">
+    <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="테마 전환">☀️</button>
+    <h1>LUCKY LOTTO</h1>
+    <div class="subtitle">오늘의 행운을 불러올 번호를 추천해 드립니다</div>
+
+    <div class="balls-container" id="ballsContainer">
+      <div class="placeholder-text">아래 버튼을 눌러 번호를 생성해 주세요</div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn">행운의 번호 받기</button>
+
+    <div class="history-section" id="historySection" style="display: none;">
+      <div class="history-title">
+        <span>최근 추천 번호</span>
+        <button class="clear-history-btn" id="clearHistoryBtn">기록 지우기</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const ballsContainer = document.getElementById('ballsContainer');
+    const generateBtn = document.getElementById('generateBtn');
+    const historySection = document.getElementById('historySection');
+    const historyList = document.getElementById('historyList');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    // 로컬 스토리지 테마 로드 및 적용
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+      themeToggleBtn.innerText = '🌙';
+    } else {
+      themeToggleBtn.innerText = '☀️';
+    }
+
+    // 테마 전환 클릭 이벤트
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      themeToggleBtn.innerText = isLight ? '🌙' : '☀️';
+    });
+
+    // 추천 기록 저장용 배열
+    let historyData = [];
+
+    // 로또 공의 색상 클래스를 결정하는 함수
+    function getBallColorClass(num) {
+      if (num <= 10) return 'color-yellow';
+      if (num <= 20) return 'color-blue';
+      if (num <= 30) return 'color-red';
+      if (num <= 40) return 'color-grey';
+      return 'color-green';
+    }
+
+    // 로또 번호 생성 함수
+    function generateLottoNumbers() {
+      const numbers = [];
+      while (numbers.length < 6) {
+        const randomNum = Math.floor(Math.random() * 45) + 1;
+        if (!numbers.includes(randomNum)) {
+          numbers.push(randomNum);
+        }
+      }
+      // 오름차순 정렬
+      return numbers.sort((a, b) => a - b);
+    }
+
+    // 화면에 번호들을 그리는 함수 (5개 세트 대응, 애니메이션 적용)
+    function displayNumbers(numbersList) {
+      ballsContainer.innerHTML = '';
+      
+      const labels = ['A', 'B', 'C', 'D', 'E'];
+      
+      numbersList.forEach((numbers, rowIndex) => {
+        const row = document.createElement('div');
+        row.className = 'balls-row';
+        row.style.animationDelay = `${rowIndex * 0.1}s`;
+        
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'row-label';
+        labelDiv.innerText = labels[rowIndex];
+        
+        const rowBallsDiv = document.createElement('div');
+        rowBallsDiv.className = 'row-balls';
+        
+        numbers.forEach((num, index) => {
+          const ball = document.createElement('div');
+          ball.className = `ball ${getBallColorClass(num)}`;
+          ball.innerText = num;
+          
+          // 위에서 아래로, 왼쪽에서 오른쪽으로 흐르는 듯한 애니메이션 딜레이
+          ball.style.animationDelay = `${(rowIndex * 0.12) + (index * 0.04)}s`;
+          rowBallsDiv.appendChild(ball);
+        });
+        
+        row.appendChild(labelDiv);
+        row.appendChild(rowBallsDiv);
+        ballsContainer.appendChild(row);
+      });
+    }
+
+    // 히스토리 항목 추가 함수 (5개 조합 배열 대응)
+    function addHistoryItems(numbersList) {
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      
+      // A부터 E까지 순서대로 히스토리에 정렬되도록 역순으로 unshift 실행
+      for (let i = numbersList.length - 1; i >= 0; i--) {
+        const item = {
+          time: timeStr,
+          numbers: numbersList[i]
+        };
+        historyData.unshift(item);
+      }
+      
+      // 최대 15개까지만 보관 (최근 3회 추천분)
+      if (historyData.length > 15) {
+        historyData = historyData.slice(0, 15);
+      }
+
+      renderHistory();
+    }
+
+    // 히스토리 목록 렌더링 함수
+    function renderHistory() {
+      if (historyData.length === 0) {
+        historySection.style.display = 'none';
+        return;
+      }
+
+      historySection.style.display = 'block';
+      historyList.innerHTML = '';
+
+      historyData.forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'history-time';
+        timeSpan.innerText = item.time;
+
+        const ballsDiv = document.createElement('div');
+        ballsDiv.className = 'history-balls';
+
+        item.numbers.forEach(num => {
+          const ball = document.createElement('div');
+          ball.className = `history-ball ${getBallColorClass(num)}`;
+          ball.innerText = num;
+          ballsDiv.appendChild(ball);
+        });
+
+        historyItem.appendChild(timeSpan);
+        historyItem.appendChild(ballsDiv);
+        historyList.appendChild(historyItem);
+      });
+    }
+
+    // 버튼 클릭 이벤트 리스너
+    generateBtn.addEventListener('click', () => {
+      // 애니메이션 진행 중 중복 클릭을 방지하기 위해 일시 비활성화
+      generateBtn.disabled = true;
+      generateBtn.innerText = '번호 조합 중...';
+
+      const lottoSets = [];
+      for (let i = 0; i < 5; i++) {
+        lottoSets.push(generateLottoNumbers());
+      }
+      
+      displayNumbers(lottoSets);
+      addHistoryItems(lottoSets);
+
+      // 모든 애니메이션이 완료되는 시점(대략 1.2초 뒤)에 버튼 활성화
+      setTimeout(() => {
+        generateBtn.disabled = false;
+        generateBtn.innerText = '행운의 번호 받기';
+      }, 1200);
+    });
+
+    // 기록 지우기 이벤트 리스너
+    clearHistoryBtn.addEventListener('click', () => {
+      historyData = [];
+      renderHistory();
+    });
+  </script>
+</body>
+</html>
