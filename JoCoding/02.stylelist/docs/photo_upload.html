@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StyleAI - Photo Upload</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .silhouette-guide {
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#241a00",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#efeded",
+                        "surface-variant": "#e4e2e2",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "tertiary-fixed": "#ffe088",
+                        "primary-container": "#1c1b1b",
+                        "surface-dim": "#dbdad9",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "secondary-container": "#dcdddd",
+                        "inverse-surface": "#303031",
+                        "surface-tint": "#5f5e5e",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-on-surface": "#f2f0f0",
+                        "inverse-primary": "#c8c6c5",
+                        "surface": "#fbf9f8",
+                        "surface-container-low": "#f5f3f3",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-container": "#a08000",
+                        "on-secondary-container": "#5f6161",
+                        "background": "#fbf9f8",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1b1c1c",
+                        "surface-container-highest": "#e4e2e2",
+                        "on-error": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-primary-fixed-variant": "#474646",
+                        "primary": "#000000",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#858383",
+                        "outline": "#747878",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-surface-variant": "#444748",
+                        "outline-variant": "#c4c7c7",
+                        "surface-bright": "#fbf9f8",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-container-high": "#e9e8e7"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-md": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-tertiary-fixed">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 z-50 bg-surface dark:bg-background border-b border-outline-variant dark:border-outline flex justify-between items-center w-full px-5 h-16 fixed">
+<button class="p-2 hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">menu</span>
+</button>
+<h1 class="font-headline-md-mobile text-headline-md-mobile font-bold tracking-tight text-primary dark:text-primary-fixed">StyleAI</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio headshot of a stylish person with a neutral expression, representing a user profile avatar. The lighting is soft and editorial, with a clean white background that emphasizes the high-end, minimalist aesthetic of a luxury fashion application. The style is contemporary and sophisticated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsbapr28aQi4m17jmwTTkqVt7hiRznhN1Bgl28GDjGI3Nz0ujUo9K_Jn1ZdcDeqLm08vK9ZpJpU7ryf_DwbJ0_aVHOPfXCOkK1G9cdN-uXj2DfwuF8anL7_pTPYnMihjn46mkd-yYV3JY5IdEYaiSshGJmzv6uZyzRc15G7nymIWoUw5PyrvE_KKHUZVE-OrWXER0GygZ8dZbR-pW2irRNbeZ3dN01Y7MuEOCq01bl3ZezhKvGRt9R09r-K2P-UqgLeKw6UMfaYBmE"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-5 max-w-[1200px] mx-auto min-h-screen flex flex-col">
+<!-- Step Indicator -->
+<div class="mb-8">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-md text-label-md text-primary">STEP 02</span>
+<span class="text-secondary opacity-40">/</span>
+<span class="font-label-md text-label-md text-secondary">03</span>
+</div>
+<div class="w-full h-[2px] bg-outline-variant relative">
+<div class="absolute left-0 top-0 h-full bg-primary w-2/3 transition-all duration-700 ease-in-out"></div>
+</div>
+</div>
+<!-- Headline -->
+<section class="mb-10">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-3">전신 사진을 업로드해주세요</h2>
+<p class="text-on-surface-variant font-body-md max-w-md">
+                업로드하신 사진은 고객님의 체형을 정밀하게 분석하여 맞춤형 스타일링을 제안하는 데에만 사용됩니다. 인공지능이 실루엣을 인식할 수 있도록 가이드를 확인해 주세요.
+            </p>
+</section>
+<!-- Upload Area -->
+<div class="flex-grow flex flex-col items-center justify-center">
+<div class="relative w-full max-w-md aspect-[3/4] border border-outline border-dashed rounded-lg bg-surface-container-low flex flex-col items-center justify-center group cursor-pointer hover:bg-surface-container transition-colors duration-300 overflow-hidden" id="drop-zone">
+<!-- Silhouette Guide Overlay -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity">
+<img class="h-[85%] silhouette-guide object-contain" data-alt="A minimalist architectural silhouette of a human figure standing in a neutral pose, centered and symmetrical. The figure is rendered in a soft charcoal grey against a light grey background, designed as a technical guide for photography alignment. The aesthetic is clean, clinical, and high-fashion editorial, emphasizing body proportions for AI analysis." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP7hnbhiXqI4udjXgfrgdEF2MGIYqnS5ntv8NWmR8wZKwinNYG279yv5fr_mQb4RtEDP-aqG45GYOJIgQH5txPX-3VBGe0c_h1FEcvtOpbhvtS7m2S26Cy4ptw0K7u_NP9Vjd9cYharCQgx-QtzMLEjSyFdywSn4EoDFj5g2ez3uNTK4gG9vuUKclz-5pdMbw4ZtjyibKTubNITMQ1RS8Aq2cVqxTrFL3FORw8UvWblvH7SJhKNI6jUx0v-N53feSfV7kBhMsvADG3"/>
+</div>
+<!-- Interaction Content -->
+<div class="relative z-10 flex flex-col items-center text-center p-8">
+<div class="w-16 h-16 rounded-full bg-surface mb-4 flex items-center justify-center border border-outline-variant shadow-sm group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-primary text-3xl">add_a_photo</span>
+</div>
+<p class="font-label-md text-label-md text-primary mb-1">사진 선택 또는 드래그</p>
+<p class="text-secondary text-xs">JPG, PNG (최대 10MB)</p>
+</div>
+<!-- Bottom Guide Text -->
+<div class="absolute bottom-6 left-0 right-0 px-6">
+<div class="flex items-start gap-3 bg-surface/80 backdrop-blur-sm p-3 rounded border border-outline-variant">
+<span class="material-symbols-outlined text-sm text-secondary">info</span>
+<p class="text-[11px] leading-relaxed text-on-surface-variant text-left">
+                            밝은 곳에서 정면을 응시하고, 팔과 다리가 몸에서 살짝 떨어진 자세로 촬영된 사진이 가장 정확하게 분석됩니다.
+                        </p>
+</div>
+</div>
+<input accept="image/*" class="hidden" id="file-input" type="file"/>
+</div>
+</div>
+<!-- Action Button -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-md px-5 py-6 border-t border-outline-variant flex justify-center z-40">
+<button class="w-full max-w-md bg-primary text-on-primary py-4 font-label-md text-label-md tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all duration-200">
+                분석 시작하기
+            </button>
+</div>
+</main>
+<!-- Floating Decor (Atelier Style) -->
+<div class="fixed top-1/4 -right-12 w-64 h-64 rounded-full border border-outline-variant/30 pointer-events-none -z-10 animate-pulse-slow"></div>
+<div class="fixed bottom-1/4 -left-20 w-80 h-80 rounded-full border border-outline-variant/20 pointer-events-none -z-10 animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+<script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-surface-container-highest', 'border-primary');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('bg-surface-container-highest', 'border-primary');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-surface-container-highest', 'border-primary');
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                console.log('File dropped:', files[0].name);
+                // Handle file upload logic here
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                console.log('File selected:', e.target.files[0].name);
+                // Handle file upload logic here
+            }
+        });
+    </script>
+</body></html>
