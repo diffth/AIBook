@@ -133,7 +133,7 @@
 <main class="relative h-screen w-full flex flex-col justify-center items-start overflow-hidden">
 <!-- Background Layer -->
 <div class="absolute inset-0 z-0">
-<div class="w-full h-full bg-cover bg-center transition-transform duration-1000 ease-out scale-105" data-alt="A high-fashion, high-fidelity photo of a stylish woman wearing a chic casual outfit, such as a high-quality knit top and relaxed-fit trousers. The lighting is soft and elegant, with a minimalist architectural background." style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBOD8VlZqPaMGXOf3zAVbK5VlLv7Exx1pvXJPMWblKGYB0IMJw4cr13TqP3Afhz0s8AIQoqShLw3u8lHywmSKKTxYQjtFfEh7tO6P2KeSqMsa7vAGy9ZNKXVJGHKsiNaF4SlJZkLR-65PEvxPFl-DJKWQSOvdrirxXh-T1n6Jgtd8C9mnDxLlM_5gsnXAw-WQXmqYlET2mATxM3vd45cP7q8zrlfRYeHEbHT-ndjB54vHqp6bX9kEIGjSOmfkwyQogiKIJ5l7pk1aam&quot;);">
+<div id="hero-bg" class="w-full h-full bg-cover bg-center transition-transform duration-1000 ease-out scale-105" data-alt="A high-fidelity photo of a stylish woman in a navy blue suit jumping joyfully against a light blue background." style="background-image: url('./main_hero.png');">
 </div>
 <div class="absolute inset-0 hero-overlay"></div>
 </div>
@@ -250,7 +250,7 @@
             // Parallax effect on scroll
             window.addEventListener('scroll', () => {
                 const scrolled = window.pageYOffset;
-                const heroImage = document.querySelector('[data-alt*="photo of a stylish woman"]');
+                const heroImage = document.getElementById('hero-bg');
                 if (heroImage) {
                     heroImage.style.transform = `scale(1.05) translateY(${scrolled * 0.2}px)`;
                 }
