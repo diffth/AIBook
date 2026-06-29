@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StyleAI | Analysis Results</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#241a00",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#efeded",
+                        "surface-variant": "#e4e2e2",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "tertiary-fixed": "#ffe088",
+                        "primary-container": "#1c1b1b",
+                        "surface-dim": "#dbdad9",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "secondary-container": "#dcdddd",
+                        "inverse-surface": "#303031",
+                        "surface-tint": "#5f5e5e",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-on-surface": "#f2f0f0",
+                        "inverse-primary": "#c8c6c5",
+                        "surface": "#fbf9f8",
+                        "surface-container-low": "#f5f3f3",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-container": "#a08000",
+                        "on-secondary-container": "#5f6161",
+                        "background": "#fbf9f8",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1b1c1c",
+                        "surface-container-highest": "#e4e2e2",
+                        "on-error": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-primary-fixed-variant": "#474646",
+                        "primary": "#000000",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#858383",
+                        "outline": "#747878",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-surface-variant": "#444748",
+                        "outline-variant": "#c4c7c7",
+                        "surface-bright": "#fbf9f8",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-container-high": "#e9e8e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "unit": "8px",
+                        "container-max": "1200px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-md": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fbf9f8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e0e0e0;
+        }
+        .editorial-line {
+            height: 1px;
+            background-color: #e0e0e0;
+            width: 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased mb-24 overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background border-b border-outline-variant dark:border-outline docked full-width top-0 z-50 flex justify-between items-center w-full px-margin-mobile h-16 sticky">
+<button class="hover:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">menu</span>
+</button>
+<h1 class="font-headline-md-mobile text-headline-md-mobile font-bold tracking-tight text-primary dark:text-primary-fixed">StyleAI</h1>
+<div class="hover:opacity-80 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a sophisticated person with a modern, minimalist aesthetic. The lighting is soft and high-key, emphasizing clean lines and a neutral color palette of charcoals and warm whites. The subject exudes confidence and a sense of effortless style, perfect for a luxury fashion platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwSwcN2e7OrKE3bO2myjdJAOATCs2pnL-BrJ8yDHq_xty6UXu9haYcEBntxTGL5FpQJOhQv-Ok6aYv1Vs0-beSDXMyAJPSNtMzdl45cC5WExsm6UK2bqcxk_DcHVtYGE4OV9XakfmkVucsCbev5GEv0ePyoozmaGHHLl5GJOxrq5NILqmpF0KY01Y9pB-hq4gL2Gx-sGbZaIIsXIVOQaEUztpmnVTACUp2XMzb1BNHa20c8O2hFtGLyy9xCveN_Z2_Hg6ZJL2pmEDF"/>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+<!-- Hero Section: Analysis Result -->
+<section class="mb-20 animate-fade-in">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div class="order-2 md:order-1">
+<span class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-4 block">Analysis Result</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg mb-6 leading-tight">
+                        Alex님의 체형은 <br/>
+<span class="italic text-primary border-b-2 border-primary">'모래시계형 체형'</span> 입니다.
+                    </h2>
+<p class="font-body-lg text-body-lg text-secondary mb-8 max-w-lg">
+                        균형 잡힌 어깨와 골반 라인, 그리고 선명한 허리선이 특징입니다. 당신의 장점인 곡선미를 살리는 실루엣이 가장 이상적입니다.
+                    </p>
+<div class="editorial-line mb-8"></div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-4">
+<span class="w-3 h-3 bg-tertiary-fixed rounded-full"></span>
+<span class="font-label-md text-label-md">FIT: Structured &amp; Defined</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="w-3 h-3 bg-secondary-fixed-dim rounded-full"></span>
+<span class="font-label-md text-label-md">MOOD: Elegant Editorial</span>
+</div>
+</div>
+</div>
+<div class="order-1 md:order-2 relative h-[450px] md:h-[600px] overflow-hidden">
+<img class="w-full h-full object-cover grayscale-[20%]" data-alt="A cinematic, high-fashion editorial photograph of a model representing the hourglass body type, standing in a sun-drenched, minimalist architectural space. The model wears a perfectly tailored, structured blazer that cinches at the waist. The color palette is composed of creamy whites, deep blacks, and soft gold highlights from the natural sunlight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaUcNG-Mb8xplAypRAxFuNZUXozAdyoPQubPP-cdpSvQEN3FmW8lSaj74Id_ciLXKjtW1XQQyDk9fwVzcD6CI0M3EBUC72zErOvyIZiD9FfrxPR4uQgx23fu0r7-n4llSqjAeqy_LONEd2Owk4EqYhXCQ2Ymqg3BPZwmkcUeXfr-rWR-PViQJazmPWSe8SaKj4ffomySAnoDpoCzYBktPUaTF2PhfIK4mLnxufqIMZQ1oJ-eBHV4pB_00U8oC_gcu2Kqc_6roDmvrd"/>
+<div class="absolute inset-0 border-[12px] border-surface/30 m-6"></div>
+</div>
+</div>
+</section>
+<!-- Style Guide Block -->
+<section class="mb-24 py-16 bg-surface-container-low px-8 md:px-16 text-center border-y border-outline-variant">
+<h3 class="font-headline-md text-headline-md mb-4 italic">"당신에게는 이런 핏이 잘 어울려요"</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
+                허리 라인을 강조하는 랩 드레스나 페플럼 상의, 하이웨이스트 하의를 추천합니다. 너무 박시한 핏보다는 몸의 실루엣을 자연스럽게 따라가는 테일러링이 당신의 우아함을 극대화해 줍니다.
+            </p>
+</section>
+<!-- Recommended Styles (Curated Cards) -->
+<section class="mb-24">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg">추천 스타일</h2>
+<div class="w-12 h-1 bg-primary mt-4"></div>
+</div>
+<button class="font-label-md text-label-md uppercase border-b border-primary pb-1 hover:opacity-60 transition-opacity">View All Curation</button>
+</div>
+<!-- Bento-like Grid for Fashion Items -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Large Featured Card -->
+<div class="md:col-span-7 group cursor-pointer">
+<div class="relative overflow-hidden mb-4 aspect-[4/5]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A luxury fashion flat-lay featuring a perfectly tailored charcoal wool blazer, a silk cream-colored blouse, and high-waisted black trousers. The items are arranged artfully on a clean, light-gray marble surface. The lighting is precise, casting soft shadows that emphasize the texture of the fabrics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUasXoAoZ5DDLCwyBCaVFOPlW2l8yxskR3D9_Uk83IHP5iINvYia7ZU6yzk9ks9RRD3nNoquE1M-nQBPJaw2gsk77YASVorV-KjZf6DX5BC7jJhEKAQlkTqPB3AF_ep8CeXmvgC4eKLVjj-d_yRqezwEN8Qqzb2P3Jn0uDx6uHQN6F1UB9CXjXdyewh20i3fILlcMZ8-CaPikOK4ZCMPWIET7MDm5avErqQQFuGBCs1o2ixM_4G0a18xMaW6IKJoUTELy2jzW23z6U"/>
+<div class="absolute top-4 left-4 bg-white px-3 py-1 font-label-sm text-label-sm tracking-tighter">ESSENTIAL LOOK</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-sm text-label-sm text-secondary mb-1">ATELIER COLLECTION</p>
+<h4 class="font-headline-md text-headline-md uppercase tracking-tight">Structured Waist Blazer Outfit</h4>
+</div>
+<span class="font-headline-md text-headline-md">₩842,000</span>
+</div>
+</div>
+<!-- Vertical List Grid -->
+<div class="md:col-span-5 flex flex-col gap-8">
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-1/3 aspect-square overflow-hidden shrink-0">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A detailed close-up of a high-quality leather belt with a minimalist gold buckle, cinched around the waist of a beige linen dress. The photo emphasizes the artisanal stitching and the premium texture of the leather against the light fabric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8cyHGQz0TMfeQWL5vkTrVQC7pm_wCCAsldE54XUpF_8CDfxjxR-IdlUE36c_detwhBQ6WmRmDoKyWw_VuyLg0eahRUW45aysnhCUWA3ko_SJhwKPVoGfiXWUJWAjvmmdeLYogCFbJpzFXtjb8nNAKksTj_wZx839XTlICNxHH6yJJ67-XZ71Uan2rOS3GQx4v_xBeVoyKDpy93sP7PLKXRkPPv1eeTXH9BdK1TOOa6p2cNsqhlqWhLrGb-wFcxSvb8IhFLXmT2TuX"/>
+</div>
+<div class="flex flex-col justify-center border-b border-outline-variant pb-4 w-full">
+<p class="font-label-sm text-label-sm text-secondary mb-1">ACCESSORY</p>
+<h5 class="font-body-lg text-body-lg font-bold mb-2">Signature Leather Waist Belt</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">₩128,000</span>
+</div>
+</div>
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-1/3 aspect-square overflow-hidden shrink-0">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A high-fashion product shot of an elegant emerald green silk wrap dress draped over a minimalist mannequin. The dress features a deep V-neck and a flowing skirt, captured in a bright studio with soft, diffused lighting and a white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnJgLKQ5gI91yn7ydgGBe3dYI6j8NjyKP-HQgo1fAv15Him_xs_bOMPC9xNlHLFpNy5zk95YDnYH8YCJHBC0spw52T8eP34ecE8rOYINnjwqv2wNr-RIS69SDBhcIpShKl4r4nCq0DXmSC_wUE6JFH0Eb24Dr-pFgas_YrpbUOsszYNoonrbGJ0P-NTWWx9sxVy3F2DT4nvDB1gBeZ5EtkY3sTjoAdE21Sv1Ib_CGKWC1oXGSO8uUGYuxFAo5uPy5pskfnP-Z21lMD"/>
+</div>
+<div class="flex flex-col justify-center border-b border-outline-variant pb-4 w-full">
+<p class="font-label-sm text-label-sm text-secondary mb-1">DRESS</p>
+<h5 class="font-body-lg text-body-lg font-bold mb-2">Silk Wrap Midi Dress</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">₩355,000</span>
+</div>
+</div>
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-1/3 aspect-square overflow-hidden shrink-0">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A minimalist photograph of tailored ivory wide-leg trousers hanging on a thin black designer hanger against a white gallery wall. The sharp crease of the pants is prominent, showcasing the impeccable tailoring and luxury material." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5swk5v4tQHTdb8BkgPA3xfDrBzXjhOeye0TsoB9CPoR9iu7MFyQ5mpAdLXlPMwhnhs561r-Kgqa3w9eQZNgrCXd2iSOmF7oawKRHxxCgM_dGNVIZW3x_QTtzqYadx2ApGmJDFqVStapxS6qylg4orHkhvyUpMncSk7ecXoaYwBsmZAQG8ud8o7KmIan6vUoCwCL4WPVTfme4YJTiKjh9CHRGiSwICqpr4LXMpondpzfRikH1fiu9ZxB5TS5YiyZ5wGXJIgfWxdStD"/>
+</div>
+<div class="flex flex-col justify-center border-b border-outline-variant pb-4 w-full">
+<p class="font-label-sm text-label-sm text-secondary mb-1">BOTTOM</p>
+<h5 class="font-body-lg text-body-lg font-bold mb-2">High-Rise Tailored Trousers</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">₩210,000</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / Style Update -->
+<section class="bg-primary text-on-primary py-20 px-8 flex flex-col items-center text-center">
+<span class="font-label-md text-label-md uppercase tracking-[0.3em] mb-6">Stay Inspired</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg mb-8 max-w-xl">
+                새로운 체형 분석 트렌드와 <br/>맞춤 코디 제안을 받아보세요.
+            </h2>
+<div class="w-full max-w-md flex flex-col md:flex-row gap-0">
+<input class="bg-transparent border-b border-white py-4 px-2 w-full focus:outline-none focus:border-tertiary-fixed transition-colors font-label-sm placeholder:text-white/40" placeholder="EMAIL ADDRESS" type="email"/>
+<button class="bg-white text-primary px-8 py-4 font-label-md text-label-md uppercase tracking-wider hover:bg-tertiary-fixed transition-colors">Subscribe</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-margin-mobile bg-surface dark:bg-background border-t border-outline-variant dark:border-outline z-50">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim opacity-60 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim opacity-60 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">search</span>
+</a>
+<!-- Active Nav: Style Analysis Result matches 'checkroom' (closet/style) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed scale-110 translate-y-[-2px] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">checkroom</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim opacity-60 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for smooth layout appearance
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            // Apply to main sections
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        });
+    </script>
+</body></html>
